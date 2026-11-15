@@ -62,6 +62,19 @@ const LEGAL_SLUGS = {
 // stores: 'live' links to the listing; 'soon' shows a "coming soon" badge.
 // legal: the date each of its legal documents last changed, shown as "last updated" on the page.
 // A privacy policy and terms are required for every app (checked by --check); support is optional.
+// prices: the launch prices, the same on Google Play and the App Store, in US dollars, shown on the
+// app page, its FAQ and its structured data, labeled as launch prices until LAUNCH_PRICE_UNTIL.
+// A build after that date drops the label and priceValidUntil; --check fails until it is extended or removed.
+//
+// To extend the launch price, change only this date.
+const LAUNCH_PRICE_UNTIL = '2026-12-31';
+const launchPriceActive = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date()) <= LAUNCH_PRICE_UNTIL;
+const launchPriceLabel = (lang) => {
+  const day = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${LAUNCH_PRICE_UNTIL}T00:00:00Z`));
+  return lang === 'es' ? `Precio de lanzamiento · hasta el ${day}` : `Launch price · until ${day}`;
+};
+const usd = (n) => `US$${n.toFixed(2)}`;
+
 const apps = [
   {
     id: 'ojito',
@@ -213,6 +226,11 @@ const apps = [
     status: 'live',
     stores: { play: { status: 'live', url: PLAY('com.resumeroast.app') }, appStore: { status: 'soon' } },
     category: 'BusinessApplication',
+    prices: [
+      { usd: 0.99, en: '5 credits', es: '5 créditos' },
+      { usd: 2.99, en: '20 credits', es: '20 créditos' },
+      { usd: 6.99, en: '50 credits', es: '50 créditos' },
+    ],
     legal: { privacy: '2026-11-11', terms: '2026-11-11', support: '2026-11-11' },
     look: 'panels',
     shotSize: [540, 960],
@@ -255,7 +273,7 @@ const apps = [
         ['Fix it and export it', 'Rewrite your resume for that job, without inventing anything, and download a PDF that the filters can read.'],
       ],
       faq: [
-        ['How much does it cost?', 'You start with 3 free credits. One credit is one roast or one rewrite, and if the AI fails you get the credit back. Need more? Buy a pack once: no subscription, no ads and no account.'],
+        ['How much does it cost?', 'You start with 3 free credits. One credit is one roast or one rewrite, and if the AI fails you get the credit back. Need more? Buy a pack once: no subscription, no ads and no account.', 'prices'],
         ['Does the AI invent experience?', 'No. The rewrite reorganizes and sharpens what you already have for the job, but it never invents jobs, titles or experience.'],
         ['What happens to my resume?', 'To analyze it, your resume text goes through our server and an AI provider, and it isn’t stored. Your history, photo and PDFs stay on your phone. The privacy policy has the details.'],
         ['Which languages does it support?', 'The app is in English and Spanish, and your resume can come out in English, Spanish, Portuguese, French, Italian or German.'],
@@ -307,7 +325,7 @@ const apps = [
         ['Arréglalo y expórtalo', 'Reescribe tu CV para esa vacante, sin inventar nada, y descárgalo en un PDF que leen los filtros.'],
       ],
       faq: [
-        ['¿Cuánto cuesta?', 'Empiezas con 3 créditos gratis. Un crédito es un análisis o una reescritura, y si la IA falla te lo devolvemos. ¿Necesitas más? Compras un paquete una sola vez: sin suscripción, sin anuncios y sin cuenta.'],
+        ['¿Cuánto cuesta?', 'Empiezas con 3 créditos gratis. Un crédito es un análisis o una reescritura, y si la IA falla te lo devolvemos. ¿Necesitas más? Compras un paquete una sola vez: sin suscripción, sin anuncios y sin cuenta.', 'prices'],
         ['¿La IA inventa experiencia?', 'No. La reescritura ordena y mejora lo que ya tienes para esa vacante, pero nunca inventa trabajos, cargos ni experiencia.'],
         ['¿Qué pasa con mi CV?', 'Para analizarlo, el texto de tu CV pasa por nuestro servidor y por un proveedor de inteligencia artificial, y no se guarda. Tu historial, tu foto y tus PDF se quedan en tu celular. Los detalles están en la política de privacidad.'],
         ['¿En qué idiomas funciona?', 'La app está en español y en inglés, y tu CV puede salir en español, inglés, portugués, francés, italiano o alemán.'],
@@ -339,6 +357,10 @@ const apps = [
     status: 'soon',
     stores: { play: { status: 'soon' }, appStore: { status: 'soon' } },
     category: 'EducationalApplication',
+    prices: [
+      { usd: 0.99, en: '1 full interview', es: '1 entrevista completa' },
+      { usd: 1.99, en: '3 full interviews', es: '3 entrevistas completas' },
+    ],
     legal: { privacy: '2026-11-11', terms: '2026-11-11' },
     look: 'phone',
     shotSize: [441, 960],
@@ -388,7 +410,7 @@ const apps = [
       ],
       faq: [
         ['When does it launch?', 'We’re finishing testing. It’s coming soon to Google Play and the App Store: email us and we’ll tell you the day it launches.'],
-        ['How much will it cost?', 'Every day you get one free mini interview of 8 questions, with a score and a verdict. Full interviews with the full report are bought with credits, once, with no subscription.'],
+        ['How much will it cost?', 'Every day you get one free mini interview of 8 questions, with a score and a verdict. Full interviews with the full report are bought once, with no subscription.', 'prices'],
         ['Which language is the interview in?', 'Spanish or English. By default it follows the language of your resume, and you can change it before you start.'],
         ['Can I answer out loud?', 'Yes. Answer by typing or with your voice; your voice is turned into text and the audio is not kept.'],
         ['Do I need internet or an account?', 'You need internet during the interview. You don’t need to create an account.'],
@@ -437,7 +459,7 @@ const apps = [
       ],
       faq: [
         ['¿Cuándo sale?', 'Estamos terminando las pruebas. Muy pronto estará en Google Play y en App Store: escríbenos y te avisamos el día que salga.'],
-        ['¿Cuánto va a costar?', 'Cada día tienes una mini entrevista gratis de 8 preguntas, con puntaje y veredicto. Las entrevistas completas, con el informe completo, se compran con créditos, una sola vez y sin suscripción.'],
+        ['¿Cuánto va a costar?', 'Cada día tienes una mini entrevista gratis de 8 preguntas, con puntaje y veredicto. Las entrevistas completas, con el informe completo, se compran una sola vez y sin suscripción.', 'prices'],
         ['¿En qué idioma es la entrevista?', 'En español o en inglés. Por defecto sigue el idioma de tu CV, y puedes cambiarlo antes de empezar.'],
         ['¿Puedo responder hablando?', 'Sí. Respondes por escrito o con tu voz; tu voz se convierte en texto y el audio no se guarda.'],
         ['¿Necesito internet o una cuenta?', 'Necesitas internet durante la entrevista. No tienes que crear una cuenta.'],
@@ -1285,6 +1307,13 @@ function appPage(app, lang) {
   const offer = live ? availability(app, lang, notifyLink) + action : action + availability(app, lang);
   const fine = [p.cta?.note, p.disclaimer].filter(Boolean).map((n) => `<p>${esc(n)}</p>`);
   if (primary) fine.push(`<p>${t.mailFallback} <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`);
+  const priceList = (app.prices || []).map((x) => `${x[lang]}: ${usd(x.usd)}`);
+  const prices = app.prices
+    ? `<div class="prices">${launchPriceActive ? `<p class="price-label">${esc(launchPriceLabel(lang))}</p>` : ''}<ul>${app.prices
+        .map((x) => `<li><span>${esc(x[lang])}</span><b>${usd(x.usd)}</b></li>`)
+        .join('')}</ul></div>`
+    : '';
+  const faqAnswer = (a, extra) => (extra === 'prices' && app.prices ? `${a} ${launchPriceActive ? `${launchPriceLabel(lang)}: ` : ''}${priceList.join(', ')}.` : a);
   const share = `<a class="share-link" href="${whatsapp(`${p.share} ${url}`)}">${icons.whatsapp}${t.share}</a>`;
 
   const sec = t.sections;
@@ -1311,6 +1340,17 @@ function appPage(app, lang) {
         applicationCategory: app.category,
         image: `${SITE_URL}${app.icon}`,
         publisher: organization,
+        ...(app.prices
+          ? {
+              offers: app.prices.map((x) => ({
+                '@type': 'Offer',
+                name: x[lang],
+                price: x.usd.toFixed(2),
+                priceCurrency: 'USD',
+                ...(launchPriceActive ? { priceValidUntil: LAUNCH_PRICE_UNTIL } : {}),
+              })),
+            }
+          : {}),
         ...(hasLiveStore(app) ? { installUrl: Object.values(app.stores).find((s) => s.status === 'live').url } : {}),
       },
     }) +
@@ -1334,6 +1374,7 @@ function appPage(app, lang) {
             <h1>${rich(p.headline)}</h1>
             <p class="lead">${esc(p.lead)}</p>
             ${offer}
+            ${prices}
             <div class="fine">${fine.join('')}</div>
             ${share}
           </div>
@@ -1397,8 +1438,8 @@ function appPage(app, lang) {
         </div>
         <div class="faq">${p.faq
           .map(
-            ([q, a]) => `
-          <details class="reveal"><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(a)}</p></details>`
+            ([q, a, extra]) => `
+          <details class="reveal"><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(faqAnswer(a, extra))}</p></details>`
           )
           .join('')}
         </div>
@@ -2157,6 +2198,8 @@ function run() {
       if (p[lang]?.screenAlt?.length < Math.min(2, p.screens(lang).length)) problems.push(`project ${p.id}: ${lang} screenAlt must describe its screens`);
     }
   }
+
+  if (check && !launchPriceActive) problems.push(`LAUNCH_PRICE_UNTIL ${LAUNCH_PRICE_UNTIL} has passed: extend it or remove the launch price`);
 
   for (const [name, body] of Object.entries(files)) {
     if (/@gmail\.com/i.test(body)) problems.push(`${name}: contains a Gmail address; use ${EMAIL}`);

@@ -77,9 +77,12 @@ Todo sale de `scripts/build.mjs`: los textos, los enlaces, el estado de las tien
 ```sh
 node scripts/build.mjs          # vuelve a escribir las páginas en site/
 node scripts/build.mjs --check  # falla si site/ no está al día, si hay un enlace roto,
-                                # si una app no tiene su privacidad y sus términos
-                                # o si alguna página enlaza a github.io
+                                # si una app no tiene su privacidad y sus términos,
+                                # si alguna página enlaza a github.io
+                                # o si ya pasó LAUNCH_PRICE_UNTIL
 ```
+
+Los precios de Resume Roast y Roast Interview están en `prices` de cada app y se muestran como precio de lanzamiento hasta `LAUNCH_PRICE_UNTIL` (hora de Bogotá). Para extenderlo se cambia solo esa fecha; si ya pasó, `--check` falla hasta que se extienda o se quite.
 
 Después se hace commit de `scripts/build.mjs` y de `site/` juntos. El flujo `.github/workflows/pages.yml` corre `--check` en cada PR y publica `site/` cuando entra a `main`.
 
