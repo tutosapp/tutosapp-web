@@ -1855,6 +1855,35 @@ h2 em {
   color: var(--muted);
 }
 
+.prices {
+  max-width: 24em;
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+  border-radius: 14px;
+}
+
+.price-label {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.prices ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prices li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .fine a {
   color: var(--text);
   text-decoration: underline;
