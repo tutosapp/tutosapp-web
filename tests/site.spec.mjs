@@ -213,3 +213,33 @@ for (const path of ['/', '/en/']) {
     await expect(page.locator(`a.store[href="${OJITO_APP_STORE}"]`).first()).toBeAttached();
   });
 }
+
+// "Our work" cards stack as the page scrolls: each card stays put once it is on screen and the
+// next one slides over it. With reduced motion they simply scroll.
+const tops = (page) => page.locator('.work-card').evaluateAll((cards) => cards.map((c) => c.getBoundingClientRect().top));
+for (const path of ['/', '/en/', '/servicios/', '/en/services/']) {
+  test(`${path} work cards stack on scroll, and scroll normally with reduced motion`, async ({ page }) => {
+    await page.goto(path);
+    const cards = page.locator('.work-card');
+    expect(await cards.count()).toBeGreaterThan(1);
+    await expect(cards.first()).toHaveCSS('position', 'sticky');
+
+    // Scroll until the second card is halfway up the screen: the first card has stopped, with its
+    // whole bottom edge on screen, and the second one covers part of it.
+    const { innerHeight } = await page.evaluate(() => ({ innerHeight }));
+    const second = await cards.nth(1).evaluate((c) => c.getBoundingClientRect().top + scrollY);
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), second - innerHeight / 2);
+    const before = await tops(page);
+    await page.mouse.wheel(0, 200);
+    await expect.poll(async () => (await tops(page))[1]).toBeLessThan(before[1] - 150);
+    const after = await tops(page);
+    expect(after[0]).toBeCloseTo(before[0], 0);
+    const first = await cards.first().boundingBox();
+    expect(first.y + first.height).toBeLessThanOrEqual(innerHeight);
+    expect(after[1]).toBeLessThan(first.y + first.height);
+    expect(await cards.nth(1).evaluate((c) => document.elementFromPoint(innerWidth / 2, c.getBoundingClientRect().top + 40)?.closest('.work-card') === c)).toBe(true);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(cards.first()).toHaveCSS('position', 'relative');
+  });
+}

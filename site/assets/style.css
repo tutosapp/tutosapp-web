@@ -3430,8 +3430,21 @@ h2 em {
   }
 }
 
-/* App cards stack on top of each other as the page scrolls, where the screen is tall enough
-   to show a whole card. */
+/* "Our work" cards stack on top of each other as the page scrolls. Each card stops a little
+   lower than the one before, below the menu bar, or, when it is taller than the screen, once
+   its bottom is on screen, and the next card slides over it. assets/stack.js measures each
+   card's height (--h) and turns this on. */
+@media (prefers-reduced-motion: no-preference) {
+  .work-list.stacking .work-card {
+    position: sticky;
+    top: min(calc(96px + var(--i) * 22px), calc(100svh - var(--h) - 16px));
+  }
+
+  /* A keyboard-focused link is never hidden under the next card. */
+  .work-list.stacking .work-card:has(:focus-visible) {
+    z-index: 1;
+  }
+}
 
 @media (max-width: 860px) {
   .nav-menu {
