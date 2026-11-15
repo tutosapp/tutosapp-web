@@ -150,19 +150,20 @@
       .map((s) => `${s.dataset.label}: ${answer(s)}`)
       .join('\n');
 
-  function fallback(why) {
+  function fallback(why, quiet) {
     const text = summary();
     fail.querySelector('.fail-why').textContent = why;
     fail.querySelector('.fail-mail').href = `mailto:${S.email}?subject=${encodeURIComponent(S.mailSubject)}&body=${encodeURIComponent(`${text}\n`)}`;
     fail.querySelector('.fail-wa').href = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(`${S.mailSubject}\n\n${text}`)}`;
-    finish(fail);
+    finish(fail, quiet);
   }
 
-  function finish(panel) {
+  // Shows the result and moves the focus to it, scrolling it into view unless `quiet`.
+  function finish(panel, quiet) {
     form.hidden = true;
     panel.hidden = false;
     root.style.setProperty('--progress', '1');
-    panel.focus({ preventScroll: true });
+    panel.focus({ preventScroll: quiet });
   }
 
   async function send() {
@@ -181,6 +182,8 @@
       sitio: form.elements.sitio.value,
     };
 
+    const inPanel = () => Boolean(root.closest('dialog'));
+    const fromPanel = inPanel();
     next.disabled = true;
     back.disabled = true;
     next.textContent = S.sending;
@@ -203,13 +206,15 @@
       back.disabled = false;
       next.textContent = S.send;
     }
+    // Sent from the floating panel and closed since: the visitor is elsewhere, so the page stays put.
+    const quiet = fromPanel && !inPanel();
     if (status >= 200 && status < 300) {
       const title = done.querySelector('.thanks-title');
       title.textContent = title.dataset.template.replace('{nombre}', body.nombre.split(/\s+/)[0]);
-      finish(done);
-    } else if (status === 400) fallback(S.fail.datos);
-    else if (status === 429) fallback(S.fail.limite);
-    else fallback(S.fail.red);
+      finish(done, quiet);
+    } else if (status === 400) fallback(S.fail.datos, quiet);
+    else if (status === 429) fallback(S.fail.limite, quiet);
+    else fallback(S.fail.red, quiet);
   }
 
   show(0, false);
@@ -276,6 +281,7 @@
   }
 
   function showCue() {
+    if (remembered()) return hideCue();
     cueDue = false;
     cueDone = true;
     remember();
@@ -351,6 +357,8 @@
   form.addEventListener('input', hideCue, { once: true });
   addEventListener('scroll', schedule, { passive: true });
   addEventListener('resize', schedule);
+  // Back to this page after using the chat on another one: the hint stays away here too.
+  addEventListener('pageshow', (e) => e.persisted && remembered() && hideCue());
   if (!cueDone) {
     cueTimer = setTimeout(() => {
       cueDue = !cueDone;

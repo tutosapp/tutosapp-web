@@ -5,7 +5,8 @@
 // back, answers and all; the button steps aside on their contact section. A result that arrives
 // after the panel was closed does not move the page. The page for a missing path has the launcher
 // too. The hint shows once per visit, can be dismissed, never shows once the chat was opened or
-// used, and never with reduced motion.
+// used (also on a page the browser restores on Back), and never with reduced motion. A result in
+// the chat of the contact section is scrolled into view.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { apps, home, services, companyPrivacy, legalPages, CONTACT_ENDPOINT } from '../scripts/build.mjs';
@@ -185,6 +186,30 @@ test('a result that arrives after the panel was closed does not move the page', 
   await expect(sheet(page).locator('.chat-done')).toBeFocused();
 });
 
+test('a result for the chat of the contact section is scrolled into view', async ({ page }) => {
+  await page.route(CONTACT_ENDPOINT, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }));
+  await page.goto('/' + home.paths.es);
+  await page.locator('section #brief').scrollIntoViewIfNeeded();
+  await page.locator('#brief-nombre').fill('Ana María');
+  await page.keyboard.press('Enter');
+  await page.locator('#brief-contacto').fill('ana@example.com');
+  await page.keyboard.press('Enter');
+  await page.locator('.chat-skip').click();
+  await page.locator('#brief-idea').fill('Una app para pedir turnos en peluquerías de barrio.');
+  await page.locator('.chat-next').click();
+  for (const key of ['tipo', 'plazo', 'presupuesto', 'nda']) {
+    await page.locator(`.q.active[data-key=${key}] .choice`).first().click();
+    await expect(page.locator('.q.active')).not.toHaveAttribute('data-key', key);
+  }
+  await page.locator('#brief-consentimiento').check();
+  // The visitor has the send button at the top of the screen, the start of the chat above it.
+  await page.locator('.chat-controls').evaluate((bar) => bar.scrollIntoView({ block: 'start', behavior: 'instant' }));
+  await expect(page.locator('#brief .chat-head')).not.toBeInViewport();
+  await page.locator('.chat-next').click();
+  await expect(page.locator('section .chat-done')).toBeFocused();
+  await expect(page.locator('section .chat-done')).toBeInViewport();
+});
+
 test('the page for a missing path has the launcher, the chat and its privacy link', async ({ page, baseURL }) => {
   // That page loads everything from the published site; here the same paths come from this build.
   await page.route('https://tutosapp.co/**', async (route) => {
@@ -287,6 +312,40 @@ test.describe('launcher hint', () => {
     await page.clock.runFor(30_000);
     await expect(page.locator('.chat-cue')).toBeHidden();
     await expect(fab(page)).toBeVisible();
+  });
+
+  test('never shows on a page restored after the chat was used on another one', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/' + ojito.paths.es);
+    await page.clock.runFor(3000);
+    // What the browser does on Back: the page comes back as it was, with the visit's memory of the
+    // chat used elsewhere, and says so with a persisted pageshow.
+    await page.evaluate(() => {
+      sessionStorage.setItem('tutosapp-chat-cue', '1');
+      dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+    });
+    await page.clock.runFor(30_000);
+    await expect(page.locator('.chat-cue')).toBeHidden();
+    await expect(fab(page)).not.toHaveClass(/is-nudging/);
+  });
+
+  test('goes away on a page restored after the chat was used on another one', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/' + ojito.paths.es);
+    await page.clock.runFor(8000);
+    await expect(page.locator('.chat-cue')).toBeVisible();
+    await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+    await expect(page.locator('.chat-cue')).toBeHidden();
+  });
+
+  test('never shows once the visit remembers the chat, even without a restore event', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/' + ojito.paths.es);
+    await page.clock.runFor(3000);
+    await page.evaluate(() => sessionStorage.setItem('tutosapp-chat-cue', '1'));
+    await page.clock.runFor(30_000);
+    await expect(page.locator('.chat-cue')).toBeHidden();
+    await expect(fab(page)).not.toHaveClass(/is-nudging/);
   });
 
   test('stays hidden on its own after a while', async ({ page }) => {
