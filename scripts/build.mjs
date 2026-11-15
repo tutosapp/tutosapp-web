@@ -808,6 +808,11 @@ const services = {
       status: 'Te respondemos en menos de 2 días hábiles',
       hello: 'Hola, somos Tutos App. Son 9 preguntas cortas y te escribimos en menos de 2 días hábiles.',
       mailSubject: 'Nueva idea de app desde tutosapp.co',
+      // The floating launcher on every page, its one-time hint and the panel's close button.
+      launcher: 'Abrir el chat: Cuéntanos tu idea',
+      cue: '¿Tienes una idea de app? Escríbenos',
+      cueClose: 'Cerrar el aviso',
+      close: 'Cerrar el chat',
       steps: [
         { key: 'nombre', label: 'Nombre', q: '¿Cómo te llamas?', input: 'text', autocomplete: 'name', placeholder: 'Tu nombre', min: 1, max: 120 },
         { key: 'contacto', label: 'Contacto', q: '¿Dónde te escribimos? Tu correo o tu WhatsApp.', input: 'text', autocomplete: 'email', placeholder: 'tu@correo.com o +57 300 000 0000', min: 3, max: 160 },
@@ -944,6 +949,10 @@ const services = {
       status: 'We reply within 2 business days',
       hello: 'Hi, we are Tutos App. Nine short questions, and we write back within 2 business days.',
       mailSubject: 'New app idea from tutosapp.co',
+      launcher: 'Open the chat: Tell us your idea',
+      cue: 'Have an app idea? Chat with us',
+      cueClose: 'Dismiss',
+      close: 'Close the chat',
       steps: [
         { key: 'nombre', label: 'Name', q: 'What is your name?', input: 'text', autocomplete: 'name', placeholder: 'Your name', min: 1, max: 120 },
         { key: 'contacto', label: 'Contact', q: 'Where should we write to you? Your email or WhatsApp.', input: 'text', autocomplete: 'email', placeholder: 'you@company.com or +1 555 000 0000', min: 3, max: 160 },
@@ -1164,7 +1173,27 @@ function legalLinks(app, lang, path) {
     .join('');
 }
 
-function footer({ lang, path, only }) {
+// The "Tell us your idea" chat on every page: a round button in the bottom-right corner that
+// opens the chat in a panel (a modal <dialog>, full screen on a phone), and a one-time hint next
+// to it. Pages with the chat in their contact section (chat: 'inline') move that same chat into
+// the panel; every other page carries its own copy in the panel. assets/brief.js runs it all, so
+// without JavaScript the button stays hidden.
+function chatLauncher(lang, path, chat) {
+  const c = services[lang].chat;
+  const close = svg('<path d="M6 6l12 12M18 6 6 18"/>', 20, 2.2);
+  return `
+    <dialog class="chat-sheet" id="chat-sheet" aria-labelledby="brief-title">
+      <button class="chat-close" type="button" aria-label="${esc(c.close)}">${close}</button>
+      <div class="chat-slot">${chat === 'inline' ? '' : briefForm(lang, path)}</div>
+    </dialog>
+    <div class="chat-float" hidden>
+      <p class="chat-cue" hidden><button class="chat-cue-open" type="button">${esc(c.cue)}</button><button class="chat-cue-close" type="button" aria-label="${esc(c.cueClose)}">${svg('<path d="M6 6l12 12M18 6 6 18"/>', 16, 2.4)}</button></p>
+      <button class="chat-fab" type="button" aria-label="${esc(c.launcher)}" aria-haspopup="dialog" aria-controls="chat-sheet" aria-expanded="false">${svg('<path d="M20.5 11.5a8 8 0 0 1-11.8 7.1L3.5 20l1.4-4.9A8 8 0 1 1 20.5 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>', 26, 2)}</button>
+    </div>
+    ${briefScript(path)}`;
+}
+
+function footer({ lang, path, only, chat = 'sheet' }) {
   const t = ui[lang];
   const h = home[lang];
   // The home footer lists every app; an app page's footer is about that app alone.
@@ -1194,7 +1223,7 @@ function footer({ lang, path, only }) {
         </div>
       </div>
       <p class="wordmark" aria-hidden="true">Tutos App</p>
-    </footer>
+    </footer>${chatLauncher(lang, path, chat)}
   </body>
 </html>
 `;
@@ -1798,7 +1827,7 @@ function briefForm(lang, path) {
   return `<div class="chat" id="brief">
           <div class="chat-head">
             <span class="orb-wrap" aria-hidden="true" style="${orbStyle()}"><span class="orb"></span></span>
-            <div><p class="chat-title">${esc(c.title)}</p><p class="chat-status"><span class="pulse" aria-hidden="true"></span>${esc(c.status)}</p></div>
+            <div><p class="chat-title" id="brief-title">${esc(c.title)}</p><p class="chat-status"><span class="pulse" aria-hidden="true"></span>${esc(c.status)}</p></div>
           </div>
           <form class="brief" action="mailto:${EMAIL}?subject=${encodeURIComponent(c.mailSubject)}" method="post" enctype="text/plain" data-endpoint="${esc(CONTACT_ENDPOINT)}" data-whatsapp="${WHATSAPP}">
             <p class="bubble bot">${esc(c.hello)}</p>${c.steps.map(step).join('')}
@@ -2011,9 +2040,8 @@ function servicesPage(lang) {
 
       ${contactSection(lang, path, 6, s.contactId)}
     </main>
-    ${briefScript(path)}
     ${stackScript(path)}` +
-    footer({ lang, path })
+    footer({ lang, path, chat: 'inline' })
   );
 }
 
@@ -2107,9 +2135,8 @@ function homePage(lang) {
 
       ${contactSection(lang, path, 5, h.contactId)}
     </main>
-    ${briefScript(path)}
     ${stackScript(path)}` +
-    footer({ lang, path })
+    footer({ lang, path, chat: 'inline' })
   );
 }
 

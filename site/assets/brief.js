@@ -213,4 +213,141 @@
   }
 
   show(0, false);
+
+  // The floating launcher: a round button in the corner of every page that opens this chat in a
+  // panel (a modal dialog, so the rest of the page is inert, Tab stays inside and Esc closes it).
+  // On a page with the chat in its contact section, the panel borrows that same chat, answers
+  // and all, and gives it back on close. The button steps aside while the chat is open, while the
+  // contact section is on screen and while a button or store badge of the page passes under it.
+  // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion.
+  const sheet = document.getElementById('chat-sheet');
+  const float = document.querySelector('.chat-float');
+  if (!sheet || !float || !sheet.showModal) return;
+  const fab = float.querySelector('.chat-fab');
+  const cue = float.querySelector('.chat-cue');
+  const slot = sheet.querySelector('.chat-slot');
+  const inline = !slot.contains(root);
+  const section = inline ? root.closest('section') || root.parentElement : null;
+  const CUE_KEY = 'tutosapp-chat-cue';
+  const remembered = () => {
+    try {
+      return sessionStorage.getItem(CUE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  };
+  const remember = () => {
+    try {
+      sessionStorage.setItem(CUE_KEY, '1');
+    } catch {
+      // Private mode or blocked storage: the hint may show again on the next page, still once each.
+    }
+  };
+  let spacer = null;
+  let cueDue = false;
+  let cueDone = remembered() || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cueTimer = 0;
+  let frame = 0;
+
+  const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const covers = () => {
+    const r = fab.getBoundingClientRect();
+    if (!r.width) return false;
+    const zone = { left: r.left - 8, right: r.right + 8, top: r.top - 8, bottom: r.bottom + 8 };
+    return [...document.querySelectorAll('main :is(.btn, .store)')].some((el) => {
+      const b = el.getBoundingClientRect();
+      return b.width > 0 && overlaps(zone, b);
+    });
+  };
+  const contactShown = () => {
+    if (!section) return false;
+    const r = section.getBoundingClientRect();
+    return r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
+  };
+
+  function hideCue() {
+    clearTimeout(cueTimer);
+    cueDue = false;
+    cueDone = true;
+    cue.hidden = true;
+  }
+
+  function showCue() {
+    cueDue = false;
+    cueDone = true;
+    remember();
+    cue.hidden = false;
+    fab.classList.add('is-nudging');
+    cueTimer = setTimeout(hideCue, 12000);
+  }
+
+  // Shows or hides the button (and the hint) for where the page is now.
+  function update() {
+    frame = 0;
+    float.hidden = false;
+    const away = sheet.open || contactShown();
+    float.classList.toggle('is-away', away);
+    float.classList.toggle('is-tucked', !away && covers());
+    const shown = !float.classList.contains('is-away') && !float.classList.contains('is-tucked');
+    if (!cue.hidden && !shown) hideCue();
+    else if (cueDue && shown) showCue();
+  }
+  const schedule = () => frame || (frame = requestAnimationFrame(update));
+
+  function open() {
+    hideCue();
+    if (inline) {
+      spacer = el('div', 'chat-spacer');
+      spacer.style.height = `${root.offsetHeight}px`;
+      root.replaceWith(spacer);
+      slot.append(root);
+    }
+    sheet.showModal();
+    fab.setAttribute('aria-expanded', 'true');
+    update();
+    if (!form.hidden) show(at, true);
+    else (done.hidden ? fail : done).focus();
+  }
+
+  sheet.addEventListener('close', () => {
+    if (spacer) {
+      spacer.replaceWith(root);
+      spacer = null;
+    }
+    fab.setAttribute('aria-expanded', 'false');
+    update();
+    if (!float.classList.contains('is-away') && !float.classList.contains('is-tucked')) fab.focus({ preventScroll: true });
+  });
+  // The modal dialog makes the page inert, but Tab can still leave it for the browser's own
+  // controls; wrap it from the last control to the first and back instead.
+  sheet.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const stops = [...sheet.querySelectorAll('a[href], button, input, textarea')].filter((n) => !n.disabled && n.tabIndex >= 0 && n.getClientRects().length);
+    const first = stops[0];
+    const last = stops.at(-1);
+    const now = document.activeElement;
+    if (e.shiftKey ? now === first || !sheet.contains(now) : now === last || !sheet.contains(now)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    }
+  });
+  // A click on the dimmed page around the panel closes it.
+  sheet.addEventListener('click', (e) => e.target === sheet && sheet.close());
+  sheet.querySelector('.chat-close').addEventListener('click', () => sheet.close());
+  fab.addEventListener('click', open);
+  cue.querySelector('.chat-cue-open').addEventListener('click', open);
+  cue.querySelector('.chat-cue-close').addEventListener('click', () => {
+    hideCue();
+    fab.focus({ preventScroll: true });
+  });
+  fab.addEventListener('animationend', () => fab.classList.remove('is-nudging'));
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  if (!cueDone) {
+    cueTimer = setTimeout(() => {
+      cueDue = !cueDone;
+      update();
+    }, 7000);
+  }
+  update();
 })();
