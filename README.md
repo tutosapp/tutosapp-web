@@ -84,6 +84,8 @@ node scripts/build.mjs --check  # falla si site/ no está al día, si hay un enl
 
 Los precios de Resume Roast y Roast Interview están en `prices` de cada app y se muestran como precio de lanzamiento hasta `LAUNCH_PRICE_UNTIL` (hora de Bogotá). Para extenderlo se cambia solo esa fecha; si ya pasó, `--check` falla hasta que se extienda o se quite.
 
+Cuando sale una versión nueva de Ojito se cambia `OJITO_VERSION` y, en los dos idiomas, la última pregunta frecuente de su página, que cuenta qué trae esa versión; el número también va en los datos estructurados (`softwareVersion`). Si la versión cambia algo que el soporte o las políticas describen, se cambian también esos textos (ver [Páginas legales](#páginas-legales)).
+
 Después se hace commit de `scripts/build.mjs` y de `site/` juntos. El flujo `.github/workflows/pages.yml` corre `--check` en cada PR y publica `site/` cuando entra a `main`.
 
 Las páginas cargan `style.css` con un hash de su contenido en la dirección (`style.css?v=…`). Así un navegador que todavía tenga guardada una versión vieja de la hoja de estilos no la mezcla con páginas nuevas (eso dejó el sitio publicado sin estilos por un rato). Por eso, después de cambiar `style.css` también hay que correr `node scripts/build.mjs`; `--check` falla si no. Lo mismo vale para `brief.js` y `stack.js`, que se cargan como `brief.js?v=…` y `stack.js?v=…`.

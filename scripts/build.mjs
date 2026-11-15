@@ -75,6 +75,10 @@ const launchPriceLabel = (lang) => {
 };
 const usd = (n) => `US$${n.toFixed(2)}`;
 
+// The Ojito version that is live in a store. Its page says what that version brought (the last FAQ
+// answer) and its structured data carries the number, so change both together on each release.
+const OJITO_VERSION = '0.1.17';
+
 const apps = [
   {
     id: 'ojito',
@@ -87,10 +91,11 @@ const apps = [
     icon: 'assets/img/ojito/icon.png',
     paths: { es: 'ojito/', en: 'ojito/en/' },
     status: 'live',
+    version: OJITO_VERSION,
     // iPhone: live on the App Store since 2026-11-12. Android: still closed testing, joined by email (cta).
     stores: { play: { status: 'soon', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
     category: 'FoodAndDrinkApplication',
-    legal: { privacy: '2026-11-14', terms: '2026-11-14', support: '2026-11-11' },
+    legal: { privacy: '2026-11-14', terms: '2026-11-14', support: '2026-11-15' },
     look: 'panels',
     shotSize: [540, 960],
     shots: (lang) =>
@@ -133,12 +138,14 @@ const apps = [
         ['Entiende el porqué', 'Toca "Ver por qué" para ver qué pesó en el puntaje, y mira otras opciones parecidas con mejor puntaje.'],
       ],
       faq: [
-        ['¿Para qué productos sirve?', 'Para comida empacada y productos de cuidado personal con código de barras. Si un producto no aparece, le tomas una foto a la tabla nutricional y a los ingredientes, y la inteligencia artificial de Ojito los lee.'],
+        ['¿Para qué productos sirve?', 'Para comida empacada y productos de cuidado personal con código de barras, también los que no traen tabla nutricional. Si un producto no aparece, le tomas una foto a la tabla nutricional y a los ingredientes, y la inteligencia artificial de Ojito los lee.'],
+        ['¿Quién revisa un producto que yo envío?', 'La inteligencia artificial de Ojito revisa las fotos sola. Una persona del equipo solo las ve cuando la inteligencia artificial no puede decidir o el caso es delicado, como los alérgenos o la comida para bebés.'],
         ['¿Cómo sabe si es bueno para mi bebé?', 'Solo te pide la edad, nunca el nombre ni fotos. Con eso, debajo de tu resultado ves una línea para tu bebé, para el embarazo o la lactancia, o para otro adulto de tu casa, con la razón en pocas palabras.'],
         ['¿Ojito reemplaza al pediatra o al médico?', 'No. Ojito no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad. Te ayuda a leer la etiqueta. Si no ves una alerta, no quiere decir que el producto no tenga ese alérgeno: revisa siempre el empaque.'],
         ['¿Necesito crear una cuenta?', 'No. Abres la app y escaneas. Los datos de tu familia se quedan en tu celular.'],
         ['¿Cuánto cuesta?', 'Escanear, ver el resultado, el porqué, las alertas de tu familia y otras opciones no tiene costo. Más adelante habrá una suscripción opcional, Ojito Familia, con el historial completo y la lista de compras.'],
         ['¿Dónde la descargo?', 'Ojito ya está en App Store para iPhone. En Android está en pruebas y muy pronto estará en Google Play: si quieres probarla antes, escríbenos y te sumamos al grupo de prueba.'],
+        [`¿Qué trae la versión ${OJITO_VERSION}?`, 'Ojito ya califica productos que no traen tabla nutricional, y la inteligencia artificial revisa sola los productos que envía la comunidad. Ajustes quedó más ordenado: ahí ves la versión que tienes instalada y la opción "Enviar reporte o sugerencia" para escribirnos.'],
       ],
       cta: {
         label: 'Probarla en Android',
@@ -155,7 +162,7 @@ const apps = [
         shows: 'Visión por computador y reglas de nutrición',
         problem: 'Leer una etiqueta en el supermercado toma tiempo, y lo que le sirve a un adulto no siempre le sirve a un bebé.',
         built: 'Una app que lee el código de barras y responde Bueno, Regular o Evítalo para cada persona de la casa, con el porqué, según los sellos de advertencia colombianos, los aditivos y las alergias.',
-        ai: ['Lectura de códigos de barras con la cámara', 'IA que lee la tabla nutricional y los ingredientes en una foto', 'Reglas de nutrición por edad y alergias'],
+        ai: ['Lectura de códigos de barras con la cámara', 'IA que lee la etiqueta en una foto y revisa los productos que envía la comunidad', 'Reglas de nutrición por edad y alergias'],
       },
     },
     en: {
@@ -190,12 +197,14 @@ const apps = [
         ['Understand why', 'Tap "See why" to learn what drove the score, and see similar options with a better score.'],
       ],
       faq: [
-        ['Which products does it work with?', 'Packaged food and personal-care products with a barcode. If a product is missing, take a photo of the nutrition table and the ingredients, and Ojito’s AI reads them.'],
+        ['Which products does it work with?', 'Packaged food and personal-care products with a barcode, including those with no nutrition table. If a product is missing, take a photo of the nutrition table and the ingredients, and Ojito’s AI reads them.'],
+        ['Who reviews a product I send in?', 'Ojito’s AI reviews the photos on its own. A person on the team only sees them when the AI can’t decide or the case is sensitive, such as allergens or baby food.'],
         ['How does it know what’s good for my baby?', 'It only asks for their age, never a name or photos. Below your result you then see a line for your baby, for pregnancy or breastfeeding, or for another adult at home, with the reason in a few words.'],
         ['Does Ojito replace a pediatrician or doctor?', 'No. Ojito is not a medical device and does not diagnose, treat, cure or prevent any disease. It helps you read the label. No alert doesn’t mean the product is free of that allergen: always check the package.'],
         ['Do I need an account?', 'No. Open the app and scan. Your family’s details stay on your phone.'],
         ['How much does it cost?', 'Scanning, the result, the reasons, your family’s alerts and other options cost nothing. An optional subscription, Ojito Familia, will later add full history and a shopping list.'],
         ['Where can I get it?', 'Ojito is on the App Store for iPhone. On Android it’s in testing and coming soon to Google Play: to try it early, email us and we’ll add you to the testing group.'],
+        [`What’s new in version ${OJITO_VERSION}?`, 'Ojito now rates products that have no nutrition table, and its AI reviews the products the community sends in on its own. Settings is tidier: it shows the version you have installed and an option to send us a report or suggestion.'],
       ],
       cta: {
         label: 'Try it on Android',
@@ -209,7 +218,7 @@ const apps = [
         shows: 'Computer vision and nutrition rules',
         problem: 'Reading a label at the supermarket takes time, and what works for an adult does not always work for a baby.',
         built: 'An app that reads the barcode and answers Good, Fair or Avoid for each person at home, with the reason, based on Colombian warning labels, additives and allergies.',
-        ai: ['Barcode reading with the camera', 'AI that reads the nutrition table and ingredients from a photo', 'Nutrition rules by age and allergy'],
+        ai: ['Barcode reading with the camera', 'AI that reads the label from a photo and reviews products the community sends in', 'Nutrition rules by age and allergy'],
       },
     },
   },
@@ -1379,6 +1388,7 @@ function appPage(app, lang) {
         url,
         inLanguage: lang,
         operatingSystem: 'Android, iOS',
+        ...(app.version ? { softwareVersion: app.version } : {}),
         applicationCategory: app.category,
         image: `${SITE_URL}${app.icon}`,
         publisher: organization,
