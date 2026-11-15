@@ -3251,6 +3251,62 @@ h2 em {
   color: #0c0b12;
 }
 
+/* How a send ended after the panel was closed: "sent" (a line that goes away) or "not sent" (a
+   button that opens the panel again, with a dot on the round button). */
+.chat-note {
+  max-width: min(280px, calc(100vw - 32px));
+}
+
+.chat-note:empty {
+  position: absolute;
+}
+
+.chat-note-open,
+.chat-toast {
+  min-height: 44px;
+  padding: 10px 16px;
+  margin: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #0c0b12;
+  text-align: left;
+  pointer-events: auto;
+  background: #fff;
+  border: 1px solid rgb(12 11 18 / 10%);
+  border-radius: 18px 18px 6px;
+  box-shadow: 0 18px 40px -16px rgb(12 11 18 / 45%);
+
+  --focus: #5b3df5;
+}
+
+.chat-note-open {
+  cursor: pointer;
+  border-color: #c4281c;
+}
+
+.chat-toast {
+  display: flex;
+  align-items: center;
+}
+
+.chat-fab.has-alert {
+  position: relative;
+}
+
+.chat-fab.has-alert::after {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  content: "";
+  background: #c4281c;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
 .chat-sheet {
   width: min(420px, 100% - 32px);
   max-width: none;
@@ -3327,7 +3383,8 @@ h2 em {
 /* The hint pops in once and the button bounces once; nothing repeats. Off with reduced motion
    (assets/brief.js then never shows the hint at all). */
 @media (prefers-reduced-motion: no-preference) {
-  .chat-cue:not([hidden]) {
+  .chat-cue:not([hidden]),
+  .chat-note > * {
     transform-origin: bottom right;
     animation: cue-in 0.35s var(--spring);
   }

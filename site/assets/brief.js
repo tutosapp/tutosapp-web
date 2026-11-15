@@ -13,6 +13,10 @@
   const done = root.querySelector('.chat-done');
   const fail = root.querySelector('.chat-fail');
   let at = 0;
+  // Says how a send ended when the floating panel was closed meanwhile; set by the launcher below.
+  let notice = () => {};
+  // Whether the floating panel has shown the chat since the current send started.
+  let inPanel = false;
   let advance;
   let pointer = 0;
 
@@ -182,8 +186,8 @@
       sitio: form.elements.sitio.value,
     };
 
-    let closed = false;
-    sheet?.addEventListener('close', () => (closed = true), { once: true });
+    notice();
+    inPanel = Boolean(sheet?.open);
     next.disabled = true;
     back.disabled = true;
     next.textContent = S.sending;
@@ -207,16 +211,27 @@
       next.textContent = S.send;
     }
     // The floating panel was closed while this was on its way: the visitor is elsewhere, so the
-    // page and the focus stay put. Opening the panel again shows the result.
-    const quiet = closed && !sheet.open;
-    if (status >= 200 && status < 300) {
+    // page and the focus stay put, and a notice by the floating button says how it went. Opening
+    // the panel again shows the result.
+    const quiet = inPanel && !sheet.open;
+    const ok = status >= 200 && status < 300;
+    if (ok) {
       const title = done.querySelector('.thanks-title');
       title.textContent = title.dataset.template.replace('{nombre}', body.nombre.split(/\s+/)[0]);
       finish(done, quiet);
     } else if (status === 400) fallback(S.fail.datos, quiet);
     else if (status === 429) fallback(S.fail.limite, quiet);
     else fallback(S.fail.red, quiet);
+    if (quiet) notice(ok ? S.notice.sent : S.notice.failed, !ok);
   }
+
+  // After a failed send: back to the last question, sending again with the same answers.
+  fail.querySelector('.fail-retry').addEventListener('click', () => {
+    fail.hidden = true;
+    form.hidden = false;
+    show(at, true);
+    send();
+  });
 
   show(0, false);
 
@@ -227,11 +242,14 @@
   // contact section is on screen and while a button or store badge of the page passes under it.
   // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion,
   // and never once the visitor has opened the chat, answered in it or dismissed the hint.
+  // If a send ends after the panel was closed, a short notice by the button says so: sent (it goes
+  // away by itself) or not sent (it stays, with a dot on the button, until the panel is opened).
   const sheet = document.getElementById('chat-sheet');
   const float = document.querySelector('.chat-float');
   if (!sheet || !float || !sheet.showModal) return;
   const fab = float.querySelector('.chat-fab');
   const cue = float.querySelector('.chat-cue');
+  const note = float.querySelector('.chat-note');
   const slot = sheet.querySelector('.chat-slot');
   const inline = !slot.contains(root);
   const section = inline ? root.closest('section') || root.parentElement : null;
@@ -255,6 +273,7 @@
   let cueDue = false;
   let cueDone = remembered() || matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cueTimer = 0;
+  let noteTimer = 0;
   let frame = 0;
 
   const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
@@ -304,8 +323,23 @@
   }
   const schedule = () => frame || (frame = requestAnimationFrame(update));
 
+  notice = (text, failed = false) => {
+    clearTimeout(noteTimer);
+    note.replaceChildren();
+    fab.classList.toggle('has-alert', failed);
+    if (!text) return;
+    const item = el(failed ? 'button' : 'p', failed ? 'chat-note-open' : 'chat-toast', text);
+    if (failed) {
+      item.type = 'button';
+      item.addEventListener('click', open);
+    } else noteTimer = setTimeout(notice, 6000);
+    note.append(item);
+  };
+
   function open() {
+    inPanel = true;
     hideCue();
+    notice();
     if (inline) {
       spacer = el('div', 'chat-spacer');
       spacer.style.height = `${root.offsetHeight}px`;

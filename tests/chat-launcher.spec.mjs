@@ -3,7 +3,8 @@
 // closes with Esc, its button or a click outside (not a drag that starts or ends in the panel), and
 // gives the focus back. The home and the services page lend their own chat to the panel and get it
 // back, answers and all; the button steps aside on their contact section. A result that arrives
-// after the panel was closed moves neither the page nor the focus. The page for a missing path has the launcher
+// after the panel was closed moves neither the page nor the focus: a notice by the button says the
+// idea was sent, or that it was not, and then the notice or the button leads to a retry. The page for a missing path has the launcher
 // too. The hint shows once per visit, can be dismissed, never shows once the chat was opened or
 // used (also on a page the browser restores on Back), and never with reduced motion. A result in
 // the chat of the contact section is scrolled into view.
@@ -22,6 +23,10 @@ const pages = [
   { path: '/' + legalPages[0].path, lang: legalPages[0].lang, inline: false },
 ];
 const LABEL = { es: 'Abrir el chat: Cuéntanos tu idea', en: 'Open the chat: Tell us your idea' };
+const NOTICE = {
+  es: { failed: 'No se pudo enviar tu idea. Toca para reintentar', sent: 'Idea enviada', retry: 'Reintentar el envío' },
+  en: { failed: 'Your idea could not be sent. Tap to try again', sent: 'Idea sent', retry: 'Try sending again' },
+};
 const CUE = { es: '¿Tienes una idea de app? Escríbenos', en: 'Have an app idea? Chat with us' };
 
 const fab = (page) => page.locator('.chat-fab');
@@ -54,13 +59,13 @@ async function answerAll(page) {
   await page.locator('#brief-consentimiento').check();
 }
 
-// The contact endpoint, answering 200 only once the returned function is called.
-async function heldEndpoint(page) {
+// The contact endpoint, answering (200 unless told otherwise) only once the returned function is called.
+async function heldEndpoint(page, status = 200) {
   let respond;
   const held = new Promise((resolve) => (respond = resolve));
   await page.route(CONTACT_ENDPOINT, async (route) => {
     await held;
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+    await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ ok: status === 200 }) });
   });
   return respond;
 }
@@ -217,6 +222,87 @@ test('a result sent from the contact section stays quiet too once the panel was 
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => scrollY)).toBe(before);
   await expect(fab(page)).toBeFocused();
+});
+
+for (const { path, lang, via } of [
+  { path: '/' + ojito.paths.es, lang: 'es', via: 'notice' },
+  { path: '/' + home.paths.en, lang: 'en', via: 'button' },
+]) {
+  test(`${path} a send that fails after the panel was closed says so by the button, and the ${via} leads to a retry`, async ({ page }) => {
+    const respond = await heldEndpoint(page, 500);
+    await page.goto(path);
+    await untilShown(page);
+    await fab(page).click();
+    await answerAll(page);
+    await page.locator('.chat-next').click();
+    await expect(page.locator('.chat-next')).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await expect(sheet(page)).toHaveJSProperty('open', false);
+    const note = page.locator('.chat-note');
+    await expect(note).toHaveAttribute('aria-live', 'polite');
+    await expect(note).toBeEmpty();
+
+    respond();
+    const failed = note.getByRole('button', { name: NOTICE[lang].failed });
+    await expect(failed).toBeVisible();
+    await expect(fab(page)).toHaveClass(/has-alert/);
+    await expect(sheet(page)).toHaveJSProperty('open', false);
+    await expect(fab(page)).toBeFocused();
+
+    // The notice or the button opens the panel on the fallback, with the answers in it.
+    await (via === 'notice' ? failed : fab(page)).click();
+    await expect(sheet(page)).toHaveJSProperty('open', true);
+    await expect(note).toBeEmpty();
+    await expect(fab(page)).not.toHaveClass(/has-alert/);
+    const fail = sheet(page).locator('.chat-fail');
+    await expect(fail).toBeFocused();
+    expect(decodeURIComponent(await fail.locator('.fail-mail').getAttribute('href'))).toContain('Ana María');
+
+    // Trying again sends the same answers; this time it arrives.
+    await page.unroute(CONTACT_ENDPOINT);
+    const sent = [];
+    await page.route(CONTACT_ENDPOINT, (route) => {
+      sent.push(route.request().postDataJSON());
+      return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+    });
+    await fail.getByRole('button', { name: NOTICE[lang].retry }).click();
+    await expect(sheet(page).locator('.chat-done')).toBeFocused();
+    await expect(fail).toBeHidden();
+    expect(sent).toHaveLength(1);
+    expect(sent[0]).toMatchObject({ nombre: 'Ana María', contacto: 'ana@example.com', consentimiento: true });
+    await expect(note).toBeEmpty();
+  });
+}
+
+test('a send that arrives after the panel was closed says so by the button for a moment', async ({ page }) => {
+  const respond = await heldEndpoint(page);
+  await page.goto('/' + ojito.paths.es);
+  await untilShown(page);
+  await fab(page).click();
+  await answerAll(page);
+  await page.locator('.chat-next').click();
+  await expect(page.locator('.chat-next')).toBeDisabled();
+  await page.keyboard.press('Escape');
+  respond();
+  const note = page.locator('.chat-note');
+  await expect(note.getByText(NOTICE.es.sent, { exact: true })).toBeVisible();
+  await expect(note.getByRole('button')).toHaveCount(0);
+  await expect(fab(page)).not.toHaveClass(/has-alert/);
+  await expect(sheet(page)).toHaveJSProperty('open', false);
+  await expect(note).toBeEmpty({ timeout: 10_000 });
+});
+
+test('a result that arrives with the panel open shows no notice by the button', async ({ page }) => {
+  await page.route(CONTACT_ENDPOINT, (route) => route.fulfill({ status: 500, contentType: 'application/json', body: '{"ok":false}' }));
+  await page.goto('/' + ojito.paths.es);
+  await untilShown(page);
+  await fab(page).click();
+  await answerAll(page);
+  await page.locator('.chat-next').click();
+  await expect(sheet(page).locator('.chat-fail')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.chat-note')).toBeEmpty();
+  await expect(fab(page)).not.toHaveClass(/has-alert/);
 });
 
 test('a result for the chat of the contact section is scrolled into view', async ({ page }) => {
