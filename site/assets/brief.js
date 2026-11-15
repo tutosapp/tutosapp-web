@@ -13,6 +13,10 @@
   const done = root.querySelector('.chat-done');
   const fail = root.querySelector('.chat-fail');
   let at = 0;
+  // Says how a send ended when the floating panel was closed meanwhile; set by the launcher below.
+  let notice = () => {};
+  // Whether the floating panel has shown the chat since the current send started.
+  let inPanel = false;
   let advance;
   let pointer = 0;
 
@@ -91,7 +95,7 @@
     const step = steps[i];
     back.hidden = i === 0;
     skip.hidden = !('optional' in step.dataset);
-    next.textContent = i === steps.length - 1 ? S.send : S.next;
+    next.textContent = next.disabled ? S.sending : i === steps.length - 1 ? S.send : S.next;
     root.style.setProperty('--progress', String(i / steps.length));
     if (focus) {
       const target = step.querySelector('input:checked') || fields(step)[0];
@@ -150,19 +154,20 @@
       .map((s) => `${s.dataset.label}: ${answer(s)}`)
       .join('\n');
 
-  function fallback(why) {
+  function fallback(why, quiet) {
     const text = summary();
     fail.querySelector('.fail-why').textContent = why;
     fail.querySelector('.fail-mail').href = `mailto:${S.email}?subject=${encodeURIComponent(S.mailSubject)}&body=${encodeURIComponent(`${text}\n`)}`;
     fail.querySelector('.fail-wa').href = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(`${S.mailSubject}\n\n${text}`)}`;
-    finish(fail);
+    finish(fail, quiet);
   }
 
-  function finish(panel) {
+  // Shows the result and, unless `quiet`, moves the focus to it, which scrolls it into view.
+  function finish(panel, quiet) {
     form.hidden = true;
     panel.hidden = false;
     root.style.setProperty('--progress', '1');
-    panel.focus();
+    if (!quiet) panel.focus();
   }
 
   async function send() {
@@ -181,6 +186,8 @@
       sitio: form.elements.sitio.value,
     };
 
+    notice();
+    inPanel = Boolean(sheet?.open);
     next.disabled = true;
     back.disabled = true;
     next.textContent = S.sending;
@@ -203,14 +210,195 @@
       back.disabled = false;
       next.textContent = S.send;
     }
-    if (status >= 200 && status < 300) {
+    // The floating panel was closed while this was on its way: the visitor is elsewhere, so the
+    // page and the focus stay put, and a notice by the floating button says how it went. Opening
+    // the panel again shows the result.
+    const quiet = inPanel && !sheet.open;
+    const ok = status >= 200 && status < 300;
+    if (ok) {
       const title = done.querySelector('.thanks-title');
       title.textContent = title.dataset.template.replace('{nombre}', body.nombre.split(/\s+/)[0]);
-      finish(done);
-    } else if (status === 400) fallback(S.fail.datos);
-    else if (status === 429) fallback(S.fail.limite);
-    else fallback(S.fail.red);
+      finish(done, quiet);
+    } else if (status === 400) fallback(S.fail.datos, quiet);
+    else if (status === 429) fallback(S.fail.limite, quiet);
+    else fallback(S.fail.red, quiet);
+    if (quiet) notice(ok ? S.notice.sent : S.notice.failed, !ok);
   }
 
+  // After a failed send: back to the last question, sending again with the same answers.
+  fail.querySelector('.fail-retry').addEventListener('click', () => {
+    fail.hidden = true;
+    form.hidden = false;
+    show(at, true);
+    send();
+  });
+
   show(0, false);
+
+  // The floating launcher: a round button in the corner of every page that opens this chat in a
+  // panel (a modal dialog, so the rest of the page is inert, Tab stays inside and Esc closes it).
+  // On a page with the chat in its contact section, the panel borrows that same chat, answers
+  // and all, and gives it back on close. The button steps aside while the chat is open, while the
+  // contact section is on screen and while a button or store badge of the page passes under it.
+  // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion,
+  // and never once the visitor has opened the chat, answered in it or dismissed the hint.
+  // If a send ends after the panel was closed, a short notice by the button says so: sent (it goes
+  // away by itself) or not sent (it stays, with a dot on the button, until the panel is opened).
+  const sheet = document.getElementById('chat-sheet');
+  const float = document.querySelector('.chat-float');
+  if (!sheet || !float || !sheet.showModal) return;
+  const fab = float.querySelector('.chat-fab');
+  const cue = float.querySelector('.chat-cue');
+  const note = float.querySelector('.chat-note');
+  const slot = sheet.querySelector('.chat-slot');
+  const inline = !slot.contains(root);
+  const section = inline ? root.closest('section') || root.parentElement : null;
+  const CUE_KEY = 'tutosapp-chat-cue';
+  const remembered = () => {
+    try {
+      return sessionStorage.getItem(CUE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  };
+  const remember = () => {
+    try {
+      sessionStorage.setItem(CUE_KEY, '1');
+    } catch {
+      // Private mode or blocked storage: the hint may show again on the next page, still once each.
+    }
+  };
+  let pressed = false;
+  let spacer = null;
+  let cueDue = false;
+  let cueDone = remembered() || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cueTimer = 0;
+  let noteTimer = 0;
+  let frame = 0;
+
+  const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const covers = () => {
+    const r = fab.getBoundingClientRect();
+    if (!r.width) return false;
+    const zone = { left: r.left - 8, right: r.right + 8, top: r.top - 8, bottom: r.bottom + 8 };
+    return [...document.querySelectorAll('main :is(.btn, .store)')].some((el) => {
+      const b = el.getBoundingClientRect();
+      return b.width > 0 && overlaps(zone, b);
+    });
+  };
+  const contactShown = () => {
+    if (!section) return false;
+    const r = section.getBoundingClientRect();
+    return r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
+  };
+
+  function hideCue() {
+    clearTimeout(cueTimer);
+    cueDue = false;
+    cueDone = true;
+    remember();
+    cue.hidden = true;
+  }
+
+  function showCue() {
+    if (remembered()) return hideCue();
+    cueDue = false;
+    cueDone = true;
+    remember();
+    cue.hidden = false;
+    fab.classList.add('is-nudging');
+    cueTimer = setTimeout(hideCue, 12000);
+  }
+
+  // Shows or hides the button (and the hint) for where the page is now.
+  function update() {
+    frame = 0;
+    float.hidden = false;
+    const away = sheet.open || contactShown();
+    float.classList.toggle('is-away', away);
+    float.classList.toggle('is-tucked', !away && covers());
+    const shown = !float.classList.contains('is-away') && !float.classList.contains('is-tucked');
+    if (!cue.hidden && !shown) hideCue();
+    else if (cueDue && shown) showCue();
+  }
+  const schedule = () => frame || (frame = requestAnimationFrame(update));
+
+  notice = (text, failed = false) => {
+    clearTimeout(noteTimer);
+    note.replaceChildren();
+    fab.classList.toggle('has-alert', failed);
+    if (!text) return;
+    const item = el(failed ? 'button' : 'p', failed ? 'chat-note-open' : 'chat-toast', text);
+    if (failed) {
+      item.type = 'button';
+      item.addEventListener('click', open);
+    } else noteTimer = setTimeout(notice, 6000);
+    note.append(item);
+  };
+
+  function open() {
+    inPanel = true;
+    hideCue();
+    notice();
+    if (inline) {
+      spacer = el('div', 'chat-spacer');
+      spacer.style.height = `${root.offsetHeight}px`;
+      root.replaceWith(spacer);
+      slot.append(root);
+    }
+    sheet.showModal();
+    fab.setAttribute('aria-expanded', 'true');
+    update();
+    if (!form.hidden) show(at, true);
+    else (done.hidden ? fail : done).focus();
+  }
+
+  sheet.addEventListener('close', () => {
+    if (spacer) {
+      spacer.replaceWith(root);
+      spacer = null;
+    }
+    fab.setAttribute('aria-expanded', 'false');
+    update();
+    if (!float.classList.contains('is-away') && !float.classList.contains('is-tucked')) fab.focus({ preventScroll: true });
+  });
+  // The modal dialog makes the page inert, but Tab can still leave it for the browser's own
+  // controls; wrap it from the last control to the first and back instead.
+  sheet.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const stops = [...sheet.querySelectorAll('a[href], button, input, textarea')].filter((n) => !n.disabled && n.tabIndex >= 0 && n.getClientRects().length);
+    const first = stops[0];
+    const last = stops.at(-1);
+    const now = document.activeElement;
+    if (e.shiftKey ? now === first || !sheet.contains(now) : now === last || !sheet.contains(now)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    }
+  });
+  // A click on the dimmed page around the panel closes it: pressed and released there, so a drag
+  // that starts or ends in the panel (selecting the text of an answer) does not.
+  sheet.addEventListener('pointerdown', (e) => (pressed = e.target === sheet));
+  sheet.addEventListener('pointerup', (e) => (pressed &&= e.target === sheet));
+  sheet.addEventListener('click', (e) => e.target === sheet && pressed && sheet.close());
+  sheet.querySelector('.chat-close').addEventListener('click', () => sheet.close());
+  fab.addEventListener('click', open);
+  cue.querySelector('.chat-cue-open').addEventListener('click', open);
+  cue.querySelector('.chat-cue-close').addEventListener('click', () => {
+    hideCue();
+    fab.focus({ preventScroll: true });
+  });
+  fab.addEventListener('animationend', () => fab.classList.remove('is-nudging'));
+  // Answering in the page's own chat counts as having found it: no hint for the rest of the visit.
+  form.addEventListener('input', hideCue, { once: true });
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  // Back to this page after using the chat on another one: the hint stays away here too.
+  addEventListener('pageshow', (e) => e.persisted && remembered() && hideCue());
+  if (!cueDone) {
+    cueTimer = setTimeout(() => {
+      cueDue = !cueDone;
+      update();
+    }, 7000);
+  }
+  update();
 })();

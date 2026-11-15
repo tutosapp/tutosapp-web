@@ -808,6 +808,13 @@ const services = {
       status: 'Te respondemos en menos de 2 días hábiles',
       hello: 'Hola, somos Tutos App. Son 9 preguntas cortas y te escribimos en menos de 2 días hábiles.',
       mailSubject: 'Nueva idea de app desde tutosapp.co',
+      // The floating launcher on every page, its one-time hint and the panel's close button.
+      launcher: 'Abrir el chat: Cuéntanos tu idea',
+      cue: '¿Tienes una idea de app? Escríbenos',
+      cueClose: 'Cerrar el aviso',
+      sendFailed: 'No se pudo enviar tu idea. Toca para reintentar',
+      sent: 'Idea enviada',
+      close: 'Cerrar el chat',
       steps: [
         { key: 'nombre', label: 'Nombre', q: '¿Cómo te llamas?', input: 'text', autocomplete: 'name', placeholder: 'Tu nombre', min: 1, max: 120 },
         { key: 'contacto', label: 'Contacto', q: '¿Dónde te escribimos? Tu correo o tu WhatsApp.', input: 'text', autocomplete: 'email', placeholder: 'tu@correo.com o +57 300 000 0000', min: 3, max: 160 },
@@ -841,6 +848,7 @@ const services = {
         red: 'No pudimos enviar tu mensaje.',
         fallback: 'Envíalo por correo o por WhatsApp: ya va con lo que escribiste.',
         mail: 'Enviar por correo',
+        retry: 'Reintentar el envío',
       },
     },
     homeTitle: '¿Tienes una idea? *Hacemos tu app.*',
@@ -944,6 +952,12 @@ const services = {
       status: 'We reply within 2 business days',
       hello: 'Hi, we are Tutos App. Nine short questions, and we write back within 2 business days.',
       mailSubject: 'New app idea from tutosapp.co',
+      launcher: 'Open the chat: Tell us your idea',
+      cue: 'Have an app idea? Chat with us',
+      cueClose: 'Dismiss',
+      sendFailed: 'Your idea could not be sent. Tap to try again',
+      sent: 'Idea sent',
+      close: 'Close the chat',
       steps: [
         { key: 'nombre', label: 'Name', q: 'What is your name?', input: 'text', autocomplete: 'name', placeholder: 'Your name', min: 1, max: 120 },
         { key: 'contacto', label: 'Contact', q: 'Where should we write to you? Your email or WhatsApp.', input: 'text', autocomplete: 'email', placeholder: 'you@company.com or +1 555 000 0000', min: 3, max: 160 },
@@ -977,6 +991,7 @@ const services = {
         red: 'We could not send your message.',
         fallback: 'Send it by email or WhatsApp instead: it already includes what you wrote.',
         mail: 'Send by email',
+        retry: 'Try sending again',
       },
     },
     homeTitle: 'Have an idea? *We build your app.*',
@@ -1005,7 +1020,7 @@ const stylesheet = (path) => `${rel(path, CSS_PATH)}?v=${CSS_VERSION}`;
 const versioned = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 10);
 const BRIEF_JS = 'assets/brief.js';
 const BRIEF_VERSION = versioned(BRIEF_JS);
-const briefScript = (path) => `<script src="${rel(path, BRIEF_JS)}?v=${BRIEF_VERSION}" defer></script>`;
+const briefScript = (to) => `<script src="${to(BRIEF_JS)}?v=${BRIEF_VERSION}" defer></script>`;
 const STACK_JS = 'assets/stack.js';
 const STACK_VERSION = versioned(STACK_JS);
 const stackScript = (path) => `<script src="${rel(path, STACK_JS)}?v=${STACK_VERSION}" defer></script>`;
@@ -1164,7 +1179,29 @@ function legalLinks(app, lang, path) {
     .join('');
 }
 
-function footer({ lang, path, only }) {
+// The "Tell us your idea" chat on every page: a round button in the bottom-right corner that
+// opens the chat in a panel (a modal <dialog>, full screen on a phone), and a one-time hint next
+// to it. Pages with the chat in their contact section (chat: 'inline') move that same chat into
+// the panel; every other page carries its own copy in the panel. assets/brief.js runs it all, so
+// without JavaScript the button stays hidden. The empty .chat-note is where it says, politely, how a
+// send ended when the panel was closed before the answer came. `to` turns a site path into the URL to use from the page.
+function chatLauncher(lang, to, chat) {
+  const c = services[lang].chat;
+  const close = svg('<path d="M6 6l12 12M18 6 6 18"/>', 20, 2.2);
+  return `
+    <dialog class="chat-sheet" id="chat-sheet" aria-labelledby="brief-title">
+      <button class="chat-close" type="button" aria-label="${esc(c.close)}">${close}</button>
+      <div class="chat-slot">${chat === 'inline' ? '' : briefForm(lang, to)}</div>
+    </dialog>
+    <div class="chat-float" hidden>
+      <p class="chat-cue" hidden><button class="chat-cue-open" type="button">${esc(c.cue)}</button><button class="chat-cue-close" type="button" aria-label="${esc(c.cueClose)}">${svg('<path d="M6 6l12 12M18 6 6 18"/>', 16, 2.4)}</button></p>
+      <div class="chat-note" aria-live="polite"></div>
+      <button class="chat-fab" type="button" aria-label="${esc(c.launcher)}" aria-haspopup="dialog" aria-controls="chat-sheet" aria-expanded="false">${svg('<path d="M20.5 11.5a8 8 0 0 1-11.8 7.1L3.5 20l1.4-4.9A8 8 0 1 1 20.5 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>', 26, 2)}</button>
+    </div>
+    ${briefScript(to)}`;
+}
+
+function footer({ lang, path, only, chat = 'sheet' }) {
   const t = ui[lang];
   const h = home[lang];
   // The home footer lists every app; an app page's footer is about that app alone.
@@ -1194,7 +1231,7 @@ function footer({ lang, path, only }) {
         </div>
       </div>
       <p class="wordmark" aria-hidden="true">Tutos App</p>
-    </footer>
+    </footer>${chatLauncher(lang, (p) => rel(path, p), chat)}
   </body>
 </html>
 `;
@@ -1766,11 +1803,11 @@ function workCard(item, lang, path, i) {
 // a plain form underneath, so without JavaScript it shows every question at once and the browser
 // turns it into an email to hola@tutosapp.co (a mailto: form sent as plain text). If sending
 // fails, the widget offers the same email, and WhatsApp, already filled in with the answers.
-function briefForm(lang, path) {
+function briefForm(lang, to) {
   const s = services[lang];
   const c = s.chat;
   const id = (k) => `brief-${k}`;
-  const privacy = rel(path, companyPrivacy.paths[lang]);
+  const privacy = to(companyPrivacy.paths[lang]);
   const step = (q, i) => {
     const qid = `${id(q.key)}-q`;
     let control;
@@ -1794,11 +1831,11 @@ function briefForm(lang, path) {
               </fieldset>`;
   };
   // Strings the script needs, in the page's language.
-  const strings = { next: c.next, back: c.back, skip: c.skip, send: c.send, sending: c.sending, errors: c.errors, fail: c.fail, mailSubject: c.mailSubject, email: EMAIL };
+  const strings = { next: c.next, back: c.back, skip: c.skip, send: c.send, sending: c.sending, errors: c.errors, fail: c.fail, notice: { failed: c.sendFailed, sent: c.sent }, mailSubject: c.mailSubject, email: EMAIL };
   return `<div class="chat" id="brief">
           <div class="chat-head">
             <span class="orb-wrap" aria-hidden="true" style="${orbStyle()}"><span class="orb"></span></span>
-            <div><p class="chat-title">${esc(c.title)}</p><p class="chat-status"><span class="pulse" aria-hidden="true"></span>${esc(c.status)}</p></div>
+            <div><p class="chat-title" id="brief-title">${esc(c.title)}</p><p class="chat-status"><span class="pulse" aria-hidden="true"></span>${esc(c.status)}</p></div>
           </div>
           <form class="brief" action="mailto:${EMAIL}?subject=${encodeURIComponent(c.mailSubject)}" method="post" enctype="text/plain" data-endpoint="${esc(CONTACT_ENDPOINT)}" data-whatsapp="${WHATSAPP}">
             <p class="bubble bot">${esc(c.hello)}</p>${c.steps.map(step).join('')}
@@ -1812,7 +1849,7 @@ function briefForm(lang, path) {
           </div>
           <div class="chat-fail" hidden tabindex="-1">
             <p class="bubble bot"><span class="fail-why"></span> ${esc(c.fail.fallback)}</p>
-            <p class="chat-fallback"><a class="btn primary fail-mail" href="mailto:${EMAIL}">${icons.mail}${esc(c.fail.mail)}</a><a class="btn ghost fail-wa" href="${whatsappUs(s.whatsappText)}">${icons.whatsapp}WhatsApp</a></p>
+            <p class="chat-fallback"><a class="btn primary fail-mail" href="mailto:${EMAIL}">${icons.mail}${esc(c.fail.mail)}</a><a class="btn ghost fail-wa" href="${whatsappUs(s.whatsappText)}">${icons.whatsapp}WhatsApp</a><button class="btn ghost fail-retry" type="button">${esc(c.fail.retry)}</button></p>
           </div>
           <script type="application/json" id="brief-strings">${JSON.stringify(strings).replace(/</g, '\\u003c')}</script>
         </div>`;
@@ -1893,7 +1930,7 @@ function contactSection(lang, path, n, id) {
               <li><a class="btn ghost" href="${mailto(s.chat.mailSubject)}">${icons.mail}${EMAIL}</a></li>
             </ul>
           </div>
-          ${briefForm(lang, path)}
+          ${briefForm(lang, (p) => rel(path, p))}
         </div>
       </section>`;
 }
@@ -2011,9 +2048,8 @@ function servicesPage(lang) {
 
       ${contactSection(lang, path, 6, s.contactId)}
     </main>
-    ${briefScript(path)}
     ${stackScript(path)}` +
-    footer({ lang, path })
+    footer({ lang, path, chat: 'inline' })
   );
 }
 
@@ -2107,9 +2143,8 @@ function homePage(lang) {
 
       ${contactSection(lang, path, 5, h.contactId)}
     </main>
-    ${briefScript(path)}
     ${stackScript(path)}` +
-    footer({ lang, path })
+    footer({ lang, path, chat: 'inline' })
   );
 }
 
@@ -2135,7 +2170,7 @@ function notFoundPage() {
       <h1>404</h1>
       <p class="lead">${t.notFound} <span lang="en">${ui.en.notFound}</span></p>
       <div class="actions"><a class="btn primary" href="${base}">${t.backHome}</a><a class="btn ghost" href="${base}en/" lang="en">${ui.en.backHome}</a></div>
-    </main>
+    </main>${chatLauncher('es', (p) => base + p, 'sheet')}
   </body>
 </html>
 `;

@@ -3148,6 +3148,289 @@ h2 em {
   gap: 10px;
 }
 
+/* The chat on every page: a round button in the bottom-right corner, a one-time hint next to it,
+   and the panel it opens (a modal dialog: bottom-right on a computer, full screen on a phone).
+   assets/brief.js shows the button, which steps aside (.is-away, .is-tucked) while the chat is
+   open, while the contact section is on screen and while a page button passes under it. */
+.chat-float {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease), visibility 0s;
+}
+
+.chat-float[hidden] {
+  display: none;
+}
+
+.chat-float.is-away,
+.chat-float.is-tucked {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease), visibility 0s 0.2s;
+}
+
+.chat-fab {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  background: linear-gradient(135deg, #6a45ff, #3557ff);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 14px 32px -10px rgb(53 87 255 / 60%), 0 2px 8px rgb(12 11 18 / 18%);
+  transition: translate 0.25s var(--ease), box-shadow 0.25s;
+
+  --focus: #5b3df5;
+}
+
+.chat-fab:hover {
+  translate: 0 -2px;
+  box-shadow: 0 20px 40px -12px rgb(53 87 255 / 70%), 0 2px 8px rgb(12 11 18 / 18%);
+}
+
+.chat-cue {
+  display: flex;
+  align-items: center;
+  max-width: min(280px, calc(100vw - 32px));
+  margin: 0;
+  color: #0c0b12;
+  pointer-events: auto;
+  background: #fff;
+  border: 1px solid rgb(12 11 18 / 10%);
+  border-radius: 18px 18px 6px;
+  box-shadow: 0 18px 40px -16px rgb(12 11 18 / 45%);
+
+  --focus: #5b3df5;
+}
+
+.chat-cue[hidden] {
+  display: none;
+}
+
+.chat-cue-open {
+  min-height: 44px;
+  padding: 10px 4px 10px 16px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 18px 0 0 6px;
+}
+
+.chat-cue-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: #55535f;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+.chat-cue-close:hover {
+  color: #0c0b12;
+}
+
+/* How a send ended after the panel was closed: "sent" (a line that goes away) or "not sent" (a
+   button that opens the panel again, with a dot on the round button). */
+.chat-note {
+  max-width: min(280px, calc(100vw - 32px));
+}
+
+.chat-note:empty {
+  position: absolute;
+}
+
+.chat-note-open,
+.chat-toast {
+  min-height: 44px;
+  padding: 10px 16px;
+  margin: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #0c0b12;
+  text-align: left;
+  pointer-events: auto;
+  background: #fff;
+  border: 1px solid rgb(12 11 18 / 10%);
+  border-radius: 18px 18px 6px;
+  box-shadow: 0 18px 40px -16px rgb(12 11 18 / 45%);
+
+  --focus: #5b3df5;
+}
+
+.chat-note-open {
+  cursor: pointer;
+  border-color: #c4281c;
+}
+
+.chat-toast {
+  display: flex;
+  align-items: center;
+}
+
+.chat-fab.has-alert {
+  position: relative;
+}
+
+.chat-fab.has-alert::after {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  content: "";
+  background: #c4281c;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.chat-sheet {
+  width: min(420px, 100% - 32px);
+  max-width: none;
+  height: min(720px, 100% - 32px);
+  max-height: none;
+  padding: 0;
+  margin: auto 16px 16px auto;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+}
+
+.chat-sheet::backdrop {
+  background: rgb(12 11 18 / 45%);
+}
+
+:root:has(.chat-sheet[open]) {
+  overflow: hidden;
+}
+
+.chat-slot,
+.chat-sheet .chat {
+  height: 100%;
+}
+
+.chat-sheet .chat-head {
+  padding-right: 68px;
+}
+
+.chat-sheet .is-chat .brief {
+  flex: 1;
+  max-height: none;
+}
+
+.chat-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: #0c0b12;
+  cursor: pointer;
+  background: #f1f0f6;
+  border: 0;
+  border-radius: 50%;
+
+  --focus: #5b3df5;
+}
+
+.chat-close:hover {
+  background: #e4e2ee;
+}
+
+@media (max-width: 619px) {
+  .chat-sheet {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .chat-sheet .chat {
+    border-radius: 0;
+  }
+
+  .chat-sheet .chat-head {
+    padding-top: max(18px, env(safe-area-inset-top));
+  }
+}
+
+/* The hint pops in once and the button bounces once; nothing repeats. Off with reduced motion
+   (assets/brief.js then never shows the hint at all). */
+@media (prefers-reduced-motion: no-preference) {
+  .chat-cue:not([hidden]),
+  .chat-note > * {
+    transform-origin: bottom right;
+    animation: cue-in 0.35s var(--spring);
+  }
+
+  .chat-fab.is-nudging {
+    animation: nudge 0.9s var(--ease) 1;
+  }
+
+  .chat-sheet[open] {
+    animation: sheet-in 0.25s var(--ease);
+  }
+}
+
+@keyframes cue-in {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  30% {
+    translate: 0 -12px;
+  }
+
+  50% {
+    translate: 0 0;
+  }
+
+  70% {
+    translate: 0 -5px;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
 @media (min-width: 620px) {
   .facts {
     grid-template-columns: repeat(4, minmax(0, 1fr));

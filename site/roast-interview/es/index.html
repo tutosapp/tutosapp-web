@@ -25,7 +25,7 @@
     <link rel="icon" href="../../favicon.png" type="image/png" sizes="64x64">
     <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
     <link rel="preload" href="../../assets/fonts/geist-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../../assets/style.css?v=d666a19121">
+    <link rel="stylesheet" href="../../assets/style.css?v=bb114dcc90">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"MobileApplication","name":"Roast Interview","description":"Practica entrevistas de trabajo con una IA que te pregunta lo que esconde tu CV. Responde por escrito o en voz alta, y recibe un puntaje y un veredicto honesto.","url":"https://tutosapp.co/roast-interview/es/","inLanguage":"es","operatingSystem":"Android, iOS","applicationCategory":"EducationalApplication","image":"https://tutosapp.co/assets/img/roast-interview/icon.png","publisher":{"@type":"Organization","name":"Tutos App","legalName":"TUTOS APP S.A.S.","taxID":"902.125.524-7","url":"https://tutosapp.co/","logo":"https://tutosapp.co/apple-touch-icon.png","email":"hola@tutosapp.co","address":{"@type":"PostalAddress","addressLocality":"Medellín","addressRegion":"Antioquia","addressCountry":"CO"}},"offers":[{"@type":"Offer","name":"1 entrevista completa","price":"0.99","priceCurrency":"USD","priceValidUntil":"2026-12-31"},{"@type":"Offer","name":"3 entrevistas completas","price":"1.99","priceCurrency":"USD","priceValidUntil":"2026-12-31"}]}</script>
   </head>
   <body class="page-app t-ri">
@@ -154,5 +154,71 @@
       </div>
       <p class="wordmark" aria-hidden="true">Tutos App</p>
     </footer>
+    <dialog class="chat-sheet" id="chat-sheet" aria-labelledby="brief-title">
+      <button class="chat-close" type="button" aria-label="Cerrar el chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="chat-slot"><div class="chat" id="brief">
+          <div class="chat-head">
+            <span class="orb-wrap" aria-hidden="true" style="--orb: conic-gradient(from 90deg, #6a45ff, #1f56d6, #ff6a2b, #3b7bff, #6a45ff); --n: 3"><span class="orb"></span></span>
+            <div><p class="chat-title" id="brief-title">Cuéntanos tu idea</p><p class="chat-status"><span class="pulse" aria-hidden="true"></span>Te respondemos en menos de 2 días hábiles</p></div>
+          </div>
+          <form class="brief" action="mailto:hola@tutosapp.co?subject=Nueva%20idea%20de%20app%20desde%20tutosapp.co" method="post" enctype="text/plain" data-endpoint="https://teyhhauvvqxmwgzxpcey.supabase.co/functions/v1/contacto-tutosapp" data-whatsapp="573504958312">
+            <p class="bubble bot">Hola, somos Tutos App. Son 9 preguntas cortas y te escribimos en menos de 2 días hábiles.</p>
+              <fieldset class="q" data-key="nombre" data-label="Nombre" data-min="1" data-max="120">
+                <legend id="brief-nombre-q" class="bubble bot"><span class="sr-only">1/9. </span>¿Cómo te llamas?</legend>
+                <div class="q-body"><input type="text" id="brief-nombre" name="nombre" aria-labelledby="brief-nombre-q" required maxlength="120" autocomplete="name" placeholder="Tu nombre"><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="contacto" data-label="Contacto" data-min="3" data-max="160">
+                <legend id="brief-contacto-q" class="bubble bot"><span class="sr-only">2/9. </span>¿Dónde te escribimos? Tu correo o tu WhatsApp.</legend>
+                <div class="q-body"><input type="text" id="brief-contacto" name="contacto" aria-labelledby="brief-contacto-q" required minlength="3" maxlength="160" autocomplete="email" placeholder="tu@correo.com o +57 300 000 0000"><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="empresa" data-label="Empresa" data-optional data-max="160">
+                <legend id="brief-empresa-q" class="bubble bot"><span class="sr-only">3/9. </span>¿Para qué empresa o proyecto es? Si no aplica, sáltala.</legend>
+                <div class="q-body"><input type="text" id="brief-empresa" name="empresa" aria-labelledby="brief-empresa-q" maxlength="160" autocomplete="organization" placeholder="Opcional"><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="idea" data-label="Idea" data-min="20" data-max="4000">
+                <legend id="brief-idea-q" class="bubble bot"><span class="sr-only">4/9. </span>Cuéntanos tu idea: qué quieres construir, para quién y qué problema resuelve.</legend>
+                <div class="q-body"><textarea id="brief-idea" name="idea" aria-labelledby="brief-idea-q" required minlength="20" maxlength="4000" autocomplete="off" placeholder="Por ejemplo: una app para que los clientes de mi tienda…" rows="4"></textarea><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="tipo" data-label="Tipo de proyecto">
+                <legend id="brief-tipo-q" class="bubble bot"><span class="sr-only">5/9. </span>¿Qué tipo de proyecto es?</legend>
+                <div class="q-body"><div class="choices"><label class="choice"><input type="radio" name="tipo" value="app_movil" required><span>App móvil</span></label><label class="choice"><input type="radio" name="tipo" value="app_con_ia"><span>App con IA</span></label><label class="choice"><input type="radio" name="tipo" value="web"><span>Web o landing</span></label><label class="choice"><input type="radio" name="tipo" value="sumar_ia"><span>Sumar IA a mi app</span></label><label class="choice"><input type="radio" name="tipo" value="feature"><span>Nuevas funciones para un producto que ya existe</span></label><label class="choice"><input type="radio" name="tipo" value="otro"><span>Otra cosa</span></label></div><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="plazo" data-label="Cuándo empezar">
+                <legend id="brief-plazo-q" class="bubble bot"><span class="sr-only">6/9. </span>¿Cuándo te gustaría empezar?</legend>
+                <div class="q-body"><div class="choices"><label class="choice"><input type="radio" name="plazo" value="ya" required><span>Lo antes posible</span></label><label class="choice"><input type="radio" name="plazo" value="1_3_meses"><span>En 1 a 3 meses</span></label><label class="choice"><input type="radio" name="plazo" value="3_6_meses"><span>En 3 a 6 meses</span></label><label class="choice"><input type="radio" name="plazo" value="explorando"><span>Estoy explorando</span></label></div><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="presupuesto" data-label="Presupuesto">
+                <legend id="brief-presupuesto-q" class="bubble bot"><span class="sr-only">7/9. </span>¿Qué presupuesto tienes en mente, en dólares?</legend>
+                <div class="q-body"><div class="choices"><label class="choice"><input type="radio" name="presupuesto" value="no_se" required><span>Aún no lo sé</span></label><label class="choice"><input type="radio" name="presupuesto" value="menos_5k"><span>Menos de USD 5.000</span></label><label class="choice"><input type="radio" name="presupuesto" value="5k_15k"><span>USD 5.000 a 15.000</span></label><label class="choice"><input type="radio" name="presupuesto" value="15k_50k"><span>USD 15.000 a 50.000</span></label><label class="choice"><input type="radio" name="presupuesto" value="mas_50k"><span>Más de USD 50.000</span></label></div><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="nda" data-label="NDA">
+                <legend id="brief-nda-q" class="bubble bot"><span class="sr-only">8/9. </span>¿Quieres que firmemos un acuerdo de confidencialidad (NDA) antes de la primera llamada?</legend>
+                <div class="q-body"><div class="choices"><label class="choice"><input type="radio" name="nda" value="si" required><span>Sí, quiero un NDA</span></label><label class="choice"><input type="radio" name="nda" value="no"><span>No hace falta</span></label></div><p class="q-error" role="alert"></p></div>
+              </fieldset>
+              <fieldset class="q" data-key="consentimiento" data-label="Autorización">
+                <legend id="brief-consentimiento-q" class="bubble bot"><span class="sr-only">9/9. </span>Último paso: para escribirte necesitamos tu autorización.</legend>
+                <div class="q-body"><label class="consent"><input type="checkbox" name="consentimiento" id="brief-consentimiento" value="true" required><span>Autorizo a TUTOS APP S.A.S. a usar estos datos para responderme, según su <a href="../../privacidad/">política de privacidad</a>.</span></label><p class="q-error" role="alert"></p></div>
+              </fieldset>
+            <div class="hp" aria-hidden="true"><label for="brief-sitio">Sitio web</label><input id="brief-sitio" name="sitio" type="text" tabindex="-1" autocomplete="off"></div>
+            <div class="chat-send"><button class="btn primary" type="submit"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6h17v12h-17zM3.5 7l8.5 6 8.5-6"/></svg>Enviar por correo</button><p class="form-note">Al enviar se abre tu correo con el mensaje listo para hola@tutosapp.co.</p></div>
+          </form>
+          <div class="chat-done" hidden tabindex="-1">
+            <p class="bubble bot"><b class="thanks-title" data-template="¡Gracias, {nombre}!">¡Gracias!</b> Recibimos tu idea. Te escribimos en menos de 2 días hábiles.</p>
+            <p class="bubble bot">Mientras tanto, si quieres adelantar algo, escríbenos por WhatsApp.</p>
+            <a class="btn ghost" href="https://wa.me/573504958312?text=Hola%2C%20quiero%20hablar%20con%20Tutos%20App%20sobre%20una%20app."><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.5-.7-2.3-1.5-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a>
+          </div>
+          <div class="chat-fail" hidden tabindex="-1">
+            <p class="bubble bot"><span class="fail-why"></span> Envíalo por correo o por WhatsApp: ya va con lo que escribiste.</p>
+            <p class="chat-fallback"><a class="btn primary fail-mail" href="mailto:hola@tutosapp.co"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6h17v12h-17zM3.5 7l8.5 6 8.5-6"/></svg>Enviar por correo</a><a class="btn ghost fail-wa" href="https://wa.me/573504958312?text=Hola%2C%20quiero%20hablar%20con%20Tutos%20App%20sobre%20una%20app."><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.5-.7-2.3-1.5-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><button class="btn ghost fail-retry" type="button">Reintentar el envío</button></p>
+          </div>
+          <script type="application/json" id="brief-strings">{"next":"Siguiente","back":"Atrás","skip":"Saltar","send":"Enviar mi idea","sending":"Enviando…","errors":{"required":"Este dato nos hace falta para seguir.","contacto":"Escribe un correo o un número de WhatsApp.","short":"Cuéntanos un poco más: al menos 20 caracteres.","long":"Es un poco largo; resúmelo un poco, por favor.","choose":"Elige una opción.","consent":"Necesitamos tu autorización para poder escribirte."},"fail":{"datos":"Algo en los datos no se pudo leer.","limite":"Recibimos muchos mensajes desde tu conexión en la última hora.","red":"No pudimos enviar tu mensaje.","fallback":"Envíalo por correo o por WhatsApp: ya va con lo que escribiste.","mail":"Enviar por correo","retry":"Reintentar el envío"},"notice":{"failed":"No se pudo enviar tu idea. Toca para reintentar","sent":"Idea enviada"},"mailSubject":"Nueva idea de app desde tutosapp.co","email":"hola@tutosapp.co"}</script>
+        </div></div>
+    </dialog>
+    <div class="chat-float" hidden>
+      <p class="chat-cue" hidden><button class="chat-cue-open" type="button">¿Tienes una idea de app? Escríbenos</button><button class="chat-cue-close" type="button" aria-label="Cerrar el aviso"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></p>
+      <div class="chat-note" aria-live="polite"></div>
+      <button class="chat-fab" type="button" aria-label="Abrir el chat: Cuéntanos tu idea" aria-haspopup="dialog" aria-controls="chat-sheet" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8 8 0 0 1-11.8 7.1L3.5 20l1.4-4.9A8 8 0 1 1 20.5 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></button>
+    </div>
+    <script src="../../assets/brief.js?v=3da77cae4f" defer></script>
   </body>
 </html>
