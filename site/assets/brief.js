@@ -1,8 +1,7 @@
 // "Tell us your idea": turns the form in #brief into a chat, one question at a time, and sends the
 // answers as JSON to the address in its data-endpoint (a Supabase edge function; the contract is
-// in README.md). It is the site's only script. Without it the same form shows every question at
-// once and sends them as an email. If sending fails, it offers that email
-// and WhatsApp, already filled in with the answers. The markup comes from briefForm() in
+// in README.md). Without it the same form shows every question at once and sends them as an
+// email. If sending fails, it offers that email and WhatsApp, already filled in with the answers. The markup comes from briefForm() in
 // scripts/build.mjs; the strings in the page's language, from #brief-strings.
 (() => {
   const root = document.getElementById('brief');

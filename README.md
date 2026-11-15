@@ -2,7 +2,7 @@
 
 Sitio de Tutos App (TUTOS APP S.A.S.): el inicio de la empresa, que vende el estudio a quien quiere que le hagamos una app, la página de servicios ("Hacemos tu app"), la política de privacidad de la empresa y una página para cada app (Ojito, Resume Roast y Roast Interview), en español y en inglés.
 
-Se publica en **https://tutosapp.co** con GitHub Pages, cada vez que algo entra a `main`. Es HTML y CSS, sin analítica y sin cookies. El único JavaScript es el chat "Cuéntanos tu idea" (`site/assets/brief.js`), y sin él el formulario sigue funcionando por correo.
+Se publica en **https://tutosapp.co** con GitHub Pages, cada vez que algo entra a `main`. Es HTML y CSS, sin analítica y sin cookies. El JavaScript es poco: el chat "Cuéntanos tu idea" (`site/assets/brief.js`), y sin él el formulario sigue funcionando por correo; y `site/assets/stack.js`, que mide las tarjetas de "Nuestro trabajo" para que se apilen al hacer scroll (sin él, o con movimiento reducido, solo se desplazan).
 
 ## Páginas
 
@@ -86,7 +86,7 @@ Los precios de Resume Roast y Roast Interview están en `prices` de cada app y s
 
 Después se hace commit de `scripts/build.mjs` y de `site/` juntos. El flujo `.github/workflows/pages.yml` corre `--check` en cada PR y publica `site/` cuando entra a `main`.
 
-Las páginas cargan `style.css` con un hash de su contenido en la dirección (`style.css?v=…`). Así un navegador que todavía tenga guardada una versión vieja de la hoja de estilos no la mezcla con páginas nuevas (eso dejó el sitio publicado sin estilos por un rato). Por eso, después de cambiar `style.css` también hay que correr `node scripts/build.mjs`; `--check` falla si no. Lo mismo vale para `brief.js`, que se carga como `brief.js?v=…`.
+Las páginas cargan `style.css` con un hash de su contenido en la dirección (`style.css?v=…`). Así un navegador que todavía tenga guardada una versión vieja de la hoja de estilos no la mezcla con páginas nuevas (eso dejó el sitio publicado sin estilos por un rato). Por eso, después de cambiar `style.css` también hay que correr `node scripts/build.mjs`; `--check` falla si no. Lo mismo vale para `brief.js` y `stack.js`, que se cargan como `brief.js?v=…` y `stack.js?v=…`.
 
 Para verlo en el computador:
 

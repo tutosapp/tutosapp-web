@@ -1000,10 +1000,15 @@ const legalAlternates = (app, doc) => Object.fromEntries(Object.keys(app.paths).
 const CSS_PATH = 'assets/style.css';
 const CSS_VERSION = createHash('sha256').update(readFileSync(join(ROOT, CSS_PATH))).digest('hex').slice(0, 10);
 const stylesheet = (path) => `${rel(path, CSS_PATH)}?v=${CSS_VERSION}`;
-// The "Tell us your idea" chat is the site's only script, versioned the same way.
+// The site's two scripts, the "Tell us your idea" chat and the stacking "Our work" cards, are
+// versioned the same way.
+const versioned = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 10);
 const BRIEF_JS = 'assets/brief.js';
-const BRIEF_VERSION = createHash('sha256').update(readFileSync(join(ROOT, BRIEF_JS))).digest('hex').slice(0, 10);
+const BRIEF_VERSION = versioned(BRIEF_JS);
 const briefScript = (path) => `<script src="${rel(path, BRIEF_JS)}?v=${BRIEF_VERSION}" defer></script>`;
+const STACK_JS = 'assets/stack.js';
+const STACK_VERSION = versioned(STACK_JS);
+const stackScript = (path) => `<script src="${rel(path, STACK_JS)}?v=${STACK_VERSION}" defer></script>`;
 
 // The interactive demos (the home question card and each app's hero) switch panes with CSS only,
 // one radio per pane. style.css handles up to this many panes per demo.
@@ -1722,7 +1727,7 @@ function studioCard(lang, path) {
 
 // One entry under "Our work": the problem, what we built, the AI inside, the platforms, two real
 // screens and a link to its page. Our own apps use their theme; client projects a neutral one.
-function workCard(item, lang, path) {
+function workCard(item, lang, path, i) {
   const s = services[lang];
   const [w, h] = item.screenSize;
   const href = /^https?:/.test(item.href) ? item.href : rel(path, item.href);
@@ -1736,7 +1741,7 @@ function workCard(item, lang, path) {
   const fact = (k, body) => `<div><dt>${esc(s.facts_[k])}</dt><dd>${body}</dd></div>`;
   const where = item.app ? availability(item.app, lang) : '';
   return `
-          <article class="work-card ${item.theme}" id="work-${item.id}" aria-labelledby="work-${item.id}-h"${item.color ? ` style="--accent: ${item.color}"` : ''}>
+          <article class="work-card ${item.theme}" id="work-${item.id}" aria-labelledby="work-${item.id}-h" style="--i: ${i}${item.color ? `; --accent: ${item.color}` : ''}">
             <div class="work-copy">
               <p class="app-mark"><img class="app-icon" src="${rel(path, item.icon)}" alt="" width="52" height="52" loading="lazy"><span>${esc(item.name)}</span><span class="kind ${item.kind}">${esc(s.kinds[item.kind])}${item.client ? ` · ${esc(item.client)}` : ''}</span>${item.app ? statusChip(item.app, lang) : ''}</p>
               <p class="card-cat">${esc(item.category)}</p>
@@ -1824,7 +1829,7 @@ function workSection(lang, path, n, id) {
           <h2 id="work-h">${rich(s.workTitle)}</h2>
           <p class="lead">${esc(s.workLead)}</p>
         </div>
-        <div class="work-list">${workItems(lang).map((item) => workCard(item, lang, path)).join('')}
+        <div class="work-list">${workItems(lang).map((item, i) => workCard(item, lang, path, i)).join('')}
         </div>
       </section>`;
 }
@@ -2006,7 +2011,8 @@ function servicesPage(lang) {
 
       ${contactSection(lang, path, 6, s.contactId)}
     </main>
-    ${briefScript(path)}` +
+    ${briefScript(path)}
+    ${stackScript(path)}` +
     footer({ lang, path })
   );
 }
@@ -2101,7 +2107,8 @@ function homePage(lang) {
 
       ${contactSection(lang, path, 5, h.contactId)}
     </main>
-    ${briefScript(path)}` +
+    ${briefScript(path)}
+    ${stackScript(path)}` +
     footer({ lang, path })
   );
 }
