@@ -337,8 +337,9 @@ test('the page for a missing path has the launcher, the chat and its privacy lin
   await expect(fab(page)).toBeFocused();
 });
 
-test('the launcher never covers a page button or store badge', async ({ page }) => {
-  for (const path of pages.map((p) => p.path)) {
+// One test per page: walking a whole page takes several seconds, too long for all of them in one test.
+for (const path of pages.map((p) => p.path)) {
+  test(`${path} launcher never covers a page button or store badge`, async ({ page }) => {
     await page.goto(path);
     const height = await page.evaluate(() => document.body.scrollHeight);
     for (let y = 0; y < height; y += 150) {
@@ -362,8 +363,8 @@ test('the launcher never covers a page button or store badge', async ({ page }) 
       );
       expect(hit, `${path} at ${y}px`).toBeNull();
     }
-  }
-});
+  });
+}
 
 test.describe('launcher hint', () => {
   test('shows once per visit, after a few seconds, and can be dismissed', async ({ page }) => {
