@@ -68,7 +68,7 @@ const LEGAL_SLUGS = {
 //
 // To extend the launch price, change only this date.
 const LAUNCH_PRICE_UNTIL = '2026-12-31';
-const launchPriceActive = new Date().toISOString().slice(0, 10) <= LAUNCH_PRICE_UNTIL;
+const launchPriceActive = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date()) <= LAUNCH_PRICE_UNTIL;
 const launchPriceLabel = (lang) => {
   const day = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${LAUNCH_PRICE_UNTIL}T00:00:00Z`));
   return lang === 'es' ? `Precio de lanzamiento · hasta el ${day}` : `Launch price · until ${day}`;
