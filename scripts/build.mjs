@@ -63,12 +63,14 @@ const LEGAL_SLUGS = {
 // legal: the date each of its legal documents last changed, shown as "last updated" on the page.
 // A privacy policy and terms are required for every app (checked by --check); support is optional.
 // prices: the launch prices, the same on Google Play and the App Store, in US dollars, shown on the
-// app page, its FAQ and its structured data until LAUNCH_PRICE_UNTIL.
+// app page, its FAQ and its structured data, labeled as launch prices until LAUNCH_PRICE_UNTIL.
+// A build after that date drops the label and priceValidUntil; --check fails until it is extended or removed.
 //
 // To extend the launch price, change only this date.
 const LAUNCH_PRICE_UNTIL = '2026-12-31';
+const launchPriceActive = new Date().toISOString().slice(0, 10) <= LAUNCH_PRICE_UNTIL;
 const launchPriceLabel = (lang) => {
-  const day = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${LAUNCH_PRICE_UNTIL}T00:00:00Z`));
+  const day = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${LAUNCH_PRICE_UNTIL}T00:00:00Z`));
   return lang === 'es' ? `Precio de lanzamiento · hasta el ${day}` : `Launch price · until ${day}`;
 };
 const usd = (n) => `US$${n.toFixed(2)}`;
@@ -1307,11 +1309,11 @@ function appPage(app, lang) {
   if (primary) fine.push(`<p>${t.mailFallback} <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`);
   const priceList = (app.prices || []).map((x) => `${x[lang]}: ${usd(x.usd)}`);
   const prices = app.prices
-    ? `<div class="prices"><p class="price-label">${esc(launchPriceLabel(lang))}</p><ul>${app.prices
+    ? `<div class="prices">${launchPriceActive ? `<p class="price-label">${esc(launchPriceLabel(lang))}</p>` : ''}<ul>${app.prices
         .map((x) => `<li><span>${esc(x[lang])}</span><b>${usd(x.usd)}</b></li>`)
         .join('')}</ul></div>`
     : '';
-  const faqAnswer = (a, extra) => (extra === 'prices' && app.prices ? `${a} ${launchPriceLabel(lang)}: ${priceList.join(', ')}.` : a);
+  const faqAnswer = (a, extra) => (extra === 'prices' && app.prices ? `${a} ${launchPriceActive ? `${launchPriceLabel(lang)}: ` : ''}${priceList.join(', ')}.` : a);
   const share = `<a class="share-link" href="${whatsapp(`${p.share} ${url}`)}">${icons.whatsapp}${t.share}</a>`;
 
   const sec = t.sections;
@@ -1345,7 +1347,7 @@ function appPage(app, lang) {
                 name: x[lang],
                 price: x.usd.toFixed(2),
                 priceCurrency: 'USD',
-                priceValidUntil: LAUNCH_PRICE_UNTIL,
+                ...(launchPriceActive ? { priceValidUntil: LAUNCH_PRICE_UNTIL } : {}),
               })),
             }
           : {}),
@@ -2196,6 +2198,8 @@ function run() {
       if (p[lang]?.screenAlt?.length < Math.min(2, p.screens(lang).length)) problems.push(`project ${p.id}: ${lang} screenAlt must describe its screens`);
     }
   }
+
+  if (check && !launchPriceActive) problems.push(`LAUNCH_PRICE_UNTIL ${LAUNCH_PRICE_UNTIL} has passed: extend it or remove the launch price`);
 
   for (const [name, body] of Object.entries(files)) {
     if (/@gmail\.com/i.test(body)) problems.push(`${name}: contains a Gmail address; use ${EMAIL}`);
