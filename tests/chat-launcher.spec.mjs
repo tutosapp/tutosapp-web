@@ -3,7 +3,7 @@
 // closes with Esc, its button or a click outside (not a drag that starts or ends in the panel), and
 // gives the focus back. The home and the services page lend their own chat to the panel and get it
 // back, answers and all; the button steps aside on their contact section. A result that arrives
-// after the panel was closed does not move the page. The page for a missing path has the launcher
+// after the panel was closed moves neither the page nor the focus. The page for a missing path has the launcher
 // too. The hint shows once per visit, can be dismissed, never shows once the chat was opened or
 // used (also on a page the browser restores on Back), and never with reduced motion. A result in
 // the chat of the contact section is scrolled into view.
@@ -36,6 +36,33 @@ async function untilShown(page) {
     await page.waitForTimeout(80);
   }
   await expect(shown(page)).toBeVisible();
+}
+
+// Answers every question of the chat, up to the last one, ready to send.
+async function answerAll(page) {
+  await page.locator('#brief-nombre').fill('Ana María');
+  await page.keyboard.press('Enter');
+  await page.locator('#brief-contacto').fill('ana@example.com');
+  await page.keyboard.press('Enter');
+  await page.locator('.chat-skip').click();
+  await page.locator('#brief-idea').fill('Una app para pedir turnos en peluquerías de barrio.');
+  await page.locator('.chat-next').click();
+  for (const key of ['tipo', 'plazo', 'presupuesto', 'nda']) {
+    await page.locator(`.q.active[data-key=${key}] .choice`).first().click();
+    await expect(page.locator('.q.active')).not.toHaveAttribute('data-key', key);
+  }
+  await page.locator('#brief-consentimiento').check();
+}
+
+// The contact endpoint, answering 200 only once the returned function is called.
+async function heldEndpoint(page) {
+  let respond;
+  const held = new Promise((resolve) => (respond = resolve));
+  await page.route(CONTACT_ENDPOINT, async (route) => {
+    await held;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+  });
+  return respond;
 }
 
 for (const { path, lang, inline } of pages) {
@@ -138,28 +165,12 @@ test('a drag that starts or ends in the panel does not close it', async ({ page 
   await expect(sheet(page)).toHaveJSProperty('open', false);
 });
 
-test('a result that arrives after the panel was closed does not move the page', async ({ page }) => {
-  let respond;
-  const held = new Promise((resolve) => (respond = resolve));
-  await page.route(CONTACT_ENDPOINT, async (route) => {
-    await held;
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
-  });
+test('a result that arrives after the panel was closed moves neither the page nor the focus', async ({ page }) => {
+  const respond = await heldEndpoint(page);
   await page.goto('/' + home.paths.es);
   await untilShown(page);
   await fab(page).click();
-  await page.locator('#brief-nombre').fill('Ana María');
-  await page.keyboard.press('Enter');
-  await page.locator('#brief-contacto').fill('ana@example.com');
-  await page.keyboard.press('Enter');
-  await page.locator('.chat-skip').click();
-  await page.locator('#brief-idea').fill('Una app para pedir turnos en peluquerías de barrio.');
-  await page.locator('.chat-next').click();
-  for (const key of ['tipo', 'plazo', 'presupuesto', 'nda']) {
-    await page.locator(`.q.active[data-key=${key}] .choice`).first().click();
-    await expect(page.locator('.q.active')).not.toHaveAttribute('data-key', key);
-  }
-  await page.locator('#brief-consentimiento').check();
+  await answerAll(page);
   await page.locator('.chat-next').click();
   const next = page.locator('.chat-next');
   await expect(next).toBeDisabled();
@@ -179,29 +190,40 @@ test('a result that arrives after the panel was closed does not move the page', 
   await expect(page.locator('section .chat-done')).not.toHaveAttribute('hidden');
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => scrollY)).toBe(before);
+  await expect(fab(page)).toBeFocused();
 
-  // Opening the panel again shows the thanks.
+  // Opening the panel again, with the keyboard, shows the thanks.
+  await page.keyboard.press('Enter');
+  await expect(sheet(page).locator('.chat-done')).toBeFocused();
+});
+
+test('a result sent from the contact section stays quiet too once the panel was opened and closed', async ({ page }) => {
+  const respond = await heldEndpoint(page);
+  await page.goto('/' + home.paths.es);
+  await page.locator('section #brief').scrollIntoViewIfNeeded();
+  await answerAll(page);
+  await page.locator('.chat-next').click();
+  await expect(page.locator('.chat-next')).toBeDisabled();
+
+  await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
   await untilShown(page);
   await fab(page).click();
-  await expect(sheet(page).locator('.chat-done')).toBeFocused();
+  await expect(sheet(page)).toHaveJSProperty('open', true);
+  await page.keyboard.press('Escape');
+  await expect(sheet(page)).toHaveJSProperty('open', false);
+  const before = await page.evaluate(() => scrollY);
+  respond();
+  await expect(page.locator('section .chat-done')).not.toHaveAttribute('hidden');
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  await expect(fab(page)).toBeFocused();
 });
 
 test('a result for the chat of the contact section is scrolled into view', async ({ page }) => {
   await page.route(CONTACT_ENDPOINT, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }));
   await page.goto('/' + home.paths.es);
   await page.locator('section #brief').scrollIntoViewIfNeeded();
-  await page.locator('#brief-nombre').fill('Ana María');
-  await page.keyboard.press('Enter');
-  await page.locator('#brief-contacto').fill('ana@example.com');
-  await page.keyboard.press('Enter');
-  await page.locator('.chat-skip').click();
-  await page.locator('#brief-idea').fill('Una app para pedir turnos en peluquerías de barrio.');
-  await page.locator('.chat-next').click();
-  for (const key of ['tipo', 'plazo', 'presupuesto', 'nda']) {
-    await page.locator(`.q.active[data-key=${key}] .choice`).first().click();
-    await expect(page.locator('.q.active')).not.toHaveAttribute('data-key', key);
-  }
-  await page.locator('#brief-consentimiento').check();
+  await answerAll(page);
   // The visitor has the send button at the top of the screen, the start of the chat above it.
   await page.locator('.chat-controls').evaluate((bar) => bar.scrollIntoView({ block: 'start', behavior: 'instant' }));
   await expect(page.locator('#brief .chat-head')).not.toBeInViewport();

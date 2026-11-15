@@ -158,12 +158,12 @@
     finish(fail, quiet);
   }
 
-  // Shows the result and moves the focus to it, scrolling it into view unless `quiet`.
+  // Shows the result and, unless `quiet`, moves the focus to it, which scrolls it into view.
   function finish(panel, quiet) {
     form.hidden = true;
     panel.hidden = false;
     root.style.setProperty('--progress', '1');
-    panel.focus({ preventScroll: quiet });
+    if (!quiet) panel.focus();
   }
 
   async function send() {
@@ -182,8 +182,8 @@
       sitio: form.elements.sitio.value,
     };
 
-    const inPanel = () => Boolean(root.closest('dialog'));
-    const fromPanel = inPanel();
+    let closed = false;
+    sheet?.addEventListener('close', () => (closed = true), { once: true });
     next.disabled = true;
     back.disabled = true;
     next.textContent = S.sending;
@@ -206,8 +206,9 @@
       back.disabled = false;
       next.textContent = S.send;
     }
-    // Sent from the floating panel and closed since: the visitor is elsewhere, so the page stays put.
-    const quiet = fromPanel && !inPanel();
+    // The floating panel was closed while this was on its way: the visitor is elsewhere, so the
+    // page and the focus stay put. Opening the panel again shows the result.
+    const quiet = closed && !sheet.open;
     if (status >= 200 && status < 300) {
       const title = done.querySelector('.thanks-title');
       title.textContent = title.dataset.template.replace('{nombre}', body.nombre.split(/\s+/)[0]);
