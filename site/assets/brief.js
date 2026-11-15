@@ -91,7 +91,7 @@
     const step = steps[i];
     back.hidden = i === 0;
     skip.hidden = !('optional' in step.dataset);
-    next.textContent = i === steps.length - 1 ? S.send : S.next;
+    next.textContent = next.disabled ? S.sending : i === steps.length - 1 ? S.send : S.next;
     root.style.setProperty('--progress', String(i / steps.length));
     if (focus) {
       const target = step.querySelector('input:checked') || fields(step)[0];
@@ -162,7 +162,7 @@
     form.hidden = true;
     panel.hidden = false;
     root.style.setProperty('--progress', '1');
-    panel.focus();
+    panel.focus({ preventScroll: true });
   }
 
   async function send() {
@@ -219,7 +219,8 @@
   // On a page with the chat in its contact section, the panel borrows that same chat, answers
   // and all, and gives it back on close. The button steps aside while the chat is open, while the
   // contact section is on screen and while a button or store badge of the page passes under it.
-  // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion.
+  // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion,
+  // and never once the visitor has opened the chat, answered in it or dismissed the hint.
   const sheet = document.getElementById('chat-sheet');
   const float = document.querySelector('.chat-float');
   if (!sheet || !float || !sheet.showModal) return;
@@ -243,6 +244,7 @@
       // Private mode or blocked storage: the hint may show again on the next page, still once each.
     }
   };
+  let pressed = false;
   let spacer = null;
   let cueDue = false;
   let cueDone = remembered() || matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -269,6 +271,7 @@
     clearTimeout(cueTimer);
     cueDue = false;
     cueDone = true;
+    remember();
     cue.hidden = true;
   }
 
@@ -331,8 +334,11 @@
       (e.shiftKey ? last : first).focus();
     }
   });
-  // A click on the dimmed page around the panel closes it.
-  sheet.addEventListener('click', (e) => e.target === sheet && sheet.close());
+  // A click on the dimmed page around the panel closes it: pressed and released there, so a drag
+  // that starts or ends in the panel (selecting the text of an answer) does not.
+  sheet.addEventListener('pointerdown', (e) => (pressed = e.target === sheet));
+  sheet.addEventListener('pointerup', (e) => (pressed &&= e.target === sheet));
+  sheet.addEventListener('click', (e) => e.target === sheet && pressed && sheet.close());
   sheet.querySelector('.chat-close').addEventListener('click', () => sheet.close());
   fab.addEventListener('click', open);
   cue.querySelector('.chat-cue-open').addEventListener('click', open);
@@ -341,6 +347,8 @@
     fab.focus({ preventScroll: true });
   });
   fab.addEventListener('animationend', () => fab.classList.remove('is-nudging'));
+  // Answering in the page's own chat counts as having found it: no hint for the rest of the visit.
+  form.addEventListener('input', hideCue, { once: true });
   addEventListener('scroll', schedule, { passive: true });
   addEventListener('resize', schedule);
   if (!cueDone) {

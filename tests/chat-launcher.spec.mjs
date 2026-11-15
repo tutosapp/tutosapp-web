@@ -1,12 +1,14 @@
 // The floating "Tell us your idea" launcher (site/assets/brief.js) on a phone and a desktop: the
 // button shows on every kind of page, opens the chat in a panel that keeps the focus inside and
-// closes with Esc, its button or a click outside, and gives the focus back. The home and the
-// services page lend their own chat to the panel and get it back, answers and all; the button
-// steps aside on their contact section. The hint shows once per visit, can be dismissed, and never
-// with reduced motion.
+// closes with Esc, its button or a click outside (not a drag that starts or ends in the panel), and
+// gives the focus back. The home and the services page lend their own chat to the panel and get it
+// back, answers and all; the button steps aside on their contact section. A result that arrives
+// after the panel was closed does not move the page. The page for a missing path has the launcher
+// too. The hint shows once per visit, can be dismissed, never shows once the chat was opened or
+// used, and never with reduced motion.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { apps, home, services, companyPrivacy, legalPages } from '../scripts/build.mjs';
+import { apps, home, services, companyPrivacy, legalPages, CONTACT_ENDPOINT } from '../scripts/build.mjs';
 
 const ojito = apps.find((a) => a.id === 'ojito');
 const pages = [
@@ -107,6 +109,101 @@ for (const path of ['/' + home.paths.es, '/' + services.paths.en]) {
   });
 }
 
+test('a drag that starts or ends in the panel does not close it', async ({ page }) => {
+  test.skip(page.viewportSize().width < 620, 'the panel fills a phone screen');
+  await page.goto('/' + ojito.paths.es);
+  await untilShown(page);
+  await fab(page).click();
+  const name = page.locator('#brief-nombre');
+  await name.fill('Ana María');
+  const box = await name.boundingBox();
+  const inside = [box.x + box.width / 2, box.y + box.height / 2];
+
+  // Selecting the answer and letting go over the dimmed page.
+  await page.mouse.move(...inside);
+  await page.mouse.down();
+  await page.mouse.move(40, 40, { steps: 5 });
+  await page.mouse.up();
+  await expect(sheet(page)).toHaveJSProperty('open', true);
+
+  // Pressing on the dimmed page and letting go in the panel.
+  await page.mouse.move(40, 40);
+  await page.mouse.down();
+  await page.mouse.move(...inside, { steps: 5 });
+  await page.mouse.up();
+  await expect(sheet(page)).toHaveJSProperty('open', true);
+
+  await page.mouse.click(40, 40);
+  await expect(sheet(page)).toHaveJSProperty('open', false);
+});
+
+test('a result that arrives after the panel was closed does not move the page', async ({ page }) => {
+  let respond;
+  const held = new Promise((resolve) => (respond = resolve));
+  await page.route(CONTACT_ENDPOINT, async (route) => {
+    await held;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+  });
+  await page.goto('/' + home.paths.es);
+  await untilShown(page);
+  await fab(page).click();
+  await page.locator('#brief-nombre').fill('Ana María');
+  await page.keyboard.press('Enter');
+  await page.locator('#brief-contacto').fill('ana@example.com');
+  await page.keyboard.press('Enter');
+  await page.locator('.chat-skip').click();
+  await page.locator('#brief-idea').fill('Una app para pedir turnos en peluquerías de barrio.');
+  await page.locator('.chat-next').click();
+  for (const key of ['tipo', 'plazo', 'presupuesto', 'nda']) {
+    await page.locator(`.q.active[data-key=${key}] .choice`).first().click();
+    await expect(page.locator('.q.active')).not.toHaveAttribute('data-key', key);
+  }
+  await page.locator('#brief-consentimiento').check();
+  await page.locator('.chat-next').click();
+  const next = page.locator('.chat-next');
+  await expect(next).toBeDisabled();
+  const sending = await next.textContent();
+
+  // Closed and opened again while it sends: the button still says it is sending.
+  await page.keyboard.press('Escape');
+  await fab(page).click();
+  await expect(next).toBeDisabled();
+  await expect(next).toHaveText(sending);
+
+  await page.keyboard.press('Escape');
+  await expect(sheet(page)).toHaveJSProperty('open', false);
+  const before = await page.evaluate(() => scrollY);
+  respond();
+  await expect(page.locator('section .chat-done')).toBeAttached();
+  await expect(page.locator('section .chat-done')).not.toHaveAttribute('hidden');
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+
+  // Opening the panel again shows the thanks.
+  await untilShown(page);
+  await fab(page).click();
+  await expect(sheet(page).locator('.chat-done')).toBeFocused();
+});
+
+test('the page for a missing path has the launcher, the chat and its privacy link', async ({ page, baseURL }) => {
+  // That page loads everything from the published site; here the same paths come from this build.
+  await page.route('https://tutosapp.co/**', async (route) => {
+    const url = new URL(route.request().url());
+    const response = await route.fetch({ url: baseURL + url.pathname + url.search });
+    await route.fulfill({ response, headers: { ...response.headers(), 'content-type': url.pathname.endsWith('.js') ? 'text/javascript' : response.headers()['content-type'] } });
+  });
+  await page.goto('/no/existe/esta-pagina/');
+  await expect(page.locator('h1')).toHaveText('404');
+  await untilShown(page);
+  await fab(page).click();
+  await expect(sheet(page)).toHaveJSProperty('open', true);
+  await expect(page.locator('#brief-nombre')).toBeFocused();
+  await expect(sheet(page).locator('.consent a')).toHaveAttribute('href', 'https://tutosapp.co/' + companyPrivacy.paths.es);
+  await page.keyboard.press('Escape');
+  await expect(sheet(page)).toHaveJSProperty('open', false);
+  await expect(fab(page)).toBeFocused();
+});
+
 test('the launcher never covers a page button or store badge', async ({ page }) => {
   for (const path of pages.map((p) => p.path)) {
     await page.goto(path);
@@ -168,6 +265,28 @@ test.describe('launcher hint', () => {
     await page.locator('.chat-cue-open').click();
     await expect(sheet(page)).toHaveJSProperty('open', true);
     await expect(cue).toBeHidden();
+  });
+
+  test('never shows after the chat was opened from the button', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/' + ojito.paths.es);
+    await untilShown(page);
+    await fab(page).click();
+    await page.keyboard.press('Escape');
+    await page.goto('/' + ojito.paths.en);
+    await page.clock.runFor(30_000);
+    await expect(page.locator('.chat-cue')).toBeHidden();
+    await expect(fab(page)).toBeVisible();
+  });
+
+  test('never shows after answering in the chat of the contact section', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/' + home.paths.es);
+    await page.locator('section #brief-nombre').fill('Ana');
+    await page.goto('/' + ojito.paths.es);
+    await page.clock.runFor(30_000);
+    await expect(page.locator('.chat-cue')).toBeHidden();
+    await expect(fab(page)).toBeVisible();
   });
 
   test('stays hidden on its own after a while', async ({ page }) => {

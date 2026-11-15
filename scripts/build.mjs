@@ -1014,7 +1014,7 @@ const stylesheet = (path) => `${rel(path, CSS_PATH)}?v=${CSS_VERSION}`;
 const versioned = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 10);
 const BRIEF_JS = 'assets/brief.js';
 const BRIEF_VERSION = versioned(BRIEF_JS);
-const briefScript = (path) => `<script src="${rel(path, BRIEF_JS)}?v=${BRIEF_VERSION}" defer></script>`;
+const briefScript = (to) => `<script src="${to(BRIEF_JS)}?v=${BRIEF_VERSION}" defer></script>`;
 const STACK_JS = 'assets/stack.js';
 const STACK_VERSION = versioned(STACK_JS);
 const stackScript = (path) => `<script src="${rel(path, STACK_JS)}?v=${STACK_VERSION}" defer></script>`;
@@ -1177,20 +1177,20 @@ function legalLinks(app, lang, path) {
 // opens the chat in a panel (a modal <dialog>, full screen on a phone), and a one-time hint next
 // to it. Pages with the chat in their contact section (chat: 'inline') move that same chat into
 // the panel; every other page carries its own copy in the panel. assets/brief.js runs it all, so
-// without JavaScript the button stays hidden.
-function chatLauncher(lang, path, chat) {
+// without JavaScript the button stays hidden. `to` turns a site path into the URL to use from the page.
+function chatLauncher(lang, to, chat) {
   const c = services[lang].chat;
   const close = svg('<path d="M6 6l12 12M18 6 6 18"/>', 20, 2.2);
   return `
     <dialog class="chat-sheet" id="chat-sheet" aria-labelledby="brief-title">
       <button class="chat-close" type="button" aria-label="${esc(c.close)}">${close}</button>
-      <div class="chat-slot">${chat === 'inline' ? '' : briefForm(lang, path)}</div>
+      <div class="chat-slot">${chat === 'inline' ? '' : briefForm(lang, to)}</div>
     </dialog>
     <div class="chat-float" hidden>
       <p class="chat-cue" hidden><button class="chat-cue-open" type="button">${esc(c.cue)}</button><button class="chat-cue-close" type="button" aria-label="${esc(c.cueClose)}">${svg('<path d="M6 6l12 12M18 6 6 18"/>', 16, 2.4)}</button></p>
       <button class="chat-fab" type="button" aria-label="${esc(c.launcher)}" aria-haspopup="dialog" aria-controls="chat-sheet" aria-expanded="false">${svg('<path d="M20.5 11.5a8 8 0 0 1-11.8 7.1L3.5 20l1.4-4.9A8 8 0 1 1 20.5 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>', 26, 2)}</button>
     </div>
-    ${briefScript(path)}`;
+    ${briefScript(to)}`;
 }
 
 function footer({ lang, path, only, chat = 'sheet' }) {
@@ -1223,7 +1223,7 @@ function footer({ lang, path, only, chat = 'sheet' }) {
         </div>
       </div>
       <p class="wordmark" aria-hidden="true">Tutos App</p>
-    </footer>${chatLauncher(lang, path, chat)}
+    </footer>${chatLauncher(lang, (p) => rel(path, p), chat)}
   </body>
 </html>
 `;
@@ -1795,11 +1795,11 @@ function workCard(item, lang, path, i) {
 // a plain form underneath, so without JavaScript it shows every question at once and the browser
 // turns it into an email to hola@tutosapp.co (a mailto: form sent as plain text). If sending
 // fails, the widget offers the same email, and WhatsApp, already filled in with the answers.
-function briefForm(lang, path) {
+function briefForm(lang, to) {
   const s = services[lang];
   const c = s.chat;
   const id = (k) => `brief-${k}`;
-  const privacy = rel(path, companyPrivacy.paths[lang]);
+  const privacy = to(companyPrivacy.paths[lang]);
   const step = (q, i) => {
     const qid = `${id(q.key)}-q`;
     let control;
@@ -1922,7 +1922,7 @@ function contactSection(lang, path, n, id) {
               <li><a class="btn ghost" href="${mailto(s.chat.mailSubject)}">${icons.mail}${EMAIL}</a></li>
             </ul>
           </div>
-          ${briefForm(lang, path)}
+          ${briefForm(lang, (p) => rel(path, p))}
         </div>
       </section>`;
 }
@@ -2162,7 +2162,7 @@ function notFoundPage() {
       <h1>404</h1>
       <p class="lead">${t.notFound} <span lang="en">${ui.en.notFound}</span></p>
       <div class="actions"><a class="btn primary" href="${base}">${t.backHome}</a><a class="btn ghost" href="${base}en/" lang="en">${ui.en.backHome}</a></div>
-    </main>
+    </main>${chatLauncher('es', (p) => base + p, 'sheet')}
   </body>
 </html>
 `;
