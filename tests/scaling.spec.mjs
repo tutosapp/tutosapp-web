@@ -4,7 +4,9 @@
 // computed from the list; the menus, the services page and the footer hold them without sideways
 // scroll; and a web app and an app coming soon get the right page. Full-page screenshots of the home
 // land in test-results/screens/scaling-*.png.
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -13,6 +15,42 @@ import { SIZES } from './fixtures.setup.mjs';
 
 const STILL = '.reveal, .stage, .ask-card, .hero-bg, .studio-steps li { animation: none !important; }';
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+
+// The fixture script deletes its output folder before writing it, so it only takes a folder of
+// its own and checks everything before it deletes.
+test.describe('the fixture output folder', () => {
+  const fixture = (...args) => spawnSync(process.execPath, ['scripts/fixture.mjs', ...args], { encoding: 'utf8' });
+  let tmp;
+  test.beforeEach(() => {
+    tmp = mkdtempSync(join(tmpdir(), 'tutosapp-guard-'));
+  });
+  test.afterEach(() => rmSync(tmp, { recursive: true, force: true }));
+
+  test('a folder with other content is refused and left as it was', () => {
+    writeFileSync(join(tmp, 'notes.txt'), 'mine');
+    expect(fixture('4', tmp).status).toBe(2);
+    expect(readFileSync(join(tmp, 'notes.txt'), 'utf8')).toBe('mine');
+    expect(existsSync(join(tmp, 'site'))).toBe(false);
+  });
+
+  test('a folder inside the repository is refused, except under test-results/', () => {
+    expect(fixture('4', 'scripts/fixture-out').status).toBe(2);
+    expect(existsSync('scripts/fixture-out')).toBe(false);
+    expect(fixture('4', 'site-fixture').status).toBe(2);
+    expect(existsSync('site-fixture')).toBe(false);
+  });
+
+  test('a total out of range leaves an earlier fixture as it was, and a valid one replaces it', () => {
+    const out = join(tmp, 'out');
+    expect(fixture('4', out).status).toBe(0);
+    writeFileSync(join(out, 'site', 'kept.txt'), 'kept');
+    expect(fixture('99', out).status).toBe(2);
+    expect(readFileSync(join(out, 'site', 'kept.txt'), 'utf8')).toBe('kept');
+    expect(fixture('4', out).status).toBe(0);
+    expect(existsSync(join(out, 'site', 'kept.txt'))).toBe(false);
+    expect(existsSync(join(out, 'site', 'index.html'))).toBe(true);
+  });
+});
 
 for (const n of SIZES) {
   test.describe(`with ${n} apps`, () => {

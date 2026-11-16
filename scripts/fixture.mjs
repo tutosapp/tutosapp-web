@@ -6,26 +6,35 @@
 //   node scripts/fixture.mjs <total> <dir>     then: SITE_DIR=<dir>/site node scripts/serve.mjs
 // tests/scaling.spec.mjs builds 4, 6 and 8 apps this way and checks the home, the services page,
 // the menus and the new apps' pages on a phone and a desktop.
-import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const [total, dir] = [Number(process.argv[2]), process.argv[3]];
-if (!Number.isInteger(total) || !dir) {
-  console.error('Usage: node scripts/fixture.mjs <total apps> <output dir>');
+const refuse = (message) => {
+  console.error(message);
   process.exit(2);
-}
-const repo = fileURLToPath(new URL('..', import.meta.url));
+};
+if (!Number.isInteger(total) || !dir) refuse('Usage: node scripts/fixture.mjs <total apps> <output dir>');
+const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const out = resolve(dir);
-if (out === repo || out.startsWith(join(repo, 'site')) || out.startsWith(join(repo, 'legal'))) {
-  console.error('The fixture must be written outside site/ and legal/');
-  process.exit(2);
+// <dir> is deleted and written again, so it is only ever a folder of its own: outside the repo (and
+// not a folder the repo is in) or under the ignored test-results/, and either new, empty or a
+// fixture this script wrote before, which it knows by MARK.
+const SCRATCH = 'test-results';
+const MARK = '.tutosapp-fixture';
+const within = (parent, child) => {
+  const rel = relative(parent, child);
+  return rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel);
+};
+if (within(out, repo) || (within(repo, out) && !relative(repo, out).startsWith(SCRATCH + sep))) {
+  refuse(`The fixture must be written outside the repository, or under ${SCRATCH}/`);
+}
+if (existsSync(out) && !(statSync(out).isDirectory() && (readdirSync(out).length === 0 || existsSync(join(out, MARK))))) {
+  refuse(`${out} already exists and is not a fixture of this script: it would be deleted. Pass a new or empty folder.`);
 }
 const root = join(out, 'site');
 const legal = join(out, 'legal');
-rmSync(out, { recursive: true, force: true });
-cpSync(join(repo, 'site'), root, { recursive: true });
-cpSync(join(repo, 'legal'), legal, { recursive: true });
 
 const write = (file, body) => {
   mkdirSync(join(file, '..'), { recursive: true });
@@ -113,7 +122,11 @@ globalThis.TUTOSAPP_FIXTURE = {
   root,
   legal,
   apps: (real) => {
-    if (total < real || total - real > kinds.length) throw new Error(`total must be between ${real} and ${real + kinds.length}`);
+    if (total < real || total - real > kinds.length) refuse(`<total apps> must be between ${real} and ${real + kinds.length}`);
+    rmSync(out, { recursive: true, force: true });
+    write(join(out, MARK), '');
+    cpSync(join(repo, 'site'), root, { recursive: true });
+    cpSync(join(repo, 'legal'), legal, { recursive: true });
     return kinds.slice(0, total - real).map(fakeApp);
   },
 };

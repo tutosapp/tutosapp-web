@@ -142,7 +142,7 @@ npm run lint && npm run test:ui  # HTML, CSS, accesibilidad y diseño en teléfo
 
 y se hace commit de `scripts/build.mjs`, `site/` y `legal/` juntos.
 
-**Con más apps.** `node scripts/fixture.mjs <total> <carpeta>` hace, solo en local, una copia del sitio con apps falsas hasta llegar a `<total>` (una app web, una que viene pronto, una en una sola tienda, una app web que viene pronto y una en las dos tiendas), con las mismas revisiones de `--check`; se ve con `SITE_DIR=<carpeta>/site node scripts/serve.mjs`. Nunca se escribe en `site/` (el build se niega) ni se publica, y `--check` falla si en `site/` hay una página que el build no escribe. `tests/scaling.spec.mjs` la usa para revisar el sitio con 4, 6 y 8 apps (ver [Calidad](#calidad)).
+**Con más apps.** `node scripts/fixture.mjs <total> <carpeta>` hace, solo en local, una copia del sitio con apps falsas hasta llegar a `<total>` (una app web, una que viene pronto, una en una sola tienda, una app web que viene pronto y una en las dos tiendas), con las mismas revisiones de `--check`. `<carpeta>` se borra y se vuelve a escribir, así que debe ser nueva, estar vacía o ser una copia anterior de este script, y estar fuera del repositorio o dentro de `test-results/`; con cualquier otra el script se niega sin tocar nada. Se ve con `SITE_DIR=<carpeta>/site node scripts/serve.mjs`. Nunca se escribe en `site/` (el build se niega) ni se publica, y `--check` falla si en `site/` hay una página que el build no escribe. `tests/scaling.spec.mjs` la usa para revisar el sitio con 4, 6 y 8 apps (ver [Calidad](#calidad)).
 
 ### Cuando una app salga en una tienda
 
