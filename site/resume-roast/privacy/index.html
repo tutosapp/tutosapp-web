@@ -99,7 +99,7 @@
     <li><strong>Android</strong>: the App uses the device's <strong>ANDROID_ID</strong>, or a random code created on first launch when that is unavailable.</li>
     <li><strong>iPhone</strong>: the App creates a <strong>random code</strong> (starting with <code>ios-</code>) and keeps it in the device Keychain, set to stay out of backups. It is not an Apple or advertising identifier. Unlike the rest of the App's local data, the Keychain keeps this code even if you delete the App.</li>
     <li>On both platforms the identifier is sent to our server and is the key to your <strong>credit wallet</strong>: without it we could not tell how many analyses you have left, credit your purchases, or prevent free credits from being claimed repeatedly.</li>
-    <li>This identifier <strong>is stored permanently</strong> on our server, associated only with a credit balance. It is not linked to your name, your email or your resume content, and it is not shared with anyone.</li>
+    <li>This identifier <strong>is stored permanently</strong> on our server, associated with a credit balance and, for up to about 24 hours, through a one-way hash, with the stored roast result described under “Your Roast Result, Kept for 24 Hours” below. It is not linked to your name or your email, and it is not shared with anyone.</li>
 </ul>
 
 <h3>Integrity Check</h3>
