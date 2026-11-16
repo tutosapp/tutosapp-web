@@ -136,6 +136,11 @@
     <li>When you tap a feature that is not available yet, the App sends an anonymous signal with that feature's name, so we know which features people want most. It does not include your device identifier or your resume content.</li>
 </ul>
 
+<h3>Update Check</h3>
+<ul>
+    <li>When the App opens, it tells our server only its platform (Android or iPhone) and App version: no identifier, and nothing linked to a person. We use it to tell you when an update is needed and to know which versions are still in use before requiring an update. It is written to the server's technical logs at our cloud provider (Google Cloud), which deletes log entries automatically after its default retention of 30 days.</li>
+</ul>
+
 <h2 id="your-consent-before-the-ai-is-used">Your Consent Before the AI Is Used</h2>
 <p>Before your first analysis, the App explains what is sent (your resume text and, if you enter them, the target role and job posting), to whom (our server and the AI model <strong>Claude, by Anthropic</strong>) and why, with a link to this policy. Nothing is sent until you agree.</p>
 <ul>
@@ -176,11 +181,12 @@
     <li>To prevent abuse of the free credits and fraud.</li>
     <li>To review results you report to us, handle the reports and suggestions you send us, and reply to you.</li>
     <li>To decide which features to build, from anonymous interest signals.</li>
+    <li>To tell you when an update is needed and to know which versions of the App are still in use, from the update check.</li>
 </ul>
 
 <h2 id="third-party-services">Third-Party Services</h2>
 <ul>
-    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region), the credit wallet and purchase database, and the roast result kept for 24 hours.</li>
+    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region), the credit wallet and purchase database, the roast result kept for 24 hours, and the server's technical logs.</li>
     <li><strong>Anthropic</strong> — provides the AI model (Claude) that generates the review/rewrite. It is the only third party that receives your resume content.</li>
     <li><strong>Google Play Billing</strong> and <strong>Google Play Integrity</strong> (Android) — process purchases and verify that the App is genuine.</li>
     <li><strong>Apple App Store / StoreKit</strong> and <strong>Apple App Attest</strong> (iPhone) — process purchases and verify that the App is genuine.</li>
@@ -201,6 +207,7 @@
         <tr><td>App Attest key identifier and public key (iPhone)</td><td>Until you request deletion</td></tr>
         <tr><td>App Attest attestation and Play Integrity token</td><td>Not retained; only for verification</td></tr>
         <tr><td>App Attest challenge (iPhone)</td><td>Valid for five minutes; deleted once used or replaced by the next one</td></tr>
+        <tr><td>Update check (platform and App version)</td><td>In the server's technical logs at Google Cloud, which deletes them automatically after its default retention of 30 days</td></tr>
         <tr><td>Purchase records</td><td>Until you request deletion</td></tr>
         <tr><td>Report emails</td><td>In the company's mailbox while we handle your case and for up to 12 months after; then we delete them</td></tr>
     </tbody>
@@ -250,7 +257,7 @@
 <p>The App is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
 <h2 id="changes-to-this-privacy-policy">Changes to This Privacy Policy</h2>
-<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. Version note, 16 November 2026: we now keep the finished result of a review for 24 hours so you can recover it if the App closes mid-analysis (Android, from version 0.5.4), and deleting your last resume in the App now also deletes the target role, job posting and review language kept with it, after a confirmation if a paid review is still pending (Android, from version 0.5.4). If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
+<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. Version note, 16 November 2026: when the App opens it now checks whether an update is needed by sending only its platform and App version, with no identifier (see "Update Check"). Also, we now keep the finished result of a review for 24 hours so you can recover it if the App closes mid-analysis (Android, from version 0.5.4), and deleting your last resume in the App now also deletes the target role, job posting and review language kept with it, after a confirmation if a paid review is still pending (Android, from version 0.5.4). If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
 <p>This policy takes effect on <strong>11 November 2026</strong>.</p>
 
 <div class="contact">

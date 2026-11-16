@@ -409,7 +409,7 @@ const apps = [
       { usd: 0.99, en: '1 full interview', es: '1 entrevista completa' },
       { usd: 1.99, en: '3 full interviews', es: '3 entrevistas completas' },
     ],
-    legal: { privacy: '2026-11-14', terms: '2026-11-11' },
+    legal: { privacy: '2026-11-16', terms: '2026-11-11' },
     look: 'phone',
     shotSize: [441, 960],
     shots: (lang) =>
