@@ -138,7 +138,7 @@
 
 <h3>Update Check</h3>
 <ul>
-    <li>When the App opens, it tells our server its platform (Android or iPhone) and App version, and nothing else: no identifier, and nothing linked to a person. We use it only to tell you when an update is needed and to know which versions are still in use. It is kept in our server logs for the normal log retention period.</li>
+    <li>When the App opens, it tells our server only its platform (Android or iPhone) and App version: no identifier, and nothing linked to a person. We use it to tell you when an update is needed and to know which versions are still in use before requiring an update. It is written to the server's technical logs at our cloud provider (Google Cloud), which deletes log entries automatically after its default retention of 30 days.</li>
 </ul>
 
 <h2 id="your-consent-before-the-ai-is-used">Your Consent Before the AI Is Used</h2>
@@ -185,7 +185,7 @@
 
 <h2 id="third-party-services">Third-Party Services</h2>
 <ul>
-    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region), the credit wallet and purchase database, and the roast result kept for 24 hours.</li>
+    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region), the credit wallet and purchase database, the roast result kept for 24 hours, and the server's technical logs.</li>
     <li><strong>Anthropic</strong> — provides the AI model (Claude) that generates the review/rewrite. It is the only third party that receives your resume content.</li>
     <li><strong>Google Play Billing</strong> and <strong>Google Play Integrity</strong> (Android) — process purchases and verify that the App is genuine.</li>
     <li><strong>Apple App Store / StoreKit</strong> and <strong>Apple App Attest</strong> (iPhone) — process purchases and verify that the App is genuine.</li>
@@ -206,6 +206,7 @@
         <tr><td>App Attest key identifier and public key (iPhone)</td><td>Until you request deletion</td></tr>
         <tr><td>App Attest attestation and Play Integrity token</td><td>Not retained; only for verification</td></tr>
         <tr><td>App Attest challenge (iPhone)</td><td>Valid for five minutes; deleted once used or replaced by the next one</td></tr>
+        <tr><td>Update check (platform and App version)</td><td>In the server's technical logs at Google Cloud, which deletes them automatically after its default retention of 30 days</td></tr>
         <tr><td>Purchase records</td><td>Until you request deletion</td></tr>
         <tr><td>Report emails</td><td>In the company's mailbox while we handle your case and for up to 12 months after; then we delete them</td></tr>
     </tbody>

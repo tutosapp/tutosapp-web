@@ -79,7 +79,7 @@
 
 <h3>Verificación de actualizaciones</h3>
 <ul>
-    <li>Al abrirse, la App le informa a nuestro servidor su plataforma (Android o iPhone) y la versión de la App, y nada más: sin identificador y sin vincularse a una persona. Lo usamos solo para avisarte cuando se necesita una actualización y para saber qué versiones siguen en uso. Se conserva en los registros del servidor durante el periodo normal de conservación de registros.</li>
+    <li>Al abrirse, la App le informa a nuestro servidor solo su plataforma (Android o iPhone) y la versión de la App: sin identificador y sin vincularse a una persona. Lo usamos para avisarte cuando se necesita una actualización y para saber qué versiones siguen en uso antes de exigir una actualización. Queda escrito en los registros técnicos del servidor en nuestro proveedor de nube (Google Cloud), que borra las entradas de registro automáticamente al cumplirse su plazo de conservación por defecto, de 30 días.</li>
 </ul>
 
 <h2>Tu consentimiento antes de usar la IA</h2>
@@ -126,7 +126,7 @@
 
 <h2>Servicios de terceros</h2>
 <ul>
-    <li><strong>Google Cloud / Firebase</strong> — aloja nuestro servidor (región us-central1), la base de datos del monedero de créditos y de las compras, y el resultado del análisis que se guarda 24 horas.</li>
+    <li><strong>Google Cloud / Firebase</strong> — aloja nuestro servidor (región us-central1), la base de datos del monedero de créditos y de las compras, el resultado del análisis que se guarda 24 horas y los registros técnicos del servidor.</li>
     <li><strong>Anthropic</strong> — provee el modelo de IA (Claude) que genera el análisis y la reescritura. Es el único tercero que recibe el contenido de tu currículum.</li>
     <li><strong>Google Play Billing</strong> y <strong>Google Play Integrity</strong> (Android) — procesan las compras y verifican que la App es auténtica.</li>
     <li><strong>Apple App Store / StoreKit</strong> y <strong>Apple App Attest</strong> (iPhone) — procesan las compras y verifican que la App es auténtica.</li>
@@ -147,6 +147,7 @@
         <tr><td>Identificador y clave pública de App Attest (iPhone)</td><td>Hasta que solicites su eliminación</td></tr>
         <tr><td>Certificación de App Attest y testigo de Play Integrity</td><td>No se conservan; solo para la verificación</td></tr>
         <tr><td>Desafío de App Attest (iPhone)</td><td>Válido cinco minutos; se borra al usarse o se reemplaza por el siguiente</td></tr>
+        <tr><td>Verificación de actualizaciones (plataforma y versión de la App)</td><td>En los registros técnicos del servidor en Google Cloud, que los borra automáticamente al cumplirse su plazo de conservación por defecto, de 30 días</td></tr>
         <tr><td>Registro de compras</td><td>Hasta que solicites su eliminación</td></tr>
         <tr><td>Correos de reporte</td><td>En el buzón de la empresa mientras atendemos tu caso y hasta 12 meses después; luego los borramos</td></tr>
     </tbody>
