@@ -99,7 +99,7 @@
     <li><strong>Android</strong>: la App usa el <strong>ANDROID_ID</strong> del dispositivo o, si no está disponible, un código aleatorio creado la primera vez.</li>
     <li><strong>iPhone</strong>: la App crea un <strong>código aleatorio</strong> (que empieza por <code>ios-</code>) y lo guarda en el llavero (Keychain) del dispositivo, configurado para no incluirse en copias de seguridad. No es un identificador de Apple ni de publicidad. A diferencia del resto de datos locales, el llavero conserva este código aunque desinstales la App.</li>
     <li>En ambos casos el identificador se envía a nuestro servidor y es la clave de tu <strong>monedero de créditos</strong>: sin él no podríamos saber cuántos análisis te quedan, acreditar tus compras ni evitar que se reclamen créditos gratuitos de forma repetida.</li>
-    <li>Este identificador <strong>sí se almacena de forma permanente</strong> en nuestro servidor, asociado únicamente a un saldo de créditos. No va unido a tu nombre, a tu correo ni al contenido de tu currículum, y no se comparte con nadie.</li>
+    <li>Este identificador <strong>sí se almacena de forma permanente</strong> en nuestro servidor, asociado a un saldo de créditos y, durante un máximo de unas 24 horas, mediante una huella unidireccional (hash), al resultado del análisis guardado que se describe más abajo en «El resultado de tu análisis, guardado 24 horas». No va unido a tu nombre ni a tu correo, y no se comparte con nadie.</li>
 </ul>
 
 <h3>Verificación de integridad</h3>
@@ -115,6 +115,15 @@
     <li><strong>iPhone</strong>: las compras las procesa el <strong>App Store</strong> de Apple (StoreKit 2). La App envía a nuestro servidor la transacción firmada por Apple; el servidor verifica la firma de Apple y <strong>almacena</strong> el identificador de la transacción, el identificador del producto y el entorno (producción o pruebas). La transacción firmada completa no se almacena.</li>
     <li>En ambos casos el registro de la compra se guarda junto al identificador de tu dispositivo, el número de créditos y la fecha, para acreditar los créditos y evitar que una misma compra se canjee dos veces.</li>
     <li><strong>No</strong> recibimos ni almacenamos los datos de tu tarjeta ni de tu medio de pago, ni tu Apple ID o cuenta de Google.</li>
+</ul>
+
+<h3>El resultado de tu análisis, guardado 24 horas</h3>
+<p>Es el único caso en que algo derivado de tu currículum permanece en nuestro servidor. Cuando la App (en Android, en la versión posterior a la 0.5.3) pide un análisis, envía un identificador de esa solicitud. Guardamos entonces el <strong>resultado terminado</strong> (la puntuación, el veredicto, los comentarios y la coincidencia con el puesto) durante <strong>24 horas</strong> desde que está listo.</p>
+<ul>
+    <li><strong>Para qué</strong>: si la App se cierra, o se corta la conexión, mientras se hace el análisis, puedes obtener el análisis que ya pagaste en lugar de pagar de nuevo.</li>
+    <li><strong>Qué se guarda</strong>: el resultado, que se deriva de tu currículum y puede repetir datos de él, y una huella unidireccional (un hash SHA-256) de la solicitud, que sirve para comprobar que una solicitud repetida es la misma. <strong>El texto de tu currículum, el puesto y la oferta de empleo siguen sin guardarse nunca.</strong></li>
+    <li><strong>Asociado a tu dispositivo mediante una huella unidireccional (hash) de su identificador</strong>: el registro se guarda bajo un hash del identificador de tu dispositivo y del identificador de la solicitud, y contiene un hash del identificador de tu dispositivo, nunca el identificador en sí. Solo se devuelve al mismo dispositivo y para la misma solicitud.</li>
+    <li><strong>Eliminación</strong>: se borra automáticamente 24 horas después de que el resultado esté listo; nuestra limpieza cada hora lo elimina en aproximadamente una hora más. Puedes pedirnos que lo borremos antes escribiendo a hola@tutosapp.co (ver "Cómo ejercerlos").</li>
 </ul>
 
 <h3>Preferencia de idioma</h3>
@@ -137,7 +146,7 @@
 <h2 id="como-se-procesa-tu-curriculum">Cómo se procesa tu currículum</h2>
 <p>Cuando pides un análisis o una reescritura, el texto viaja por una conexión cifrada (HTTPS) a nuestro servidor (Google Cloud / Firebase Functions), que lo reenvía a nuestro proveedor de IA (<strong>Anthropic</strong>, modelo Claude) para generar el resultado que se devuelve a tu dispositivo.</p>
 <ul>
-    <li><strong>No almacenamos</strong> el texto de tu currículum en nuestros servidores. Se procesa <strong>de forma efímera</strong>: se usa en memoria únicamente para responder a esa solicitud concreta y no se guarda en base de datos ni se registra en nuestros archivos de log.</li>
+    <li><strong>No almacenamos</strong> el texto de tu currículum en nuestros servidores. Se procesa <strong>de forma efímera</strong>: se usa en memoria únicamente para responder a esa solicitud concreta y no se guarda en base de datos ni se registra en nuestros archivos de log. Lo único derivado de él que conservamos es el resultado terminado, durante 24 horas (ver "El resultado de tu análisis, guardado 24 horas").</li>
     <li>Nuestro proveedor de IA procesa el texto para generar el resultado conforme a los términos de su API, y puede conservarlo durante un tiempo limitado por motivos de seguridad. Anthropic no utiliza por defecto los datos enviados a través de su API para entrenar sus modelos.</li>
 </ul>
 
@@ -162,6 +171,7 @@
 <ul>
     <li>Generar el análisis y la reescritura de tu currículum con IA, cuando das tu consentimiento.</li>
     <li>Mostrar y guardar tus resultados localmente para que puedas volver a consultarlos.</li>
+    <li>Permitirte recuperar un análisis que ya pagaste si la App se cierra o se corta la conexión mientras se hace.</li>
     <li>Gestionar tu saldo de créditos y procesar tus compras.</li>
     <li>Prevenir el abuso de los créditos gratuitos y el fraude.</li>
     <li>Revisar los resultados que nos reportes, atender los reportes y sugerencias que nos envíes y responderte.</li>
@@ -170,7 +180,7 @@
 
 <h2 id="servicios-de-terceros">Servicios de terceros</h2>
 <ul>
-    <li><strong>Google Cloud / Firebase</strong> — aloja nuestro servidor (región us-central1) y la base de datos del monedero de créditos y de las compras.</li>
+    <li><strong>Google Cloud / Firebase</strong> — aloja nuestro servidor (región us-central1), la base de datos del monedero de créditos y de las compras, y el resultado del análisis que se guarda 24 horas.</li>
     <li><strong>Anthropic</strong> — provee el modelo de IA (Claude) que genera el análisis y la reescritura. Es el único tercero que recibe el contenido de tu currículum.</li>
     <li><strong>Google Play Billing</strong> y <strong>Google Play Integrity</strong> (Android) — procesan las compras y verifican que la App es auténtica.</li>
     <li><strong>Apple App Store / StoreKit</strong> y <strong>Apple App Attest</strong> (iPhone) — procesan las compras y verifican que la App es auténtica.</li>
@@ -185,6 +195,7 @@
     <thead><tr><th>Dato</th><th>Conservación</th></tr></thead>
     <tbody>
         <tr><td>Contenido del currículum, puesto y ofertas de empleo</td><td>No se conserva; solo durante la solicitud</td></tr>
+        <tr><td>Resultado terminado del análisis y huella de la solicitud, asociados a tu dispositivo mediante un hash del identificador</td><td>24 horas desde que el resultado está listo; luego se borra en aproximadamente una hora. Antes, si lo pides</td></tr>
         <tr><td>Último currículum guardado para reutilizarlo, con el puesto, la oferta de empleo y el idioma del análisis (Android)</td><td>Solo en tu teléfono; el currículum hasta que lo borres en la App, y todo ello hasta que borres los datos de la App o la desinstales</td></tr>
         <tr><td>Identificador de dispositivo y saldo de créditos</td><td>Hasta que solicites su eliminación</td></tr>
         <tr><td>Identificador y clave pública de App Attest (iPhone)</td><td>Hasta que solicites su eliminación</td></tr>
@@ -198,7 +209,7 @@
 <h2 id="seguridad">Seguridad</h2>
 <ul>
     <li>Toda la comunicación entre la App, nuestro servidor y el proveedor de IA viaja cifrada mediante <strong>HTTPS/TLS</strong>.</li>
-    <li>No conservamos el texto del currículum después de generar el resultado.</li>
+    <li>No conservamos el texto del currículum después de generar el resultado. El resultado terminado se guarda solo 24 horas, bajo un hash del identificador de tu dispositivo.</li>
     <li>La clave del proveedor de IA y el procesamiento están en el servidor; la App nunca contacta directamente al proveedor de IA.</li>
     <li>Las compras de iPhone solo se acreditan si la firma de Apple es válida.</li>
 </ul>
@@ -219,7 +230,7 @@
     <li><strong>Acceso</strong>: tus resultados y tu saldo son visibles dentro de la App.</li>
     <li><strong>Eliminación local</strong>: usa "Borrar historial" en la App, o borra los datos de la App / desinstálala. En Android, "Borrar este CV de mi teléfono" borra el último currículum guardado para reutilizarlo.</li>
     <li><strong>Eliminación en el servidor</strong>: puedes pedir que borremos el identificador de tu dispositivo, tu saldo de créditos, los datos de App Attest y tu registro de compras escribiendo a hola@tutosapp.co. La solicitud se tramita como un reclamo, en los plazos indicados abajo. Al eliminar el monedero también se elimina el saldo de créditos que tuvieras.</li>
-    <li>Como no conservamos el texto de tu currículum, no existe copia en el servidor que borrar.</li>
+    <li>Como no conservamos el texto de tu currículum, no existe copia en el servidor que borrar. El resultado terminado de un análisis se borra automáticamente en unas 25 horas; si quieres que se borre antes, escribe a hola@tutosapp.co.</li>
     <li>Para cualquier otro derecho, escríbenos al mismo correo.</li>
 </ul>
 
@@ -239,7 +250,7 @@
 <p>La App está dirigida a personas que buscan empleo y no está destinada a menores de 13 años. No recopilamos de forma consciente datos personales de menores de esa edad.</p>
 
 <h2 id="cambios-en-esta-politica-de-privacidad">Cambios en esta Política de Privacidad</h2>
-<p>Podemos actualizar esta Política de Privacidad de vez en cuando. Los cambios se reflejarán actualizando la fecha de "última actualización" que aparece arriba. Si un cambio afecta a lo que se envía a la IA, la App te pedirá de nuevo tu consentimiento. Si un cambio sustancial afecta a la identificación del responsable o a las finalidades del tratamiento, te lo comunicaremos antes de aplicarlo.</p>
+<p>Podemos actualizar esta Política de Privacidad de vez en cuando. Los cambios se reflejarán actualizando la fecha de "última actualización" que aparece arriba. Nota de versión, 16 de noviembre de 2026: ahora guardamos 24 horas el resultado terminado de un análisis para que puedas recuperarlo si la App se cierra a mitad del análisis (Android, versión posterior a la 0.5.3). Si un cambio afecta a lo que se envía a la IA, la App te pedirá de nuevo tu consentimiento. Si un cambio sustancial afecta a la identificación del responsable o a las finalidades del tratamiento, te lo comunicaremos antes de aplicarlo.</p>
 <p>Esta política entra en vigencia el <strong>11 de noviembre de 2026</strong>.</p>
 
 <div class="contact">
