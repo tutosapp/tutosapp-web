@@ -18,7 +18,11 @@ const SITE_URL = `https://${DOMAIN}/`;
 const EMAIL = 'hola@tutosapp.co';
 const COMPANY = { name: 'TUTOS APP S.A.S.', nit: '902.125.524-7', city: 'Medellín, Colombia' };
 const YEAR = 2026;
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
+// A local-only fixture build (scripts/fixture.mjs) sets this before importing this file: it adds
+// fake apps to the list and writes to a copy of site/ and legal/ elsewhere, to check that the
+// pages hold up with more apps. It is never set when the real site is built or published.
+const FIXTURE = globalThis.TUTOSAPP_FIXTURE;
+const ROOT = FIXTURE?.root ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
 
 const PLAY = (id) => `https://play.google.com/store/apps/details?id=${id}`;
 const APP_STORE = (id) => `https://apps.apple.com/app/id${id}`;
@@ -43,7 +47,7 @@ const rich = (s) => esc(s).replace(/\*([^*]+)\*([.,!?]?)/g, '<em>$1$2</em>');
 // the site's design at <app path><slug>/ (for example ojito/privacidad/ and ojito/en/privacy/).
 // A file starts with its <h1> title; the rest is the document as published. Links between
 // documents are written as legal:<app>/<doc>/<lang>[#id] and become relative links here.
-const LEGAL_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'legal');
+const LEGAL_DIR = FIXTURE?.legal ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'legal');
 // The company's own privacy policy, for what people send through the contact chat (Colombia's
 // Ley 1581 de 2012): legal/tutosapp/<lang>-privacy.html, published at these paths.
 const companyPrivacy = { paths: { es: 'privacidad/', en: 'en/privacy/' }, date: '2026-11-11' };
@@ -53,15 +57,32 @@ const LEGAL_SLUGS = {
   en: { privacy: 'privacy', terms: 'terms', support: 'support' },
 };
 
-// The apps, in the order they are shown. Adding an app is one more entry here (plus its images):
-// the home sections, the menus, the footers, the sitemap and its own page follow.
-// paths: the first language is the app's main one (hreflang x-default).
-// bg: the browser theme color, matching the top of the app's page; light: the same for its legal pages,
-// which use the light page background of its theme (--bg in style.css). fonts: extra fonts its page preloads.
-// status: 'live' (in a store), 'test' (closed testing) or 'soon'.
-// stores: 'live' links to the listing; 'soon' shows a "coming soon" badge.
+// Our own products (apps), in the order they are shown. Adding one is one more entry here, plus its
+// images in site/assets/img/<id>/ and its privacy policy and terms in legal/<id>/ (README.md, "Cómo
+// agregar una app"): the home, the services page, the app switcher, the footers, the sitemap, the
+// structured data, its own page and its legal pages follow, and --check says what is missing.
+// Required:
+//   id, name, color (its accent, also in the orb), icon (256 × 256), paths (the first language is
+//   its main one, hreflang x-default), status ('live', 'test' or 'soon'), stores, category (a
+//   schema.org applicationCategory), legal, screenSize and screens (2 to 8 real screens per
+//   language, the first one is the one shown on the home), and in each language (es, en):
+//   category (its tagline), for, title, description, headline, lead, pitch, tabs (one
+//   [label, dot, description] per screen), benefits, steps, faq, closing, share, navCta and work
+//   (shows, claim: its one line on the home, problem, built, ai). Without a live store it also
+//   needs notify (an email link) or cta.
+// stores: any of play (Google Play), appStore (App Store) and web (a web app, used in the browser),
+//   each { status: 'live', url } or { status: 'soon' }. Only the ones listed are shown, so a web app
+//   lists only web, and its structured data says WebApplication instead of MobileApplication.
+// device: 'phone' (the default) shows its screens in a phone frame; 'browser' in a browser window,
+//   for a web app with wide screens.
 // legal: the date each of its legal documents last changed, shown as "last updated" on the page.
-// A privacy policy and terms are required for every app (checked by --check); support is optional.
+//   A privacy policy and terms are required for every app (checked by --check); support is optional.
+// Optional, with a quiet default: theme (a class in style.css with its own colors and type; without
+//   one it uses the Tutos App tokens), bg and light (browser theme colors of its page and its legal
+//   pages), fonts (extra fonts its page preloads), decor ('scan', 'embers' or 'wave' behind the
+//   phone), shots and shotSize (store screenshots for its gallery; without them the gallery shows
+//   its screens), feature (the screen next to its first benefit; the last screen otherwise), floats
+//   (labels around the phone), ticker, prices, version and os.
 // prices: the launch prices, the same on Google Play and the App Store, in US dollars, shown on the
 // app page, its FAQ and its structured data, labeled as launch prices until LAUNCH_PRICE_UNTIL.
 // A build after that date drops the label and priceValidUntil; --check fails until it is extended or removed.
@@ -501,6 +522,22 @@ const apps = [
     },
   },
 ];
+if (FIXTURE) apps.push(...FIXTURE.apps(apps.length));
+
+// The quiet defaults of the optional fields (see above), so the rest of the build reads one shape.
+for (const a of apps) {
+  a.theme ??= '';
+  a.fonts ??= [];
+  a.bg ??= '#f6f6f8';
+  a.light ??= '#f6f6f8';
+  a.device ??= 'phone';
+  a.ownShots = Boolean(a.shots);
+  a.shots ??= a.screens;
+  a.shotSize ??= a.screenSize;
+  a.look ??= 'phone';
+  a.ownFeature = Boolean(a.feature);
+  a.feature ??= (lang) => a.screens(lang).at(-1);
+}
 
 const ui = {
   es: {
@@ -510,6 +547,7 @@ const ui = {
     screens: 'Así se ve',
     faq: 'Preguntas frecuentes',
     getOn: 'Disponible en',
+    useOn: 'Úsala en',
     soonOn: 'Próximamente en',
     share: 'Compartir por WhatsApp',
     notify: 'Avísame cuando salga',
@@ -550,7 +588,7 @@ const ui = {
     faqKicker: 'Dudas',
     // Each app page's own menu: links to its sections.
     sections: { benefits: ['beneficios', 'Beneficios'], how: ['como-funciona', 'Cómo funciona'], shots: ['capturas', 'Capturas'], faq: ['preguntas', 'Preguntas'] },
-    appBy: (name) => `${name} es una app de Tutos App, estudio de apps de Medellín, Colombia.`,
+    appBy: (name) => `${name} es una app de Tutos App, estudio de software de Medellín, Colombia.`,
   },
   en: {
     ourApps: 'Our apps',
@@ -559,6 +597,7 @@ const ui = {
     screens: 'Take a look',
     faq: 'Frequently asked questions',
     getOn: 'Get it on',
+    useOn: 'Use it on',
     soonOn: 'Coming soon to',
     share: 'Share on WhatsApp',
     notify: 'Notify me when it launches',
@@ -598,16 +637,19 @@ const ui = {
     shotsKicker: 'App screenshots',
     faqKicker: 'Questions',
     sections: { benefits: ['benefits', 'Benefits'], how: ['how-it-works', 'How it works'], shots: ['screens', 'Screens'], faq: ['faq', 'FAQ'] },
-    appBy: (name) => `${name} is an app by Tutos App, an app studio from Medellín, Colombia.`,
+    appBy: (name) => `${name} is an app by Tutos App, a software studio from Medellín, Colombia.`,
   },
 };
 
 // Copy that depends on the app list, so it stays true when an app is added.
-const appNames = (lang) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(apps.map((a) => a.name));
 const liveCount = () => apps.filter((a) => Object.values(a.stores).some((s) => s.status === 'live')).length;
+const ownApps = (lang) =>
+  lang === 'es' ? `${apps.length} ${apps.length === 1 ? 'app propia' : 'apps propias'}` : `${apps.length} ${apps.length === 1 ? 'app' : 'apps'} of our own`;
 
-// Home page copy. The home sells the studio to companies and founders who want an app built, with
-// our own apps as the proof (the plan is in README.md). It leads with what a person gets, in plain
+// Home page copy. The home sells the studio to companies and founders who want software built for
+// them: mobile apps, web apps and websites, or new features for what they already have, with our own
+// apps as the proof (the plan is in README.md). We have no client projects to show yet, so it says
+// what we offer and never that we have built it for someone. It leads with what a person gets, in plain
 // words, and names AI only where it says something useful. Every fact on it is true and checkable:
 // the company, the city, the apps and where each one is today, the published legal pages and how
 // we work. No testimonials, logos or numbers we cannot show. The process, the contact section and
@@ -616,15 +658,15 @@ const home = {
   paths: { es: '', en: 'en/' },
   bg: '#f7f7f9',
   es: {
-    title: 'Tutos App: hacemos tu app, de la idea a las tiendas',
-    description: `Estudio de apps en Medellín, Colombia. Diseñamos, construimos y publicamos apps para iPhone y Android, y las cuidamos después del lanzamiento. Nuestras apps: ${appNames('es')}.`,
-    eyebrow: 'Estudio de apps · Medellín, Colombia',
-    headline: 'Hacemos tu app, *de la idea a las tiendas*.',
-    lead: 'Diseñamos, construimos y publicamos apps para iPhone y Android, y las seguimos cuidando después del lanzamiento. Lo hacemos así con las nuestras.',
+    title: 'Tutos App: hacemos tu app o tu web, de la idea al lanzamiento',
+    description: `Estudio de software en Medellín, Colombia. Hacemos apps para iPhone y Android, aplicaciones web y sitios, y sumamos funciones a lo que ya tienes. Nuestras ${ownApps('es')} son la prueba.`,
+    eyebrow: 'Estudio de software · Medellín, Colombia',
+    headline: 'Hacemos tu app o tu web, *de la idea al lanzamiento*.',
+    lead: 'Apps para iPhone y Android, aplicaciones web y sitios, o nuevas funciones para lo que ya tienes. Lo diseñamos, lo construimos, lo publicamos y lo seguimos cuidando, como hacemos con nuestras propias apps.',
     secondary: 'Ver nuestras apps',
     facts: () => [
       [String(apps.length), apps.length === 1 ? 'app propia' : 'apps propias'],
-      [String(liveCount()), 'ya en las tiendas'],
+      [String(liveCount()), liveCount() === 1 ? 'ya disponible' : 'ya disponibles'],
       ['2 días hábiles', 'para responderte'],
       ['NDA', 'si lo pides, antes de hablar'],
     ],
@@ -632,16 +674,16 @@ const home = {
     workId: 'trabajo',
     workEyebrow: 'Nuestras apps',
     workTitle: 'Antes de hacer la tuya, *hicimos las nuestras*.',
-    workLead: 'Apps propias que diseñamos y construimos de principio a fin. Son la forma más directa de ver cómo trabajamos antes de hablar.',
+    workLead: 'Productos propios que diseñamos y construimos de principio a fin. Son la forma más directa de ver cómo trabajamos antes de hablar.',
     seeApp: (name) => `Conoce ${name}`,
     processId: 'proceso',
     processEyebrow: 'Nuestro proceso',
-    processTitle: 'Sabes en qué va tu app *en cada etapa*.',
+    processTitle: 'Sabes en qué va tu proyecto *en cada etapa*.',
     processMore: 'Servicios y formas de trabajar',
     aboutId: 'nosotros',
     aboutEyebrow: 'Quiénes somos',
     aboutTitle: 'Una empresa colombiana *que puedes verificar*.',
-    aboutLead: `Tutos App es una marca de ${COMPANY.name}, una empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras propias apps y, con lo que aprendemos en ellas, podemos hacer la tuya.`,
+    aboutLead: `Tutos App es una marca de ${COMPANY.name}, una empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras propias apps y, con lo que aprendemos en ellas, hacemos la app o la web que necesitas.`,
     // What anyone can check on this site, each with the page that shows it.
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
@@ -656,26 +698,26 @@ const home = {
     whoEyebrow: 'Para quién',
     whoTitle: 'Para quien tiene *algo que construir*.',
     who: [
-      ['Fundadores y startups', 'Tienes una idea y quieres probarla con usuarios reales pronto, sin armar un equipo desde cero.'],
-      ['Pymes y empresas en Colombia y Latinoamérica', 'Quieres una app para tus clientes o tu equipo, o sumarle funciones a la que ya tienes.'],
+      ['Fundadores y startups', 'Tienes una idea, para el celular o para la web, y quieres probarla con usuarios reales pronto, sin armar un equipo desde cero.'],
+      ['Pymes y empresas en Colombia y Latinoamérica', 'Quieres una app, una plataforma web o un sitio para tus clientes o tu equipo, o sumarle funciones a lo que ya tienes.'],
       ['Empresas de Estados Unidos', 'Buscas un equipo nearshore en tu horario (UTC−5), que trabaje en inglés.'],
     ],
     faqId: 'preguntas',
     faqEyebrow: 'Dudas frecuentes',
     faqMore: 'Más preguntas',
     contactId: 'contacto',
-    about: 'Estudio de apps de Medellín, Colombia. Hacemos tu app, de la idea a las tiendas.',
+    about: 'Estudio de software de Medellín, Colombia. Hacemos tu app o tu web, de la idea al lanzamiento.',
   },
   en: {
-    title: 'Tutos App: we build your app, from idea to the stores',
-    description: `App studio in Medellín, Colombia. We design, build and publish apps for iPhone and Android, and keep looking after them after launch. Our apps: ${appNames('en')}.`,
-    eyebrow: 'App studio · Medellín, Colombia',
-    headline: 'We build your app, *from idea to the stores*.',
-    lead: 'We design, build and publish apps for iPhone and Android, and keep looking after them after launch. We do the same with our own apps.',
+    title: 'Tutos App: we build your app or website, from idea to launch',
+    description: `Software studio in Medellín, Colombia. We build iPhone and Android apps, web apps and websites, and add features to what you already have. Our ${ownApps('en')} are the proof.`,
+    eyebrow: 'Software studio · Medellín, Colombia',
+    headline: 'We build your app or website, *from idea to launch*.',
+    lead: 'iPhone and Android apps, web apps and websites, or new features for what you already have. We design it, build it, launch it and keep looking after it, as we do with our own apps.',
     secondary: 'See our apps',
     facts: () => [
       [String(apps.length), apps.length === 1 ? 'app of our own' : 'apps of our own'],
-      [String(liveCount()), 'already in the stores'],
+      [String(liveCount()), 'already available'],
       ['2 business days', 'to reply to you'],
       ['NDA', 'before we talk, if you ask'],
     ],
@@ -683,16 +725,16 @@ const home = {
     workId: 'work',
     workEyebrow: 'Our apps',
     workTitle: 'Before building yours, *we built our own*.',
-    workLead: 'Apps of our own that we designed and built from start to finish. They are the most direct way to see how we work before we talk.',
+    workLead: 'Products of our own that we designed and built from start to finish. They are the most direct way to see how we work before we talk.',
     seeApp: (name) => `See ${name}`,
     processId: 'process',
     processEyebrow: 'Our process',
-    processTitle: 'You know where your app stands *at every stage*.',
+    processTitle: 'You know where your project stands *at every stage*.',
     processMore: 'Services and ways to work',
     aboutId: 'about',
     aboutEyebrow: 'Who we are',
     aboutTitle: 'A Colombian company *you can look up*.',
-    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn from them, we can build yours.`,
+    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn from them, we build the app or website you need.`,
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
       return [
@@ -706,15 +748,15 @@ const home = {
     whoEyebrow: 'Who it is for',
     whoTitle: 'For people who have *something to build*.',
     who: [
-      ['Founders and startups', 'You have an idea and want to test it with real users soon, without building a team from scratch.'],
-      ['SMEs and companies in Colombia and Latin America', 'You want an app for your customers or your team, or to add features to the one you have.'],
+      ['Founders and startups', 'You have an idea, for phones or for the web, and want to test it with real users soon, without building a team from scratch.'],
+      ['SMEs and companies in Colombia and Latin America', 'You want an app, a web platform or a website for your customers or your team, or to add features to what you already have.'],
       ['US companies', 'You are looking for a nearshore team in your hours (UTC−5) that works in English.'],
     ],
     faqId: 'faq',
     faqEyebrow: 'Common questions',
     faqMore: 'More questions',
     contactId: 'contact',
-    about: 'App studio from Medellín, Colombia. We build your app, from idea to the stores.',
+    about: 'Software studio from Medellín, Colombia. We build your app or website, from idea to launch.',
   },
 };
 
@@ -743,9 +785,10 @@ const workItems = (lang) => [
     icon: a.icon,
     href: a.paths[lang],
     screenSize: a.screenSize,
+    device: a.device,
     screens: a.screens(lang).slice(0, 2).map((src, i) => ({ src, alt: `${ui[lang].screenshotOf} ${a.name}: ${a[lang].tabs[i][2]}` })),
     category: a[lang].category,
-    platforms: lang === 'es' ? 'iOS y Android · Español e inglés' : 'iOS and Android · Spanish and English',
+    platforms: `${list(lang, platformsOf(a))} · ${lang === 'es' ? 'Español e inglés' : 'Spanish and English'}`,
     ...a[lang].work,
   })),
   ...projects.map((p) => ({
@@ -763,31 +806,34 @@ const workItems = (lang) => [
   })),
 ];
 
-// The services page ("We build your app"): the studio's offer to companies and founders. The
-// proof is our own work (workItems above), so it grows with every app and client project.
+// The services page: the studio's offer to companies and founders, mobile apps, web apps, websites
+// and new features for an existing product. The proof is our own work (workItems above), so it
+// grows with every app and client project.
 const services = {
   paths: { es: 'servicios/', en: 'en/services/' },
   bg: '#f6f6f8',
   es: {
-    title: 'Hacemos tu app: de la idea a App Store y Google Play',
+    title: 'Servicios: apps móviles, aplicaciones web y sitios · Tutos App',
     description:
-      'Tutos App es un estudio de apps en Medellín. Llevamos tu idea a una app en App Store y Google Play: agentes de IA hacen el trabajo pesado y una persona revisa cada decisión.',
-    navLabel: 'Hacemos tu app',
-    eyebrow: 'Hacemos tu app · Estudio de apps en Medellín',
-    headline: 'Apps, funciones e IA *para tu negocio*.',
+      'Tutos App es un estudio de software en Medellín. Hacemos apps para iPhone y Android, aplicaciones web y sitios, y sumamos funciones a lo que ya tienes: agentes de IA hacen el trabajo pesado y una persona revisa cada decisión.',
+    navLabel: 'Servicios',
+    // What we offer, in the structured data of the services page and the home.
+    serviceTypes: ['Desarrollo de apps móviles para iOS y Android', 'Desarrollo de aplicaciones web', 'Diseño y desarrollo de sitios web', 'Nuevas funciones, integraciones e IA para productos existentes'],
+    eyebrow: 'Servicios · Estudio de software en Medellín',
+    headline: 'Apps, webs, funciones e IA *para tu negocio*.',
     lead:
-      'Apps nuevas, nuevas funciones para el producto que ya tienes, IA e integraciones. Agentes de IA hacen el trabajo pesado y una persona revisa cada decisión: rápido, con calidad y sin sorpresas.',
+      'Apps para iPhone y Android, aplicaciones web y sitios, nuevas funciones para el producto que ya tienes, IA e integraciones. Agentes de IA hacen el trabajo pesado y una persona revisa cada decisión: rápido, con calidad y sin sorpresas.',
     primary: 'Cuéntanos tu idea',
     whatsapp: 'Escríbenos por WhatsApp',
-    whatsappText: 'Hola, quiero hablar con Tutos App sobre una app.',
+    whatsappText: 'Hola, quiero hablar con Tutos App sobre un proyecto.',
     facts: [
       [String(apps.length), `${apps.length === 1 ? 'app propia' : 'apps propias'} con IA`],
-      ['iOS · Android', 'para App Store y Google Play'],
+      ['iOS · Android · Web', 'apps móviles, aplicaciones web y sitios'],
       ['ES · EN', 'todas en español e inglés'],
       ['UTC−5', 'desde Medellín, en tu horario'],
     ],
     studio: {
-      title: 'Tu app, de la idea a las tiendas',
+      title: 'Tu proyecto, de la idea al lanzamiento',
       note: 'Quién hace cada parte',
       ai: 'IA',
       human: 'Persona',
@@ -805,14 +851,14 @@ const services = {
     seeWork: (name) => `Ver ${name}`,
     buildId: 'que-hacemos',
     buildEyebrow: 'Qué construimos',
-    buildTitle: 'Apps que *resuelven algo*, con la IA donde suma.',
+    buildTitle: 'Apps y webs que *resuelven algo*, con la IA donde suma.',
     build: [
       ['phone', 'Apps móviles para iOS y Android', 'Diseño, desarrollo y publicación de la app completa, con cuentas, pagos, notificaciones y lo que tu negocio necesite.'],
+      ['globe', 'Aplicaciones web y sitios', 'Plataformas, paneles y herramientas que se usan desde el navegador, y la página de tu empresa o de tu producto, rápida, accesible y lista para buscadores, como este sitio.'],
       ['eye', 'Visión e IA sobre fotos', 'Leer códigos de barras, etiquetas, documentos y fotos: OCR y visión por computador que convierten una imagen en datos útiles.', 'ojito'],
       ['wave', 'Voz y chat con IA', 'Asistentes que conversan por voz o por texto, entrevistan, explican y responden con el contexto de tu negocio.', 'roast-interview'],
       ['gauge', 'Puntajes y recomendaciones', 'Modelos que califican, comparan y recomiendan, con reglas claras y el porqué de cada resultado.', 'resume-roast'],
       ['spark', 'Funciones para el producto que ya tienes', 'Nuevas funciones, integraciones con tus sistemas e IA para tu app o tu web, sobre tu código y sin rehacerlo. Y mantenimiento para que siga al día.'],
-      ['globe', 'Landings y sitios web', 'La página de tu app o de tu empresa, rápida, accesible y lista para buscadores, como este sitio.'],
     ],
     seenIn: 'Lo usamos en',
     processId: 'proceso',
@@ -820,11 +866,11 @@ const services = {
     processTitle: 'Agentes de IA hacen el trabajo pesado. *Una persona revisa cada decisión.*',
     process: [
       ['Descubrimiento', 'Entendemos tu idea, a tus usuarios y el problema. Salimos con un alcance claro, lo que entra en la primera versión y fechas.', 'human'],
-      ['Diseño', 'Pantallas y flujos que puedes tocar en tu celular antes de escribir el código. La IA explora opciones; tú y nosotros decidimos.', 'both'],
+      ['Diseño', 'Pantallas y flujos que puedes probar en tu celular o en el navegador antes de escribir el código. La IA explora opciones; tú y nosotros decidimos.', 'both'],
       ['Construcción con IA y revisión humana', 'Agentes de IA escriben y prueban el código en paralelo, y una persona del equipo revisa y aprueba cada cambio antes de que entre.', 'both'],
-      ['Calidad', 'Pruebas automáticas, revisión de accesibilidad y pruebas en teléfonos reales, en iPhone y en Android.', 'both'],
-      ['Lanzamiento en App Store y Google Play', 'Fichas, capturas, política de privacidad y términos, y el paso por la revisión de Apple y de Google.', 'human'],
-      ['Operación', 'Después del lanzamiento: métricas, errores, actualizaciones de las tiendas y nuevas funciones.', 'both'],
+      ['Calidad', 'Pruebas automáticas, revisión de accesibilidad y pruebas en teléfonos y navegadores reales.', 'both'],
+      ['Lanzamiento', 'Una app sale en App Store y Google Play, con sus fichas, capturas, política de privacidad y términos y el paso por la revisión de Apple y de Google. Una web sale en tu dominio.', 'human'],
+      ['Operación', 'Después del lanzamiento: métricas, errores, actualizaciones y nuevas funciones.', 'both'],
     ],
     who: { human: 'Personas', both: 'IA + revisión humana' },
     offersId: 'formas-de-trabajar',
@@ -832,8 +878,8 @@ const services = {
     offersTitle: 'Empieza por *lo que necesitas hoy*.',
     offersLead: 'Sin precios de catálogo: después de la primera llamada te mandamos una propuesta escrita con alcance, fechas y precio.',
     offers: [
-      ['MVP en semanas', 'Para validar una idea con usuarios reales.', ['Lo esencial para probar tu idea', 'Una app en iOS y Android', 'Lista para las tiendas o para un grupo de prueba']],
-      ['App completa', 'Para lanzar un producto que va a crecer.', ['Diseño, desarrollo y publicación', 'Cuentas, pagos y notificaciones', 'Pruebas en teléfonos reales']],
+      ['MVP en semanas', 'Para validar una idea con usuarios reales.', ['Lo esencial para probar tu idea', 'Una app para iOS y Android, o una web', 'Lista para tus primeros usuarios']],
+      ['Producto completo', 'Para lanzar una app o una web que va a crecer.', ['Diseño, desarrollo y publicación', 'Cuentas, pagos y notificaciones', 'Pruebas en teléfonos y navegadores reales']],
       ['Funciones e IA para tu producto', 'Para la app o la web que ya tienes.', ['Nuevas funciones e integraciones', 'IA: visión, documentos, voz o chat', 'Sobre tu código y tus datos, sin rehacerlo']],
       ['Acompañamiento mensual', 'Para mantener y mejorar tu producto mes a mes.', ['Mantenimiento, errores y actualizaciones', 'Nuevas funciones cada mes', 'Métricas y prioridades contigo']],
     ],
@@ -846,9 +892,10 @@ const services = {
       ['¿Mi idea queda protegida?', 'Sí. Tu idea es tuya: la tratamos con confidencialidad, no la compartimos ni la usamos para nada distinto a responderte, y si quieres firmamos un acuerdo de confidencialidad (NDA) antes de la primera llamada.', 'home'],
       ['¿Cuánto tiempo toma?', 'Depende del alcance. Un MVP enfocado se mide en semanas, no en meses. En la primera llamada te damos un estimado, y la propuesta lleva fechas y lo que entra en cada entrega.', 'home'],
       ['¿De quién es el código?', 'Tuyo. El código, los diseños y las cuentas de las tiendas quedan a nombre de tu empresa, y así queda por escrito en el contrato.', 'home'],
-      ['¿Ustedes publican la app en las tiendas?', 'Sí. Preparamos las fichas, las capturas, la política de privacidad y los términos, y llevamos la app por la revisión de Apple y de Google, como hacemos con nuestras propias apps. La app sale con la cuenta de desarrollador de tu empresa.', 'home'],
+      ['¿Hacen también aplicaciones web y sitios?', 'Sí. Además de apps para iPhone y Android, hacemos aplicaciones web, paneles internos, plataformas y sitios. Y si ya tienes un producto, le sumamos funciones, integraciones o IA sobre tu código, sin rehacerlo.', 'home'],
+      ['¿Ustedes lo publican?', 'Sí. Si es una app, preparamos las fichas, las capturas, la política de privacidad y los términos, y la llevamos por la revisión de Apple y de Google, como hacemos con nuestras propias apps; sale con la cuenta de desarrollador de tu empresa. Si es una web, la dejamos en línea en tu dominio.', 'home'],
       ['¿Cómo cuidan la privacidad de los datos?', 'Diseñamos desde el inicio con la Ley 1581 de 2012 de protección de datos personales de Colombia: pedimos solo los datos necesarios, decimos para qué se usan y te ayudamos a preparar la política de privacidad. Si tu app es para otros países, tenemos en cuenta sus reglas y las de las tiendas.'],
-      ['¿En qué idiomas trabajan?', 'En español y en inglés, y tu app puede salir en los dos, como todas las nuestras. Podemos trabajar con empresas de Colombia, de Latinoamérica y de Estados Unidos.'],
+      ['¿En qué idiomas trabajan?', 'En español y en inglés, y tu app o tu web puede salir en los dos, como todas nuestras apps. Podemos trabajar con empresas de Colombia, de Latinoamérica y de Estados Unidos.'],
       ['¿Trabajan con empresas de Estados Unidos?', 'Sí. Medellín está en UTC−5: la misma hora de la costa este de Estados Unidos en invierno, y una hora menos en verano. Las reuniones caben en tu jornada.'],
       ['¿Qué hace la IA y qué hacen las personas?', 'Los agentes de IA escriben código, pruebas y borradores en paralelo, y por eso avanzamos rápido. Las decisiones de producto, de diseño y cada cambio que entra al código las revisa y aprueba una persona del equipo.', 'home'],
     ],
@@ -906,31 +953,28 @@ const services = {
         retry: 'Reintentar el envío',
       },
     },
-    homeTitle: '¿Tienes una idea? *Hacemos tu app.*',
-    homeLead: 'Lo que aprendimos haciendo nuestras apps lo ponemos al servicio de tu idea: agentes de IA hacen el trabajo pesado, una persona revisa cada decisión y tu app llega a App Store y Google Play.',
-    homeTicks: ['Apps nuevas para iOS, Android y web', 'Nuevas funciones, IA e integraciones para tu producto', 'Del primer boceto a las tiendas, y después'],
-    homeCta: 'Conoce cómo trabajamos',
   },
   en: {
-    title: 'We build your app: from idea to the App Store and Google Play',
+    title: 'Services: mobile apps, web apps and websites · Tutos App',
     description:
-      'Tutos App is an app studio in Medellín, Colombia. We take your idea to an app on the App Store and Google Play: AI agents do the heavy lifting and a person reviews every decision.',
-    navLabel: 'We build your app',
-    eyebrow: 'We build your app · App studio in Medellín',
-    headline: 'Apps, features and AI *for your business*.',
+      'Tutos App is a software studio in Medellín, Colombia. We build iPhone and Android apps, web apps and websites, and add features to what you already have: AI agents do the heavy lifting and a person reviews every decision.',
+    navLabel: 'Services',
+    serviceTypes: ['iOS and Android mobile app development', 'Web app development', 'Website design and development', 'New features, integrations and AI for existing products'],
+    eyebrow: 'Services · Software studio in Medellín',
+    headline: 'Apps, websites, features and AI *for your business*.',
     lead:
-      'New apps, new features for the product you already have, AI and integrations. AI agents do the heavy lifting and a person reviews every decision: fast, with quality and no surprises.',
+      'iPhone and Android apps, web apps and websites, new features for the product you already have, AI and integrations. AI agents do the heavy lifting and a person reviews every decision: fast, with quality and no surprises.',
     primary: 'Tell us your idea',
     whatsapp: 'Message us on WhatsApp',
-    whatsappText: 'Hi, I would like to talk with Tutos App about an app.',
+    whatsappText: 'Hi, I would like to talk with Tutos App about a project.',
     facts: [
       [String(apps.length), `${apps.length === 1 ? 'app' : 'apps'} of our own, with AI inside`],
-      ['iOS · Android', 'for the App Store and Google Play'],
+      ['iOS · Android · Web', 'mobile apps, web apps and websites'],
       ['EN · ES', 'all in English and Spanish'],
       ['UTC−5', 'from Medellín, in your hours'],
     ],
     studio: {
-      title: 'Your app, from idea to the stores',
+      title: 'Your project, from idea to launch',
       note: 'Who does each part',
       ai: 'AI',
       human: 'Person',
@@ -948,14 +992,14 @@ const services = {
     seeWork: (name) => `See ${name}`,
     buildId: 'what-we-build',
     buildEyebrow: 'What we build',
-    buildTitle: 'Apps that *solve something*, with AI where it helps.',
+    buildTitle: 'Apps and websites that *solve something*, with AI where it helps.',
     build: [
       ['phone', 'Mobile apps for iOS and Android', 'Design, development and launch of the whole app, with accounts, payments, notifications and whatever your business needs.'],
+      ['globe', 'Web apps and websites', 'Platforms, dashboards and tools that run in the browser, and the page for your company or your product, fast, accessible and ready for search engines, like this site.'],
       ['eye', 'Vision and AI on photos', 'Reading barcodes, labels, documents and photos: OCR and computer vision that turn an image into useful data.', 'ojito'],
       ['wave', 'Voice and chat AI', 'Assistants that talk by voice or text, interview, explain and answer with your business context.', 'roast-interview'],
       ['gauge', 'Scores and recommendations', 'Models that rate, compare and recommend, with clear rules and the reason behind every result.', 'resume-roast'],
       ['spark', 'Features for the product you already have', 'New features, integrations with your systems and AI for your app or website, on your code and without a rebuild. Plus maintenance to keep it up to date.'],
-      ['globe', 'Landing pages and websites', 'The page for your app or your company, fast, accessible and ready for search engines, like this site.'],
     ],
     seenIn: 'We use it in',
     processId: 'process',
@@ -963,11 +1007,11 @@ const services = {
     processTitle: 'AI agents do the heavy lifting. *A person reviews every decision.*',
     process: [
       ['Discovery', 'We get to know your idea, your users and the problem. We come out with a clear scope, what goes into the first version, and dates.', 'human'],
-      ['Design', 'Screens and flows you can tap through on your phone before any code is written. AI explores options; you and we decide.', 'both'],
+      ['Design', 'Screens and flows you can try on your phone or in the browser before any code is written. AI explores options; you and we decide.', 'both'],
       ['AI-built, human-reviewed', 'AI agents write and test the code in parallel, and a person on the team reviews and approves every change before it goes in.', 'both'],
-      ['Quality', 'Automated tests, accessibility review and testing on real phones, on iPhone and Android.', 'both'],
-      ['Launch on the App Store and Google Play', 'Store listings, screenshots, privacy policy and terms, and getting through Apple’s and Google’s review.', 'human'],
-      ['Operation', 'After launch: metrics, bugs, store updates and new features.', 'both'],
+      ['Quality', 'Automated tests, accessibility review and testing on real phones and browsers.', 'both'],
+      ['Launch', 'An app ships on the App Store and Google Play, with its listings, screenshots, privacy policy and terms, through Apple’s and Google’s review. A website goes live on your domain.', 'human'],
+      ['Operation', 'After launch: metrics, bugs, updates and new features.', 'both'],
     ],
     who: { human: 'People', both: 'AI + human review' },
     offersId: 'ways-to-work',
@@ -975,8 +1019,8 @@ const services = {
     offersTitle: 'Start with *what you need today*.',
     offersLead: 'No price list: after the first call we send you a written proposal with scope, dates and price.',
     offers: [
-      ['An MVP in weeks', 'To validate an idea with real users.', ['The essentials to test your idea', 'One app on iOS and Android', 'Ready for the stores or a testing group']],
-      ['A complete app', 'To launch a product that is going to grow.', ['Design, development and launch', 'Accounts, payments and notifications', 'Testing on real phones']],
+      ['An MVP in weeks', 'To validate an idea with real users.', ['The essentials to test your idea', 'An app for iOS and Android, or a web app', 'Ready for your first users']],
+      ['A complete product', 'To launch an app or a website that is going to grow.', ['Design, development and launch', 'Accounts, payments and notifications', 'Testing on real phones and browsers']],
       ['Features and AI for your product', 'For the app or website you already have.', ['New features and integrations', 'AI: vision, documents, voice or chat', 'On your code and your data, without a rebuild']],
       ['Monthly partnership', 'To keep your product running and improving month after month.', ['Maintenance, bugs and updates', 'New features every month', 'Metrics and priorities, together']],
     ],
@@ -988,9 +1032,10 @@ const services = {
       ['Is my idea protected?', 'Yes. Your idea is yours: we treat it as confidential, we do not share it or use it for anything other than replying to you, and if you want, we sign a non-disclosure agreement (NDA) before the first call.', 'home'],
       ['How long does it take?', 'It depends on the scope. A focused MVP is measured in weeks, not months. On the first call we give you an estimate, and the proposal includes dates and what goes into each delivery.', 'home'],
       ['Who owns the code?', 'You do. The code, the designs and the store accounts are in your company’s name, and the contract says so in writing.', 'home'],
-      ['Do you publish the app in the stores?', 'Yes. We prepare the listings, screenshots, privacy policy and terms, and take the app through Apple’s and Google’s review, as we do with our own apps. The app ships under your company’s developer account.', 'home'],
+      ['Do you also build web apps and websites?', 'Yes. Besides iPhone and Android apps, we build web apps, internal dashboards, platforms and websites. And if you already have a product, we add features, integrations or AI on your code, without a rebuild.', 'home'],
+      ['Do you launch it?', 'Yes. For an app, we prepare the listings, screenshots, privacy policy and terms, and take it through Apple’s and Google’s review, as we do with our own apps; it ships under your company’s developer account. For a website, we put it live on your domain.', 'home'],
       ['How do you handle data privacy?', 'We design for Colombia’s personal data protection law (Ley 1581 of 2012) from the start: we ask only for the data needed, say what it is used for and help you prepare the privacy policy. If your app is for other countries, we take their rules and the stores’ rules into account.'],
-      ['Which languages do you work in?', 'English and Spanish, and your app can ship in both, like all of ours. We can work with companies in Colombia, Latin America and the United States.'],
+      ['Which languages do you work in?', 'English and Spanish, and your app or website can ship in both, like all of our apps. We can work with companies in Colombia, Latin America and the United States.'],
       ['Do you work with US companies?', 'Yes. Medellín is on UTC−5: the same time as the US East Coast in winter, and one hour behind in summer. Meetings fit in your workday.'],
       ['What does AI do, and what do people do?', 'AI agents write code, tests and drafts in parallel, which is why we move fast. Product and design decisions, and every change that goes into the code, are reviewed and approved by a person on the team.', 'home'],
     ],
@@ -1047,10 +1092,6 @@ const services = {
         retry: 'Try sending again',
       },
     },
-    homeTitle: 'Have an idea? *We build your app.*',
-    homeLead: 'What we learned building our own apps, we put to work on your idea: AI agents do the heavy lifting, a person reviews every decision and your app reaches the App Store and Google Play.',
-    homeTicks: ['New apps for iOS, Android and the web', 'New features, AI and integrations for your product', 'From the first sketch to the stores, and beyond'],
-    homeCta: 'See how we work',
   },
 };
 
@@ -1112,6 +1153,7 @@ const icons = {
   arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>', 18),
   check: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 18, 2.2),
   plus: svg('<path d="M12 5v14M5 12h14"/>', 18, 2),
+  web: svg('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.6 5.4 3.6 8.5s-1.2 5.9-3.6 8.5c-2.4-2.6-3.6-5.4-3.6-8.5s1.2-5.9 3.6-8.5z"/>', 24),
   chevron: svg('<path d="m6 9 6 6 6-6"/>', 14, 2.4),
   calendar: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', 20),
 };
@@ -1267,14 +1309,14 @@ function footer({ lang, path, only, chat = 'sheet', early = false }) {
   return `
     <footer class="foot">
       <div class="wrap">
-        <div class="foot-grid${only ? ' three' : ''}">
+        <div class="foot-grid${only ? ' three' : apps.length > 4 ? ' many' : ''}">
           <div class="about">
             <a class="brand" href="${rel(path, home.paths[lang])}"><img src="${rel(path, 'favicon.svg')}" alt="" width="28" height="28"><span>Tutos App</span></a>
             <p>${esc(only ? t.appBy(only.name) : h.about)}</p>
             <p>${t.noCookies}</p>
           </div>
           ${appLinks}
-          <nav aria-label="${only ? `${t.legal}: ${esc(only.name)}` : t.legal}"><h2>${only ? `${t.legal} · ${esc(only.name)}` : t.legal}</h2>${legal}</nav>
+          <nav class="foot-legal" aria-label="${only ? `${t.legal}: ${esc(only.name)}` : t.legal}"><h2>${only ? `${t.legal} · ${esc(only.name)}` : t.legal}</h2>${legal}</nav>
           <div><h2>${t.contact}</h2><ul><li><a href="mailto:${EMAIL}">${EMAIL}</a></li>${only ? '' : `<li><a href="${rel(path, services.paths[lang])}">${esc(services[lang].navLabel)}</a></li>`}<li><p>${COMPANY.city}</p></li></ul></div>
         </div>
         <div class="company">
@@ -1289,22 +1331,31 @@ function footer({ lang, path, only, chat = 'sheet', early = false }) {
 `;
 }
 
+// Where each app can be had: Google Play, the App Store and, for a web app, the browser.
+// platform names it in "Our work" and in the structured data.
+const STORES = {
+  play: { name: { es: 'Google Play', en: 'Google Play' }, inLine: { es: 'Google Play', en: 'Google Play' }, icon: () => icons.play, platform: 'Android' },
+  appStore: { name: { es: 'App Store', en: 'App Store' }, inLine: { es: 'App Store', en: 'the App Store' }, icon: () => icons.apple, platform: 'iOS' },
+  web: { name: { es: 'la web', en: 'the web' }, inLine: { es: 'la web', en: 'the web' }, icon: () => icons.web, platform: 'Web', use: true },
+};
+const storesOf = (app) => Object.keys(STORES).filter((k) => app.stores[k]).map((k) => ({ key: k, ...STORES[k], ...app.stores[k] }));
+const list = (lang, items) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(items);
+// iOS first, as people say it ("iOS y Android"), then the web.
+const platformsOf = (app) => ['appStore', 'play', 'web'].filter((k) => app.stores[k]).map((k) => STORES[k].platform);
+const isWebApp = (app) => Object.keys(app.stores).every((k) => k === 'web');
+
 // Stores where the app is live get real badges, the page's main action. Stores still to come
 // share one quiet line, so placeholders never compete with what a visitor can do today.
 function availability(app, lang, extra = '') {
   const t = ui[lang];
-  const stores = [
-    { name: 'Google Play', inLine: 'Google Play', icon: icons.play, ...app.stores.play },
-    { name: 'App Store', inLine: lang === 'en' ? 'the App Store' : 'App Store', icon: icons.apple, ...app.stores.appStore },
-  ];
+  const stores = storesOf(app);
   const live = stores.filter((s) => s.status === 'live');
   const soon = stores.filter((s) => s.status !== 'live');
   const badges = live.length
-    ? `<div class="stores">${live.map((s) => `<a class="store" href="${s.url}">${s.icon}<span><small>${t.getOn}</small><b>${s.name}</b></span></a>`).join('')}</div>`
+    ? `<div class="stores">${live.map((s) => `<a class="store" href="${s.url}">${s.icon()}<span><small>${s.use ? t.useOn : t.getOn}</small><b>${s.name[lang]}</b></span></a>`).join('')}</div>`
     : '';
-  const names = new Intl.ListFormat(lang, { type: 'conjunction' }).format(soon.map((s) => s.inLine));
   const line = soon.length
-    ? `<p class="soon-line"><span class="soon-icons">${soon.map((s) => s.icon).join('')}</span><span>${t.soonOn} ${names}${extra ? ` · ${extra}` : ''}</span></p>`
+    ? `<p class="soon-line"><span class="soon-icons">${soon.map((s) => s.icon()).join('')}</span><span>${t.soonOn} ${list(lang, soon.map((s) => s.inLine[lang]))}${extra ? ` · ${extra}` : ''}</span></p>`
     : '';
   return badges + line;
 }
@@ -1321,11 +1372,13 @@ function mainAction(app, lang) {
   return { href: p.notify, label: p.navCta };
 }
 
-// A phone frame around real screens from the app. With several screens, they are the panes of a
-// demo: one shows at a time and the tabs next to it switch them.
+// A phone frame (or, for a web app with wide screens, a browser window) around real screens from
+// the app. With several screens, they are the panes of a demo: one shows at a time and the tabs
+// next to it switch them.
+const frame = (app) => (app.device === 'browser' ? 'browser' : 'phone');
 function phone(app, path, screens, { eager = false } = {}) {
   const [w, h] = app.screenSize;
-  return `<div class="phone"><div class="screen panes">${screens
+  return `<div class="${frame(app)}"><div class="screen panes">${screens
     .map(
       (s, i) =>
         `<img src="${rel(path, s.src)}" alt="${esc(s.alt)}" width="${w}" height="${h}"${eager && i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async">`
@@ -1344,7 +1397,7 @@ function tabs(name, legend, options) {
 }
 
 function stickers(app, lang) {
-  return app[lang].floats
+  return (app[lang].floats || [])
     .map(([label, sw], i) => {
       const lead = sw === 'wave' ? wave : `<span class="swatch"${sw ? ` style="--sw: ${sw}"` : ''}></span>`;
       return `<span class="sticker s${i + 1}" aria-hidden="true">${lead}${esc(label)}</span>`;
@@ -1353,6 +1406,7 @@ function stickers(app, lang) {
 }
 
 const decor = {
+  '': '',
   scan: '<span class="viewfinder" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
   embers: '<span class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>',
   wave: '<span class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
@@ -1412,7 +1466,8 @@ function appPage(app, lang) {
 
   const sec = t.sections;
   const items = [sec.benefits, sec.how, sec.shots, sec.faq].map(([id, label]) => [`#${id}`, label]);
-  const featureShot = [{ src: app.feature(lang), alt: `${t.screenshotOf} ${app.name}: ${p.featureAlt}` }];
+  const featureShot = [{ src: app.feature(lang), alt: `${t.screenshotOf} ${app.name}: ${p.featureAlt ?? p.tabs.at(-1)[2]}` }];
+  const shotAlt = app.ownShots ? p.shotAlt : p.tabs.map(([, , d]) => d);
 
   return (
     head({
@@ -1425,12 +1480,12 @@ function appPage(app, lang) {
       bg: app.bg,
       fonts: app.fonts,
       ld: {
-        '@type': 'MobileApplication',
+        '@type': isWebApp(app) ? 'WebApplication' : 'MobileApplication',
         name: app.name,
         description: p.description,
         url,
         inLanguage: lang,
-        operatingSystem: app.os ?? 'Android, iOS',
+        operatingSystem: app.os ?? (isWebApp(app) ? 'Web' : ['Android', 'iOS'].filter((os) => platformsOf(app).includes(os)).join(', ')),
         ...(app.version ? { softwareVersion: app.version } : {}),
         applicationCategory: app.category,
         image: `${SITE_URL}${app.icon}`,
@@ -1515,11 +1570,11 @@ function appPage(app, lang) {
           <h2 id="shots-h">${t.screens}</h2>
           <p class="swipe">${t.swipe} ${icons.arrow}</p>
         </div>
-        <ul class="gallery${app.look === 'phone' ? ' framed' : ''}" tabindex="0" aria-labelledby="shots-h">${app
+        <ul class="gallery${app.look === 'phone' && app.device === 'phone' ? ' framed' : ''}${app.device === 'browser' ? ' wide' : ''}" tabindex="0" aria-labelledby="shots-h">${app
           .shots(lang)
           .map(
             (s, i) => `
-          <li><img src="${rel(path, s)}" alt="${t.screenshotOf} ${esc(app.name)}: ${esc(p.shotAlt[i])}" width="${w}" height="${h}" loading="lazy" decoding="async"></li>`
+          <li><img src="${rel(path, s)}" alt="${t.screenshotOf} ${esc(app.name)}: ${esc(shotAlt[i])}" width="${w}" height="${h}" loading="lazy" decoding="async"></li>`
           )
           .join('')}
         </ul>
@@ -1577,12 +1632,12 @@ function storesSentence(app, lang) {
   const where = {
     appStore: { en: 'for iPhone on the App Store', es: 'para iPhone en el App Store' },
     play: { en: 'for Android on Google Play', es: 'para Android en Google Play' },
+    web: { en: 'on the web', es: 'en la web' },
   };
-  const list = (status) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(
-    Object.keys(where).filter((s) => (app.stores[s].status === 'live') === status).map((s) => where[s][lang])
-  );
-  const live = list(true);
-  const soon = list(false);
+  const sentence = (status) =>
+    list(lang, Object.keys(where).filter((s) => app.stores[s] && (app.stores[s].status === 'live') === status).map((s) => where[s][lang]));
+  const live = sentence(true);
+  const soon = sentence(false);
   const words = lang === 'es' ? ['Disponible', 'Próximamente', 'y próximamente'] : ['Available', 'Coming soon', 'and coming soon'];
   if (live && soon) return `${words[0]} ${live} ${words[2]} ${soon}.`;
   return live ? `${words[0]} ${live}.` : `${words[1]} ${soon}.`;
@@ -1671,7 +1726,7 @@ function legalPage(app, lang, doc) {
         inLanguage: lang,
         dateModified: date,
         isPartOf: { '@type': 'WebSite', name: 'Tutos App', url: SITE_URL },
-        about: { '@type': 'MobileApplication', name: app.name, url: SITE_URL + app.paths[lang] },
+        about: { '@type': isWebApp(app) ? 'WebApplication' : 'MobileApplication', name: app.name, url: SITE_URL + app.paths[lang] },
         publisher: organization,
       },
     }) +
@@ -1800,7 +1855,7 @@ function workCard(item, lang, path, i) {
   const phones = item.screens
     .map(
       (sc, i) =>
-        `<div class="phone ${i ? 'back' : 'front'}"><div class="screen"><img src="${rel(path, sc.src)}" alt="${esc(sc.alt)}" width="${w}" height="${h}" loading="lazy" decoding="async"></div></div>`
+        `<div class="${item.device === 'browser' ? 'browser' : 'phone'} ${i ? 'back' : 'front'}"><div class="screen"><img src="${rel(path, sc.src)}" alt="${esc(sc.alt)}" width="${w}" height="${h}" loading="lazy" decoding="async"></div></div>`
     )
     .reverse()
     .join('');
@@ -1998,7 +2053,7 @@ function servicesPage(lang) {
       ld: {
         '@type': 'Service',
         name: s.navLabel,
-        serviceType: lang === 'es' ? 'Desarrollo de apps móviles con inteligencia artificial' : 'AI mobile app development',
+        serviceType: s.serviceTypes,
         description: s.description,
         url,
         inLanguage: lang,
@@ -2088,7 +2143,7 @@ function heroFigure(lang, path) {
   const [w, h] = a.screenSize;
   const alt = `${ui[lang].screenshotOf} ${a.name}: ${a[lang].tabs[0][2]}`;
   return `<figure class="home-figure">
-            <div class="phone"><div class="screen"><img src="${rel(path, a.screens(lang)[0])}" alt="${esc(alt)}" width="${w}" height="${h}" fetchpriority="high" decoding="async"></div></div>
+            <div class="${frame(a)}"><div class="screen"><img src="${rel(path, a.screens(lang)[0])}" alt="${esc(alt)}" width="${w}" height="${h}" fetchpriority="high" decoding="async"></div></div>
             <figcaption><img src="${rel(path, a.icon)}" alt="" width="32" height="32"><span><b>${esc(a.name)}</b><span>${esc(a[lang].category)}</span></span></figcaption>
           </figure>`;
 }
@@ -2107,8 +2162,18 @@ function appCase(app, lang, path) {
               <div class="case-where">${availability(app, lang)}</div>
               <a class="text-link case-link" href="${rel(path, app.paths[lang])}">${esc(h.seeApp(app.name))} ${icons.arrow}</a>
             </div>
-            <div class="case-visual"><div class="phone"><div class="screen"><img src="${rel(path, app.screens(lang)[0])}" alt="${esc(alt)}" width="${w}" height="${hh}" loading="lazy" decoding="async"></div></div></div>
+            <div class="case-visual"><div class="${frame(app)}"><div class="screen"><img src="${rel(path, app.screens(lang)[0])}" alt="${esc(alt)}" width="${w}" height="${hh}" loading="lazy" decoding="async"></div></div></div>
           </li>`;
+}
+
+// Up to three apps, each gets a wide row. With more, they become a grid of smaller cards, with as
+// many columns on a wide screen as divide them evenly (2 for 4, 3 for 6 or 9, 4 for 8), or 3 with
+// the last row centered. Fewer columns on narrower screens (style.css).
+function casesLayout() {
+  const n = apps.length;
+  if (n <= 3) return 'class="cases"';
+  const cols = n === 4 ? 2 : n % 3 === 0 ? 3 : n % 4 === 0 ? 4 : 3;
+  return `class="cases grid" style="--cols: ${cols}"`;
 }
 
 function homePage(lang) {
@@ -2132,7 +2197,11 @@ function homePage(lang) {
       alternates: home.paths,
       og: `home-${lang}`,
       bg: home.bg,
-      ld: { ...organization, description: h.description },
+      ld: {
+        ...organization,
+        description: h.description,
+        makesOffer: s.serviceTypes.map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name, url: SITE_URL + services.paths[lang] } })),
+      },
     }) +
     nav({
       lang,
@@ -2166,7 +2235,7 @@ function homePage(lang) {
 
       <section class="section wrap" id="${h.workId}" aria-labelledby="work-h">
         ${head2('work-h', h.workEyebrow, h.workTitle, h.workLead)}
-        <ul class="cases">${apps.map((a) => appCase(a, lang, path)).join('')}
+        <ul ${casesLayout()}>${apps.map((a) => appCase(a, lang, path)).join('')}
         </ul>
       </section>
 
@@ -2289,18 +2358,44 @@ function run() {
 
   // Every app needs its own privacy policy and terms (its text in legal/, in every language, which
   // the build reads), the date each legal document last changed, and every piece of copy.
+  const seen = new Set();
   for (const app of apps) {
+    if (!/^[a-z0-9-]+$/.test(app.id)) problems.push(`${app.id}: id must be lowercase letters, digits and dashes`);
+    for (const key of [app.id, ...Object.values(app.paths)]) {
+      if (seen.has(key)) problems.push(`${app.id}: ${key} is already used by another app`);
+      seen.add(key);
+    }
+    for (const k of ['name', 'color', 'icon', 'category']) if (!app[k]) problems.push(`${app.id}: missing ${k}`);
+    for (const lang of langs) if (!app.paths?.[lang]) problems.push(`${app.id}: missing paths.${lang}`);
+    if (!['live', 'test', 'soon'].includes(app.status)) problems.push(`${app.id}: status must be 'live', 'test' or 'soon'`);
+    if (!['phone', 'browser'].includes(app.device)) problems.push(`${app.id}: device must be 'phone' or 'browser'`);
+    const stores = Object.entries(app.stores || {});
+    if (!stores.length) problems.push(`${app.id}: needs at least one of stores.play, stores.appStore or stores.web`);
+    for (const [k, st] of stores) {
+      if (!STORES[k]) problems.push(`${app.id}: unknown store ${k} (use play, appStore or web)`);
+      if (!['live', 'soon'].includes(st.status)) problems.push(`${app.id}: stores.${k}.status must be 'live' or 'soon'`);
+      if (st.status === 'live' && !/^https:\/\//.test(st.url || '')) problems.push(`${app.id}: stores.${k} is live and needs its https url`);
+    }
+    // Its images, in site/: the icon, the screens of every language and its social-share images
+    // (npm run og draws the ones that are missing).
+    const images = [app.icon, ...langs.flatMap((lang) => [...app.screens(lang), ...app.shots(lang), app.feature(lang), `assets/img/og/${app.id}-${lang}.jpg`])];
+    for (const img of new Set(images)) if (!existsSync(join(ROOT, img))) problems.push(`${app.id}: missing image site/${img}`);
     for (const doc of ['privacy', 'terms']) if (!app.legal?.[doc]) problems.push(`${app.id}: missing legal.${doc}`);
     for (const doc of legalDocs(app)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(app.legal[doc])) problems.push(`${app.id}: legal.${doc} must be a YYYY-MM-DD date`);
     }
     for (const lang of langs) {
-      for (const k of ['category', 'for', 'title', 'description', 'headline', 'lead', 'pitch', 'share', 'navCta', 'featureAlt']) {
+      for (const k of ['category', 'for', 'title', 'description', 'headline', 'lead', 'pitch', 'share', 'navCta']) {
         if (!app[lang]?.[k]) problems.push(`${app.id}: missing ${lang} ${k}`);
       }
-      if (app[lang]?.shotAlt?.length !== app.shots(lang).length) problems.push(`${app.id}: ${lang} shotAlt must describe every screenshot`);
+      for (const k of ['benefits', 'steps', 'faq']) if (!app[lang]?.[k]?.length) problems.push(`${app.id}: missing ${lang} ${k}`);
+      if (app[lang]?.benefits?.length !== 4) problems.push(`${app.id}: ${lang} needs 4 benefits (the first one shows a screen)`);
+      if (app[lang]?.closing?.length !== 2) problems.push(`${app.id}: ${lang} closing must be [title, line]`);
+      if (app.ownFeature && !app[lang]?.featureAlt) problems.push(`${app.id}: missing ${lang} featureAlt`);
+      if (app.ownShots && app[lang]?.shotAlt?.length !== app.shots(lang).length) problems.push(`${app.id}: ${lang} shotAlt must describe every screenshot`);
       if (app[lang]?.tabs?.length !== app.screens(lang).length) problems.push(`${app.id}: ${lang} tabs must describe every hero screen`);
-      if (app.screens(lang).length > MAX_PANES) problems.push(`${app.id}: at most ${MAX_PANES} hero screens`);
+      if (app.screens(lang).length < 2 || app.screens(lang).length > MAX_PANES) problems.push(`${app.id}: ${lang} needs 2 to ${MAX_PANES} screens`);
+      if (!hasLiveStore(app) && !app[lang]?.cta && !app[lang]?.notify) problems.push(`${app.id}: ${lang} needs notify (or cta) while no store is live`);
       // Its case study on the services page ("Our work").
       for (const k of ['shows', 'claim', 'problem', 'built']) if (!app[lang]?.work?.[k]) problems.push(`${app.id}: missing ${lang} work.${k}`);
       if (!app[lang]?.work?.ai?.length) problems.push(`${app.id}: missing ${lang} work.ai`);
@@ -2372,6 +2467,6 @@ function run() {
 // Every legal page, for the tests: its path, language, app and document.
 const legalPages = apps.flatMap((app) => legalDocs(app).flatMap((doc) => langs.map((lang) => ({ path: legalPath(app, lang, doc), lang, app, doc }))));
 
-export { apps, home, services, companyPrivacy, workItems, legalPages, CONTACT_ENDPOINT, COMPANY, DOMAIN, SITE_URL, EMAIL, WHATSAPP };
+export { apps, home, services, companyPrivacy, workItems, legalPages, run, CONTACT_ENDPOINT, COMPANY, DOMAIN, SITE_URL, EMAIL, WHATSAPP };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) run();

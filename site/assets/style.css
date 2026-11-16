@@ -1015,6 +1015,35 @@ h2 em {
   border-radius: 43px;
 }
 
+/* A browser window, for the wide screens of a web app (device: 'browser'). */
+.browser {
+  position: relative;
+  padding: 26px 5px 5px;
+  background: linear-gradient(180deg, #2b2a33, #16151c);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 14%),
+    0 50px 90px -40px rgb(0 0 0 / 55%),
+    0 30px 70px -30px var(--glow);
+}
+
+/* Its three window buttons. */
+.browser::before {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 7px;
+  height: 7px;
+  content: "";
+  background: #ff5f57;
+  border-radius: 50%;
+  box-shadow: 12px 0 #febc2e, 24px 0 #28c840;
+}
+
+.browser .screen {
+  border-radius: 10px;
+}
+
 /* Floating labels around a phone */
 .sticker {
   position: absolute;
@@ -1362,6 +1391,14 @@ h2 em {
   translate: -50% 0;
 }
 
+.tile-shot .browser {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: min(100%, 460px);
+  translate: -50% 0;
+}
+
 /* ---------- App pages: steps, gallery, FAQ ---------- */
 
 .steps {
@@ -1438,6 +1475,14 @@ h2 em {
   background: #111;
   border: 7px solid #15151a;
   border-radius: 36px;
+}
+
+.gallery.wide li {
+  width: clamp(290px, 56vw, 640px);
+}
+
+.gallery.wide img {
+  border-radius: 14px;
 }
 
 .faq-section {
@@ -1789,6 +1834,11 @@ h2 em {
 
 .stage .phone {
   width: var(--pw);
+}
+
+.stage .browser {
+  align-self: center;
+  width: min(100%, 560px);
 }
 
 .hero-demo .tabs {
@@ -2541,6 +2591,23 @@ h2 em {
 .work-visual .back {
   rotate: -7deg;
   translate: -92% 44px;
+}
+
+.work-visual .browser {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  width: min(440px, 84%);
+}
+
+.work-visual .browser.front {
+  rotate: 2deg;
+  translate: -42% 56px;
+}
+
+.work-visual .browser.back {
+  rotate: -3deg;
+  translate: -60% 0;
 }
 
 /* What we build: six tiles, each the same size */
@@ -3506,6 +3573,11 @@ h2 em {
   width: min(290px, 70%);
 }
 
+.home-figure .browser {
+  flex: none;
+  width: 92%;
+}
+
 .home .facts {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
@@ -3615,6 +3687,40 @@ h2 em {
 .case-visual .phone {
   flex: none;
   width: min(250px, 66%);
+}
+
+.case-visual .browser {
+  flex: none;
+  align-self: flex-start;
+  width: 92%;
+  margin-left: 8%;
+}
+
+/* More than three apps: a grid of smaller cards, the last row centered. casesLayout() in
+   scripts/build.mjs sets how many columns fit them evenly on a wide screen (--cols). */
+.cases.grid {
+  --c: 1;
+  --gap: clamp(20px, 3vw, 32px);
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  justify-content: center;
+}
+
+.cases.grid .case {
+  flex: 0 0 calc((100% - (var(--c) - 1) * var(--gap)) / var(--c));
+  grid-template-rows: 1fr auto;
+  min-width: 0;
+}
+
+.cases.grid .case-copy {
+  gap: 18px;
+  padding: clamp(24px, 3vw, 32px);
+}
+
+.cases.grid .case h3 {
+  font-size: clamp(1.2rem, 1rem + 0.5vw, 1.4rem);
 }
 
 /* Our process: the six stages, plainly. */
@@ -3750,6 +3856,12 @@ h2 em {
   }
 }
 
+@media (min-width: 620px) {
+  .cases.grid {
+    --c: 2;
+  }
+}
+
 @media (min-width: 900px) {
   .case {
     grid-template-columns: 1.1fr 1fr;
@@ -3764,6 +3876,21 @@ h2 em {
   .case-visual .phone {
     width: min(270px, 64%);
     margin-bottom: -40%;
+  }
+
+  .cases.grid .case {
+    grid-template-columns: none;
+  }
+
+  .cases.grid .case-visual {
+    height: 300px;
+    min-height: 0;
+    padding-top: 36px;
+  }
+
+  .cases.grid .case-visual .phone {
+    width: min(220px, 66%);
+    margin-bottom: 0;
   }
 
   .path {
@@ -3850,9 +3977,33 @@ h2 em {
   .foot-grid.three {
     grid-template-columns: 1.5fr 1.2fr 1fr;
   }
+
+  /* With more than four apps, their legal links flow in two columns. */
+  .foot-grid.many {
+    grid-template-columns: 1.4fr 0.9fr 2.2fr 1fr;
+  }
+
+  .foot-grid.many .foot-legal {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 24px;
+    align-content: start;
+  }
+
+  .foot-grid.many .foot-legal > h2 {
+    grid-column: 1 / -1;
+  }
+
+  .foot-grid.many .legal-group + .legal-group {
+    margin-top: 0;
+  }
 }
 
 @media (min-width: 1000px) {
+  .cases.grid {
+    --c: min(var(--cols), 3);
+  }
+
   .home-hero .hero-grid {
     grid-template-columns: 1.08fr 0.92fr;
     gap: 56px;
@@ -4227,3 +4378,9 @@ h2 em {
 }
 
 
+
+@media (min-width: 1200px) {
+  .cases.grid {
+    --c: var(--cols);
+  }
+}
