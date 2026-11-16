@@ -5,8 +5,8 @@
 // back, answers and all; the button steps aside on their contact section. A result that arrives
 // after the panel was closed moves neither the page nor the focus: a notice by the button says the
 // idea was sent, or that it was not, and then the notice or the button leads to a retry. The page for a missing path has the launcher
-// too. The hint shows once per visit, can be dismissed, never shows once the chat was opened or
-// used (also on a page the browser restores on Back), and never with reduced motion. A result in
+// too. The button is there from the start, except on the home, where it waits for the first
+// scroll; it never pops a message over the page. A result in
 // the chat of the contact section is scrolled into view.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -27,11 +27,10 @@ const NOTICE = {
   es: { failed: 'No se pudo enviar tu idea. Toca para reintentar', sent: 'Idea enviada', retry: 'Reintentar el envío' },
   en: { failed: 'Your idea could not be sent. Tap to try again', sent: 'Idea sent', retry: 'Try sending again' },
 };
-const CUE = { es: '¿Tienes una idea de app? Escríbenos', en: 'Have an app idea? Chat with us' };
 
 const fab = (page) => page.locator('.chat-fab');
 const sheet = (page) => page.locator('#chat-sheet');
-const shown = (page) => page.locator('.chat-float:not(.is-away, .is-tucked) .chat-fab');
+const shown = (page) => page.locator('.chat-float:not(.is-away, .is-early, .is-tucked) .chat-fab');
 const focusInSheet = (page) => page.evaluate(() => document.getElementById('chat-sheet').contains(document.activeElement));
 
 // Scrolls until the button is not stepping aside for a page button or the contact section.
@@ -73,9 +72,9 @@ async function heldEndpoint(page, status = 200) {
 for (const { path, lang, inline } of pages) {
   test(`${path} launcher opens the chat in a panel and closes it`, async ({ page }) => {
     await page.goto(path);
+    await untilShown(page);
     await expect(fab(page)).toHaveAccessibleName(LABEL[lang]);
     await expect(fab(page)).toHaveAttribute('aria-expanded', 'false');
-    await untilShown(page);
     const box = await fab(page).boundingBox();
     expect(box.width).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeGreaterThanOrEqual(44);
@@ -98,6 +97,7 @@ for (const { path, lang, inline } of pages) {
       await page.keyboard.press('Tab');
       expect(await focusInSheet(page), `focus stays in the panel after ${i + 1} Tab`).toBe(true);
     }
+    await sheet(page).evaluate((panel) => Promise.all(panel.getAnimations().map((a) => a.finished)));
     const axe = await new AxeBuilder({ page }).include('#chat-sheet').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
 
@@ -366,114 +366,36 @@ for (const path of pages.map((p) => p.path)) {
   });
 }
 
-test.describe('launcher hint', () => {
-  test('shows once per visit, after a few seconds, and can be dismissed', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + home.paths.es);
-    const cue = page.locator('.chat-cue');
-    await page.clock.runFor(5000);
-    await expect(cue).toBeHidden();
-    await page.clock.runFor(3000);
-    await expect(cue).toBeVisible();
-    await expect(cue).toContainText(CUE.es);
-    await expect(fab(page)).toHaveClass(/is-nudging/);
-    await page.locator('.chat-cue-close').click();
-    await expect(cue).toBeHidden();
-    await expect(fab(page)).toBeFocused();
-
-    // Another page of the same visit: no hint, ever.
-    await page.goto('/' + ojito.paths.es);
-    await page.clock.runFor(30_000);
-    await expect(cue).toBeHidden();
-    await page.reload();
-    await page.clock.runFor(30_000);
-    await expect(cue).toBeHidden();
-  });
-
-  test('opens the chat when tapped', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + home.paths.en);
-    await page.clock.runFor(8000);
-    const cue = page.locator('.chat-cue');
-    await expect(cue).toContainText(CUE.en);
-    await page.locator('.chat-cue-open').click();
-    await expect(sheet(page)).toHaveJSProperty('open', true);
-    await expect(cue).toBeHidden();
-  });
-
-  test('never shows after the chat was opened from the button', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + ojito.paths.es);
-    await untilShown(page);
-    await fab(page).click();
-    await page.keyboard.press('Escape');
-    await page.goto('/' + ojito.paths.en);
-    await page.clock.runFor(30_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-    await expect(fab(page)).toBeVisible();
-  });
-
-  test('never shows after answering in the chat of the contact section', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + home.paths.es);
-    await page.locator('section #brief-nombre').fill('Ana');
-    await page.goto('/' + ojito.paths.es);
-    await page.clock.runFor(30_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-    await expect(fab(page)).toBeVisible();
-  });
-
-  test('never shows on a page restored after the chat was used on another one', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + ojito.paths.es);
-    await page.clock.runFor(3000);
-    // What the browser does on Back: the page comes back as it was, with the visit's memory of the
-    // chat used elsewhere, and says so with a persisted pageshow.
-    await page.evaluate(() => {
-      sessionStorage.setItem('tutosapp-chat-cue', '1');
-      dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+test.describe('quiet launcher', () => {
+  for (const path of ['/' + home.paths.es, '/' + home.paths.en]) {
+    test(`${path} waits for the first scroll and never pops a message over the page`, async ({ page }) => {
+      await page.clock.install();
+      await page.goto(path);
+      await page.clock.runFor(30_000);
+      await expect(page.locator('.chat-float')).toHaveClass(/is-early/);
+      await expect(fab(page)).toBeHidden();
+      await page.evaluate(() => scrollTo({ top: innerHeight, behavior: 'instant' }));
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
+      // Back at the top it stays, so it does not blink in and out.
+      await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
+      await page.clock.runFor(30_000);
+      await expect(page.locator('.chat-float :is(p, .chat-cue)')).toHaveCount(0);
     });
-    await page.clock.runFor(30_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-    await expect(fab(page)).not.toHaveClass(/is-nudging/);
-  });
+  }
 
-  test('goes away on a page restored after the chat was used on another one', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + ojito.paths.es);
-    await page.clock.runFor(8000);
-    await expect(page.locator('.chat-cue')).toBeVisible();
-    await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
-    await expect(page.locator('.chat-cue')).toBeHidden();
-  });
-
-  test('never shows once the visit remembers the chat, even without a restore event', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + ojito.paths.es);
-    await page.clock.runFor(3000);
-    await page.evaluate(() => sessionStorage.setItem('tutosapp-chat-cue', '1'));
-    await page.clock.runFor(30_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-    await expect(fab(page)).not.toHaveClass(/is-nudging/);
-  });
-
-  test('stays hidden on its own after a while', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/' + services.paths.es);
-    await page.clock.runFor(8000);
-    await expect(page.locator('.chat-cue')).toBeVisible();
-    await page.clock.runFor(13_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-  });
-
-  test('never shows with reduced motion', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.clock.install();
-    await page.goto('/' + home.paths.es);
-    await page.clock.runFor(30_000);
-    await expect(page.locator('.chat-cue')).toBeHidden();
-    await expect(fab(page)).toBeVisible();
-  });
+  for (const path of ['/' + ojito.paths.en, '/' + services.paths.es, '/' + legalPages[0].path]) {
+    test(`${path} has the button from the start and never pops a message over the page`, async ({ page }) => {
+      await page.clock.install();
+      await page.goto(path);
+      await expect(page.locator('.chat-float')).toBeVisible();
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
+      expect(await page.evaluate(() => scrollY)).toBe(0);
+      await page.clock.runFor(30_000);
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
+      await expect(page.locator('.chat-float :is(p, .chat-cue)')).toHaveCount(0);
+    });
+  }
 });
 
 test.describe('without JavaScript', () => {

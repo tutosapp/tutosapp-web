@@ -240,39 +240,21 @@
   // On a page with the chat in its contact section, the panel borrows that same chat, answers
   // and all, and gives it back on close. The button steps aside while the chat is open, while the
   // contact section is on screen and while a button or store badge of the page passes under it.
-  // Once per visit, about 7 s in, it bounces once and shows a short hint; never with reduced motion,
-  // and never once the visitor has opened the chat, answered in it or dismissed the hint.
+  // On the home (data-early) it also waits for the first scroll: the first screen already leads
+  // to the contact, so the button shows once the visitor has scrolled a little (at once on a page
+  // too short to scroll). It never pops up a message over the content.
   // If a send ends after the panel was closed, a short notice by the button says so: sent (it goes
   // away by itself) or not sent (it stays, with a dot on the button, until the panel is opened).
   const sheet = document.getElementById('chat-sheet');
   const float = document.querySelector('.chat-float');
   if (!sheet || !float || !sheet.showModal) return;
   const fab = float.querySelector('.chat-fab');
-  const cue = float.querySelector('.chat-cue');
   const note = float.querySelector('.chat-note');
   const slot = sheet.querySelector('.chat-slot');
   const inline = !slot.contains(root);
   const section = inline ? root.closest('section') || root.parentElement : null;
-  const CUE_KEY = 'tutosapp-chat-cue';
-  const remembered = () => {
-    try {
-      return sessionStorage.getItem(CUE_KEY) === '1';
-    } catch {
-      return false;
-    }
-  };
-  const remember = () => {
-    try {
-      sessionStorage.setItem(CUE_KEY, '1');
-    } catch {
-      // Private mode or blocked storage: the hint may show again on the next page, still once each.
-    }
-  };
   let pressed = false;
   let spacer = null;
-  let cueDue = false;
-  let cueDone = remembered() || matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let cueTimer = 0;
   let noteTimer = 0;
   let frame = 0;
 
@@ -292,34 +274,22 @@
     return r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
   };
 
-  function hideCue() {
-    clearTimeout(cueTimer);
-    cueDue = false;
-    cueDone = true;
-    remember();
-    cue.hidden = true;
-  }
+  // Still on the home's first screen: less than a third of a screen scrolled, on a page that can
+  // scroll that far. Once past it, the button stays for the rest of the page.
+  let started = !('early' in float.dataset);
+  const early = () => {
+    started ||= scrollY >= Math.min(innerHeight / 3, document.documentElement.scrollHeight - innerHeight - 1);
+    return !started;
+  };
 
-  function showCue() {
-    if (remembered()) return hideCue();
-    cueDue = false;
-    cueDone = true;
-    remember();
-    cue.hidden = false;
-    fab.classList.add('is-nudging');
-    cueTimer = setTimeout(hideCue, 12000);
-  }
-
-  // Shows or hides the button (and the hint) for where the page is now.
+  // Shows or hides the button for where the page is now.
   function update() {
     frame = 0;
     float.hidden = false;
     const away = sheet.open || contactShown();
     float.classList.toggle('is-away', away);
+    float.classList.toggle('is-early', !away && early());
     float.classList.toggle('is-tucked', !away && covers());
-    const shown = !float.classList.contains('is-away') && !float.classList.contains('is-tucked');
-    if (!cue.hidden && !shown) hideCue();
-    else if (cueDue && shown) showCue();
   }
   const schedule = () => frame || (frame = requestAnimationFrame(update));
 
@@ -338,7 +308,6 @@
 
   function open() {
     inPanel = true;
-    hideCue();
     notice();
     if (inline) {
       spacer = el('div', 'chat-spacer');
@@ -360,7 +329,7 @@
     }
     fab.setAttribute('aria-expanded', 'false');
     update();
-    if (!float.classList.contains('is-away') && !float.classList.contains('is-tucked')) fab.focus({ preventScroll: true });
+    if (!float.matches('.is-away, .is-early, .is-tucked')) fab.focus({ preventScroll: true });
   });
   // The modal dialog makes the page inert, but Tab can still leave it for the browser's own
   // controls; wrap it from the last control to the first and back instead.
@@ -382,23 +351,7 @@
   sheet.addEventListener('click', (e) => e.target === sheet && pressed && sheet.close());
   sheet.querySelector('.chat-close').addEventListener('click', () => sheet.close());
   fab.addEventListener('click', open);
-  cue.querySelector('.chat-cue-open').addEventListener('click', open);
-  cue.querySelector('.chat-cue-close').addEventListener('click', () => {
-    hideCue();
-    fab.focus({ preventScroll: true });
-  });
-  fab.addEventListener('animationend', () => fab.classList.remove('is-nudging'));
-  // Answering in the page's own chat counts as having found it: no hint for the rest of the visit.
-  form.addEventListener('input', hideCue, { once: true });
   addEventListener('scroll', schedule, { passive: true });
   addEventListener('resize', schedule);
-  // Back to this page after using the chat on another one: the hint stays away here too.
-  addEventListener('pageshow', (e) => e.persisted && remembered() && hideCue());
-  if (!cueDone) {
-    cueTimer = setTimeout(() => {
-      cueDue = !cueDone;
-      update();
-    }, 7000);
-  }
   update();
 })();

@@ -1,7 +1,7 @@
 // The app switcher in the menu bar: on the home page, the services page and every app page, one
 // small button opens a short list of every app and the Tutos App home. Closed, no app name shows in the menu bar.
 // Runs on a desktop and an Android phone in Chrome and on an iPhone in WebKit (Safari's engine),
-// with taps on the phones. The list comes from the same app data as the home marquee.
+// with taps on the phones. The list comes from the same app data as the home.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { apps, home, services } from '../scripts/build.mjs';
