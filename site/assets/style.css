@@ -4463,7 +4463,9 @@ h2 em {
   /* The app cards stack like the services page's "Our work": each card, or each row of cards in
      a grid (--i, its row), stops a little lower than the one before, below the menu bar, or once
      its bottom is on screen when it is taller than the screen (--h), and the next slides over it.
-     assets/stack.js measures them and turns this on. */
+     assets/stack.js measures them and turns this on, unless the last row of the grid is short:
+     the rows stuck under it would show on either side, so those cards scroll and only appear one
+     after another. */
   .cases.stacking .case {
     position: sticky;
     top: min(calc(96px + var(--i) * 22px), calc(100svh - var(--h) - 16px));

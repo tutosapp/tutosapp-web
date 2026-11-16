@@ -1,9 +1,12 @@
 // The site with more apps: local-only fixture builds (tests/fixtures.setup.mjs) of the real site
-// plus fake apps until there are 4, 6 and 8, among them a web app and apps coming soon. On a phone
-// and a desktop: the home shows every app, as a grid of even rows on a wide screen that stack row by
-// row as the page scrolls, with the counts computed from the list; the menus, the services page and
-// the footer hold them without sideways scroll; and a web app and an app coming soon get the right
-// page. Full-page screenshots of the home land in test-results/screens/scaling-*.png.
+// plus fake apps until there are 4, 5, 6, 7 and 8, among them a web app and apps coming soon. On a
+// phone and a desktop, and with 8 apps also on a narrower desktop that fits three per row: the home
+// shows every app, as a grid of full rows on a wide screen, with the counts computed from the list.
+// Full rows stack row by row as the page scrolls; when the last row is short (5 and 7 apps, or 8 in
+// rows of three) the cards scroll instead, so no row stays stuck showing beside it. The menus, the
+// services page and the footer hold them without sideways scroll; and a web app and an app coming
+// soon get the right page. Full-page screenshots of the home land in
+// test-results/screens/scaling-*.png.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -64,8 +67,12 @@ for (const n of SIZES) {
     });
     test.afterAll(() => server?.kill());
 
-    for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
-      test(`${path} home shows every app and counts them`, async ({ page }, info) => {
+    // The narrower desktop fits three cards per row, which leaves 8 apps a short last row.
+    const NARROW = 1100;
+    for (const [path, lang, width] of [['/', 'es'], ['/en/', 'en'], ...(n === 8 ? [['/', 'es', NARROW]] : [])]) {
+      test(`${path} home${width ? ` at ${width}px` : ''} shows every app and counts them`, async ({ page }, info) => {
+        test.skip(!!width && info.project.name !== 'desktop', 'a desktop width');
+        if (width) await page.setViewportSize({ width, height: 900 });
         await page.goto(base + path);
         const cases = page.locator('.cases > .case');
         await expect(cases).toHaveCount(n);
@@ -74,8 +81,8 @@ for (const n of SIZES) {
         await expect(facts.first()).toHaveText(String(n));
         expect(await overflow(page)).toBeLessThanOrEqual(0);
 
-        // Every card is whole inside the page column, and on a wide screen they sit in even rows:
-        // the same width each, and each row as full as the columns allow.
+        // Every card is whole inside the page column, and on a wide screen they sit in rows: the
+        // same width each, and every row full except, at most, the last.
         const boxes = await cases.evaluateAll((all) => all.map((c) => c.getBoundingClientRect()).map(({ x, y, width }) => ({ x, y, width })));
         const wrap = await page.locator('.cases').boundingBox();
         for (const b of boxes) {
@@ -87,15 +94,37 @@ for (const n of SIZES) {
         const rows = [...new Set(boxes.map((b) => Math.round(b.y)))].map((y) => boxes.filter((b) => Math.round(b.y) === y).length);
         if (info.project.name === 'desktop') {
           expect(rows.length, 'more than one card per row').toBeLessThan(n);
-          expect(Math.max(...rows) - Math.min(...rows), 'rows of even length').toBeLessThanOrEqual(1);
+          expect(new Set(rows.slice(0, -1)).size, 'full rows before the last').toBeLessThanOrEqual(1);
+          expect(rows.at(-1), 'last row no longer than the others').toBeLessThanOrEqual(rows[0]);
+          if (width) expect(rows, `rows at ${width}px`).toEqual([3, 3, 2]);
+        }
+        const short = rows.at(-1) < rows[0];
+        expect(short, 'a short last row').toBe(info.project.name === 'desktop' && (n === 5 || n === 7 || !!width));
+
+        // Cards side by side share a row (--i) and follow each other by column (--k), which staggers
+        // how a row appears.
+        const sameRow = (i, j) => Math.round(boxes[i].y) === Math.round(boxes[j].y);
+        const placed = await cases.evaluateAll((all) => all.map((c) => ({ row: c.style.getPropertyValue('--i'), col: Number(c.style.getPropertyValue('--k')) })));
+        for (let i = 1; i < n; i++) {
+          expect(placed[i].row === placed[i - 1].row, `card ${i} row`).toBe(sameRow(i, i - 1));
+          expect(placed[i].col, `card ${i} column`).toBe(sameRow(i, i - 1) ? placed[i - 1].col + 1 : 0);
         }
 
-        // They stack row by row as the page scrolls: cards side by side share a row (--i), which
-        // sets where they stop, and the next row slides over them.
-        await expect(cases.first()).toHaveCSS('position', 'sticky');
-        const rowOf = await cases.evaluateAll((all) => all.map((c) => c.style.getPropertyValue('--i')));
-        const sameRow = (i, j) => Math.round(boxes[i].y) === Math.round(boxes[j].y);
-        for (let i = 1; i < n; i++) expect(rowOf[i] === rowOf[i - 1], `card ${i} row`).toBe(sameRow(i, i - 1));
+        if (short) {
+          // A short last row does not cover the row before it, so nothing sticks: once the last row
+          // is up under the menu bar, the row before it has scrolled away above it instead of
+          // staying stuck on either side.
+          for (const c of await cases.all()) await expect(c).not.toHaveCSS('position', 'sticky');
+          await cases.last().evaluate((c) => scrollTo({ top: scrollY + c.getBoundingClientRect().top - 120, behavior: 'instant' }));
+          const now = await cases.evaluateAll((all) => all.map((c) => c.getBoundingClientRect()).map(({ top, bottom }) => ({ top, bottom })));
+          const lastTop = now.at(-1).top;
+          expect(Math.round(lastTop), 'last row under the menu bar').toBe(120);
+          for (let i = 0; i < n - rows.at(-1); i++) expect(now[i].bottom, `card ${i} above the last row`).toBeLessThanOrEqual(lastTop);
+        } else {
+          // Full rows stack row by row as the page scrolls: the row sets where its cards stop, and
+          // the next row slides over them.
+          for (const c of await cases.all()) await expect(c).toHaveCSS('position', 'sticky');
+        }
 
         // The app switcher lists them all and fits on screen, and the menu bar does not overflow.
         await page.locator('.apps-toggle').click();
@@ -119,7 +148,7 @@ for (const n of SIZES) {
         expect(axe.violations.map((v) => `${v.id}: ${v.nodes.map((x) => x.target.join(' ')).join(', ')}`)).toEqual([]);
         await page.addStyleTag({ content: STILL });
         await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
-        await page.screenshot({ path: `test-results/screens/scaling-n${n}-home-${lang}-${info.project.name}.png`, fullPage: true });
+        await page.screenshot({ path: `test-results/screens/scaling-n${n}-home-${lang}-${info.project.name}${width ? `-${width}` : ''}.png`, fullPage: true });
       });
     }
 
