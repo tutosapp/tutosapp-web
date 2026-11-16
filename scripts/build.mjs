@@ -99,7 +99,7 @@ const apps = [
     // iPhone: live on the App Store since 2026-11-12. Android: still closed testing, joined by email (cta).
     stores: { play: { status: 'soon', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
     category: 'FoodAndDrinkApplication',
-    legal: { privacy: '2026-11-15', terms: '2026-11-15', support: '2026-11-15' },
+    legal: { privacy: '2026-11-16', terms: '2026-11-15', support: '2026-11-15' },
     look: 'panels',
     shotSize: [540, 960],
     shots: (lang) =>
