@@ -3412,9 +3412,10 @@ h2 em {
 }
 
 /* ---------- Home: calm and editorial ----------
-   One idea per section, generous space, one picture where a picture helps. Nothing moves on its
-   own: the little motion there is follows the scroll or the pointer (see "Home motion" below),
-   and none of it with reduced motion. */
+   One idea per section, generous space, one picture where a picture helps. Nothing keeps moving
+   on its own: the hero's screen rises once as the page opens and the rest of the little motion
+   there is follows the scroll or the pointer (see "Home motion" below), none of it with reduced
+   motion. */
 
 .home .section {
   padding-top: clamp(104px, 13vw, 176px);
