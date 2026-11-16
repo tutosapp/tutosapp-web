@@ -22,7 +22,12 @@ const YEAR = 2026;
 // fake apps to the list and writes to a copy of site/ and legal/ elsewhere, to check that the
 // pages hold up with more apps. It is never set when the real site is built or published.
 const FIXTURE = globalThis.TUTOSAPP_FIXTURE;
-const ROOT = FIXTURE?.root ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
+const SITE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
+const ROOT = FIXTURE?.root ?? SITE_DIR;
+// The fake apps of a fixture must never land in the real site/ (or in legal/).
+if (FIXTURE && (resolve(FIXTURE.root) === resolve(SITE_DIR) || resolve(FIXTURE.legal) === resolve(SITE_DIR, '..', 'legal'))) {
+  throw new Error('A fixture build must write outside site/ and legal/');
+}
 
 const PLAY = (id) => `https://play.google.com/store/apps/details?id=${id}`;
 const APP_STORE = (id) => `https://apps.apple.com/app/id${id}`;
@@ -2420,6 +2425,9 @@ function run() {
   const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
   const published = new Set([...Object.keys(files), ...walk(ROOT).map((f) => relative(ROOT, f).split('\\').join('/'))]);
   for (const name of published) {
+    // Every page in site/ is one this script writes, so nothing else (such as a page of a fixture
+    // build) can be committed and published.
+    if (name.endsWith('.html') && !(name in files)) problems.push(`${name}: not a page of this site; remove it`);
     if (!/\.(html|xml|txt|css|js|json|svg|webmanifest)$|^CNAME$/.test(name)) continue;
     const body = files[name] ?? readFileSync(join(ROOT, name), 'utf8');
     if (/github\.io/i.test(body)) problems.push(`${name}: links to github.io; publish it on ${SITE_URL} instead`);

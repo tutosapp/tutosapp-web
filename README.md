@@ -75,7 +75,8 @@ Todo sale de `scripts/build.mjs`: los textos, los enlaces, el estado de las tien
 node scripts/build.mjs          # vuelve a escribir las páginas en site/
 node scripts/build.mjs --check  # falla si site/ no está al día, si hay un enlace roto,
                                 # si una app no tiene su privacidad y sus términos,
-                                # si alguna página enlaza a github.io
+                                # si alguna página enlaza a github.io,
+                                # si hay en site/ una página que el build no escribe
                                 # o si ya pasó LAUNCH_PRICE_UNTIL
 ```
 
@@ -141,7 +142,7 @@ npm run lint && npm run test:ui  # HTML, CSS, accesibilidad y diseño en teléfo
 
 y se hace commit de `scripts/build.mjs`, `site/` y `legal/` juntos.
 
-**Con más apps.** `node scripts/fixture.mjs <total> <carpeta>` hace, solo en local, una copia del sitio con apps falsas hasta llegar a `<total>` (una app web, una que viene pronto, una en una sola tienda, una app web que viene pronto y una en las dos tiendas), con las mismas revisiones de `--check`; se ve con `SITE_DIR=<carpeta>/site node scripts/serve.mjs`. Nunca se escribe en `site/` ni se publica. `tests/scaling.spec.mjs` la usa para revisar el sitio con 4, 6 y 8 apps (ver [Calidad](#calidad)).
+**Con más apps.** `node scripts/fixture.mjs <total> <carpeta>` hace, solo en local, una copia del sitio con apps falsas hasta llegar a `<total>` (una app web, una que viene pronto, una en una sola tienda, una app web que viene pronto y una en las dos tiendas), con las mismas revisiones de `--check`; se ve con `SITE_DIR=<carpeta>/site node scripts/serve.mjs`. Nunca se escribe en `site/` (el build se niega) ni se publica, y `--check` falla si en `site/` hay una página que el build no escribe. `tests/scaling.spec.mjs` la usa para revisar el sitio con 4, 6 y 8 apps (ver [Calidad](#calidad)).
 
 ### Cuando una app salga en una tienda
 
