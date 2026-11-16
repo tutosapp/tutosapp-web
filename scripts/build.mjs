@@ -95,7 +95,7 @@ const apps = [
     // iPhone: live on the App Store since 2026-11-12. Android: still closed testing, joined by email (cta).
     stores: { play: { status: 'soon', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
     category: 'FoodAndDrinkApplication',
-    legal: { privacy: '2026-11-14', terms: '2026-11-14', support: '2026-11-15' },
+    legal: { privacy: '2026-11-15', terms: '2026-11-15', support: '2026-11-15' },
     look: 'panels',
     shotSize: [540, 960],
     shots: (lang) =>
@@ -139,7 +139,7 @@ const apps = [
       ],
       faq: [
         ['¿Para qué productos sirve?', 'Para comida empacada y productos de cuidado personal con código de barras, también los que no traen tabla nutricional. Si un producto no aparece, toma una foto de la etiqueta: los ingredientes y, si la tiene, la tabla nutricional. La inteligencia artificial de Ojito los lee.'],
-        ['¿Quién revisa un producto que yo envío?', 'La inteligencia artificial de Ojito revisa las fotos sola. Una persona del equipo solo las ve cuando la inteligencia artificial no puede decidir o el caso es delicado, como los alérgenos o la comida para bebés.'],
+        ['¿Quién revisa un producto que yo envío?', 'La inteligencia artificial de Ojito revisa las fotos sola. Una persona del equipo solo las ve cuando la inteligencia artificial no puede decidir o el caso es delicado, como los alérgenos o la comida para bebés. La foto del frente que se publica como imagen del producto la puede revisar el equipo después, y quita las que no deberían estar.'],
         ['¿Cómo sabe si es bueno para mi bebé?', 'Solo te pide la edad, nunca el nombre ni fotos. Con eso, debajo de tu resultado ves una línea para tu bebé, para el embarazo o la lactancia, o para otro adulto de tu casa, con la razón en pocas palabras.'],
         ['¿Ojito reemplaza al pediatra o al médico?', 'No. Ojito no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad. Te ayuda a leer la etiqueta. Si no ves una alerta, no quiere decir que el producto no tenga ese alérgeno: revisa siempre el empaque.'],
         ['¿Necesito crear una cuenta?', 'No. Abres la app y escaneas. Los datos de tu familia se quedan en tu celular.'],
@@ -198,7 +198,7 @@ const apps = [
       ],
       faq: [
         ['Which products does it work with?', 'Packaged food and personal-care products with a barcode, including those with no nutrition table. If a product is missing, take a photo of the label: the ingredients and, if it has one, the nutrition table. Ojito’s AI reads them.'],
-        ['Who reviews a product I send in?', 'Ojito’s AI reviews the photos on its own. A person on the team only sees them when the AI can’t decide or the case is sensitive, such as allergens or baby food.'],
+        ['Who reviews a product I send in?', 'Ojito’s AI reviews the photos on its own. A person on the team only sees them when the AI can’t decide or the case is sensitive, such as allergens or baby food. The front photo published as the product’s image may be reviewed by the team afterwards, and it removes the ones that should not be there.'],
         ['How does it know what’s good for my baby?', 'It only asks for their age, never a name or photos. Below your result you then see a line for your baby, for pregnancy or breastfeeding, or for another adult at home, with the reason in a few words.'],
         ['Does Ojito replace a pediatrician or doctor?', 'No. Ojito is not a medical device and does not diagnose, treat, cure or prevent any disease. It helps you read the label. No alert doesn’t mean the product is free of that allergen: always check the package.'],
         ['Do I need an account?', 'No. Open the app and scan. Your family’s details stay on your phone.'],
