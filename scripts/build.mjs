@@ -641,7 +641,7 @@ const home = {
     aboutId: 'nosotros',
     aboutEyebrow: 'Quiénes somos',
     aboutTitle: 'Una empresa colombiana *que puedes verificar*.',
-    aboutLead: `Tutos App es una marca de ${COMPANY.name}, una empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras propias apps y, con lo que aprendemos en ellas, hacemos las de nuestros clientes.`,
+    aboutLead: `Tutos App es una marca de ${COMPANY.name}, una empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras propias apps y, con lo que aprendemos en ellas, podemos hacer la tuya.`,
     // What anyone can check on this site, each with the page that shows it.
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
@@ -654,7 +654,7 @@ const home = {
     },
     whoId: 'para-quien',
     whoEyebrow: 'Para quién',
-    whoTitle: 'Trabajamos con quien tiene *algo que construir*.',
+    whoTitle: 'Para quien tiene *algo que construir*.',
     who: [
       ['Fundadores y startups', 'Tienes una idea y quieres probarla con usuarios reales pronto, sin armar un equipo desde cero.'],
       ['Pymes y empresas en Colombia y Latinoamérica', 'Quieres una app para tus clientes o tu equipo, o sumarle funciones a la que ya tienes.'],
@@ -692,7 +692,7 @@ const home = {
     aboutId: 'about',
     aboutEyebrow: 'Who we are',
     aboutTitle: 'A Colombian company *you can look up*.',
-    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn from them, we build our clients’.`,
+    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn from them, we can build yours.`,
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
       return [
@@ -703,8 +703,8 @@ const home = {
       ];
     },
     whoId: 'who-we-work-with',
-    whoEyebrow: 'Who we work with',
-    whoTitle: 'We work with people who have *something to build*.',
+    whoEyebrow: 'Who it is for',
+    whoTitle: 'For people who have *something to build*.',
     who: [
       ['Founders and startups', 'You have an idea and want to test it with real users soon, without building a team from scratch.'],
       ['SMEs and companies in Colombia and Latin America', 'You want an app for your customers or your team, or to add features to the one you have.'],
@@ -769,7 +769,7 @@ const services = {
   paths: { es: 'servicios/', en: 'en/services/' },
   bg: '#f6f6f8',
   es: {
-    title: 'Hacemos tu app con IA: de la idea a App Store y Google Play',
+    title: 'Hacemos tu app: de la idea a App Store y Google Play',
     description:
       'Tutos App es un estudio de apps en Medellín. Llevamos tu idea a una app en App Store y Google Play: agentes de IA hacen el trabajo pesado y una persona revisa cada decisión.',
     navLabel: 'Hacemos tu app',
@@ -848,7 +848,7 @@ const services = {
       ['¿De quién es el código?', 'Tuyo. El código, los diseños y las cuentas de las tiendas quedan a nombre de tu empresa, y así queda por escrito en el contrato.', 'home'],
       ['¿Ustedes publican la app en las tiendas?', 'Sí. Preparamos las fichas, las capturas, la política de privacidad y los términos, y llevamos la app por la revisión de Apple y de Google, como hacemos con nuestras propias apps. La app sale con la cuenta de desarrollador de tu empresa.', 'home'],
       ['¿Cómo cuidan la privacidad de los datos?', 'Diseñamos desde el inicio con la Ley 1581 de 2012 de protección de datos personales de Colombia: pedimos solo los datos necesarios, decimos para qué se usan y te ayudamos a preparar la política de privacidad. Si tu app es para otros países, tenemos en cuenta sus reglas y las de las tiendas.'],
-      ['¿En qué idiomas trabajan?', 'En español y en inglés, y tu app puede salir en los dos, como todas las nuestras. Trabajamos con empresas de Colombia, de Latinoamérica y de Estados Unidos.'],
+      ['¿En qué idiomas trabajan?', 'En español y en inglés, y tu app puede salir en los dos, como todas las nuestras. Podemos trabajar con empresas de Colombia, de Latinoamérica y de Estados Unidos.'],
       ['¿Trabajan con empresas de Estados Unidos?', 'Sí. Medellín está en UTC−5: la misma hora de la costa este de Estados Unidos en invierno, y una hora menos en verano. Las reuniones caben en tu jornada.'],
       ['¿Qué hace la IA y qué hacen las personas?', 'Los agentes de IA escriben código, pruebas y borradores en paralelo, y por eso avanzamos rápido. Las decisiones de producto, de diseño y cada cambio que entra al código las revisa y aprueba una persona del equipo.', 'home'],
     ],
@@ -912,7 +912,7 @@ const services = {
     homeCta: 'Conoce cómo trabajamos',
   },
   en: {
-    title: 'We build your AI app: from idea to the App Store and Google Play',
+    title: 'We build your app: from idea to the App Store and Google Play',
     description:
       'Tutos App is an app studio in Medellín, Colombia. We take your idea to an app on the App Store and Google Play: AI agents do the heavy lifting and a person reviews every decision.',
     navLabel: 'We build your app',
@@ -990,7 +990,7 @@ const services = {
       ['Who owns the code?', 'You do. The code, the designs and the store accounts are in your company’s name, and the contract says so in writing.', 'home'],
       ['Do you publish the app in the stores?', 'Yes. We prepare the listings, screenshots, privacy policy and terms, and take the app through Apple’s and Google’s review, as we do with our own apps. The app ships under your company’s developer account.', 'home'],
       ['How do you handle data privacy?', 'We design for Colombia’s personal data protection law (Ley 1581 of 2012) from the start: we ask only for the data needed, say what it is used for and help you prepare the privacy policy. If your app is for other countries, we take their rules and the stores’ rules into account.'],
-      ['Which languages do you work in?', 'English and Spanish, and your app can ship in both, like all of ours. We work with companies in Colombia, Latin America and the United States.'],
+      ['Which languages do you work in?', 'English and Spanish, and your app can ship in both, like all of ours. We can work with companies in Colombia, Latin America and the United States.'],
       ['Do you work with US companies?', 'Yes. Medellín is on UTC−5: the same time as the US East Coast in winter, and one hour behind in summer. Meetings fit in your workday.'],
       ['What does AI do, and what do people do?', 'AI agents write code, tests and drafts in parallel, which is why we move fast. Product and design decisions, and every change that goes into the code, are reviewed and approved by a person on the team.', 'home'],
     ],
