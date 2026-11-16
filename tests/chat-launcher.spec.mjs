@@ -5,7 +5,8 @@
 // back, answers and all; the button steps aside on their contact section. A result that arrives
 // after the panel was closed moves neither the page nor the focus: a notice by the button says the
 // idea was sent, or that it was not, and then the notice or the button leads to a retry. The page for a missing path has the launcher
-// too. The button waits for the first scroll and never pops a message over the page. A result in
+// too. The button is there from the start, except on the home, where it waits for the first
+// scroll; it never pops a message over the page. A result in
 // the chat of the contact section is scrolled into view.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -96,6 +97,7 @@ for (const { path, lang, inline } of pages) {
       await page.keyboard.press('Tab');
       expect(await focusInSheet(page), `focus stays in the panel after ${i + 1} Tab`).toBe(true);
     }
+    await sheet(page).evaluate((panel) => Promise.all(panel.getAnimations().map((a) => a.finished)));
     const axe = await new AxeBuilder({ page }).include('#chat-sheet').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze();
     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
 
@@ -365,7 +367,7 @@ for (const path of pages.map((p) => p.path)) {
 }
 
 test.describe('quiet launcher', () => {
-  for (const path of ['/' + home.paths.es, '/' + ojito.paths.en]) {
+  for (const path of ['/' + home.paths.es, '/' + home.paths.en]) {
     test(`${path} waits for the first scroll and never pops a message over the page`, async ({ page }) => {
       await page.clock.install();
       await page.goto(path);
@@ -378,6 +380,19 @@ test.describe('quiet launcher', () => {
       await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
       await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
       await page.clock.runFor(30_000);
+      await expect(page.locator('.chat-float :is(p, .chat-cue)')).toHaveCount(0);
+    });
+  }
+
+  for (const path of ['/' + ojito.paths.en, '/' + services.paths.es, '/' + legalPages[0].path]) {
+    test(`${path} has the button from the start and never pops a message over the page`, async ({ page }) => {
+      await page.clock.install();
+      await page.goto(path);
+      await expect(page.locator('.chat-float')).toBeVisible();
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
+      expect(await page.evaluate(() => scrollY)).toBe(0);
+      await page.clock.runFor(30_000);
+      await expect(page.locator('.chat-float')).not.toHaveClass(/is-early/);
       await expect(page.locator('.chat-float :is(p, .chat-cue)')).toHaveCount(0);
     });
   }

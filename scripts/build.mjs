@@ -529,8 +529,6 @@ const ui = {
     switcherMenu: 'Ir a otra app',
     homeOf: 'Inicio de Tutos App',
     status: { live: 'Disponible', test: 'En pruebas', soon: 'Próximamente' },
-    pause: 'Pausar animación',
-    resume: 'Reanudar animación',
     brandOf: `Tutos App es una marca de ${COMPANY.name}`,
     mailFallback: '¿No se abre tu correo? Escríbenos a',
     noCookies: 'Este sitio no usa cookies ni analítica.',
@@ -552,7 +550,7 @@ const ui = {
     faqKicker: 'Dudas',
     // Each app page's own menu: links to its sections.
     sections: { benefits: ['beneficios', 'Beneficios'], how: ['como-funciona', 'Cómo funciona'], shots: ['capturas', 'Capturas'], faq: ['preguntas', 'Preguntas'] },
-    appBy: (name) => `${name} es una app de Tutos App, estudio de apps con IA de Medellín, Colombia.`,
+    appBy: (name) => `${name} es una app de Tutos App, estudio de apps de Medellín, Colombia.`,
   },
   en: {
     ourApps: 'Our apps',
@@ -580,8 +578,6 @@ const ui = {
     switcherMenu: 'Go to another app',
     homeOf: 'Tutos App home',
     status: { live: 'Available', test: 'In testing', soon: 'Coming soon' },
-    pause: 'Pause animation',
-    resume: 'Resume animation',
     brandOf: `Tutos App is a brand of ${COMPANY.name}`,
     mailFallback: 'Email app didn’t open? Write to',
     noCookies: 'This site uses no cookies and no analytics.',
@@ -602,7 +598,7 @@ const ui = {
     shotsKicker: 'App screenshots',
     faqKicker: 'Questions',
     sections: { benefits: ['benefits', 'Benefits'], how: ['how-it-works', 'How it works'], shots: ['screens', 'Screens'], faq: ['faq', 'FAQ'] },
-    appBy: (name) => `${name} is an app by Tutos App, an AI app studio from Medellín, Colombia.`,
+    appBy: (name) => `${name} is an app by Tutos App, an app studio from Medellín, Colombia.`,
   },
 };
 
@@ -614,8 +610,8 @@ const liveCount = () => apps.filter((a) => Object.values(a.stores).some((s) => s
 // our own apps as the proof (the plan is in README.md). It leads with what a person gets, in plain
 // words, and names AI only where it says something useful. Every fact on it is true and checkable:
 // the company, the city, the apps and where each one is today, the published legal pages and how
-// we work. No testimonials, logos or numbers we cannot show. The contact section and part of the
-// questions reuse the services page's copy, so both pages say the same thing.
+// we work. No testimonials, logos or numbers we cannot show. The process, the contact section and
+// part of the questions reuse the services page's copy, so both pages say the same thing.
 const home = {
   paths: { es: '', en: 'en/' },
   bg: '#f7f7f9',
@@ -632,21 +628,15 @@ const home = {
       ['2 días hábiles', 'para responderte'],
       ['NDA', 'si lo pides, antes de hablar'],
     ],
-    nav: [['#trabajo', 'Apps'], ['#proceso', 'Cómo trabajamos'], ['#nosotros', 'Nosotros'], ['#contacto', 'Contacto']],
+    nav: [['#trabajo', 'Apps'], ['#nosotros', 'Nosotros'], ['#proceso', 'Proceso'], ['#contacto', 'Contacto']],
     workId: 'trabajo',
     workEyebrow: 'Nuestras apps',
     workTitle: 'Antes de hacer la tuya, *hicimos las nuestras*.',
     workLead: 'Apps propias que diseñamos y construimos de principio a fin. Son la forma más directa de ver cómo trabajamos antes de hablar.',
     seeApp: (name) => `Conoce ${name}`,
     processId: 'proceso',
-    processEyebrow: 'Cómo trabajamos',
-    processTitle: 'Sabes en qué va tu app *en cada paso*.',
-    process: [
-      ['Nos cuentas tu idea', 'Por el chat de esta página, por correo o por WhatsApp. Una persona del equipo lo lee y te responde en menos de 2 días hábiles.'],
-      ['Hablamos y te mandamos una propuesta', 'Una llamada sin compromiso, con acuerdo de confidencialidad (NDA) si lo pides, y después una propuesta escrita con alcance, fechas y precio.'],
-      ['Diseñamos y construimos contigo', 'Pruebas las pantallas en tu celular antes de escribir el código. Usamos IA para avanzar más rápido, y una persona revisa y aprueba cada cambio.'],
-      ['Publicamos y seguimos contigo', 'Llevamos la app por la revisión de Apple y de Google con la cuenta de tu empresa. El código es tuyo, y si quieres la mantenemos mes a mes.'],
-    ],
+    processEyebrow: 'Nuestro proceso',
+    processTitle: 'Sabes en qué va tu app *en cada etapa*.',
     processMore: 'Servicios y formas de trabajar',
     aboutId: 'nosotros',
     aboutEyebrow: 'Quiénes somos',
@@ -662,9 +652,6 @@ const home = {
         ['Sin cookies ni analítica.', 'Este sitio no te sigue: no usa cookies ni herramientas de analítica.'],
       ];
     },
-    // The people behind the studio, shown under "Who we are" once their names and photos are
-    // published with their permission: { name, role, photo } (photo: a square image under assets/img/team/).
-    team: [],
     whoId: 'para-quien',
     whoEyebrow: 'Para quién',
     whoTitle: 'Trabajamos con quien tiene *algo que construir*.',
@@ -674,9 +661,7 @@ const home = {
       ['Empresas de Estados Unidos', 'Buscas un equipo nearshore en tu horario (UTC−5), que trabaje en inglés.'],
     ],
     faqId: 'preguntas',
-    faqEyebrow: 'Preguntas',
-    // Picked from the services page's questions, by their place in that list.
-    faq: [0, 1, 2, 3, 7],
+    faqEyebrow: 'Dudas frecuentes',
     faqMore: 'Más preguntas',
     contactId: 'contacto',
     about: 'Estudio de apps de Medellín, Colombia. Hacemos tu app, de la idea a las tiendas.',
@@ -686,7 +671,7 @@ const home = {
     description: `App studio in Medellín, Colombia. We design, build and publish apps for iPhone and Android, and keep looking after them after launch. Our apps: ${appNames('en')}.`,
     eyebrow: 'App studio · Medellín, Colombia',
     headline: 'We build your app, *from idea to the stores*.',
-    lead: 'We design, build and publish apps for iPhone and Android, and keep looking after them after launch. It is how we work on our own.',
+    lead: 'We design, build and publish apps for iPhone and Android, and keep looking after them after launch. We do the same with our own apps.',
     secondary: 'See our apps',
     facts: () => [
       [String(apps.length), apps.length === 1 ? 'app of our own' : 'apps of our own'],
@@ -694,21 +679,15 @@ const home = {
       ['2 business days', 'to reply to you'],
       ['NDA', 'before we talk, if you ask'],
     ],
-    nav: [['#work', 'Apps'], ['#process', 'How we work'], ['#about', 'About'], ['#contact', 'Contact']],
+    nav: [['#work', 'Apps'], ['#about', 'About'], ['#process', 'Process'], ['#contact', 'Contact']],
     workId: 'work',
     workEyebrow: 'Our apps',
     workTitle: 'Before building yours, *we built our own*.',
     workLead: 'Apps of our own that we designed and built from start to finish. They are the most direct way to see how we work before we talk.',
-    seeApp: (name) => `Explore ${name}`,
+    seeApp: (name) => `See ${name}`,
     processId: 'process',
-    processEyebrow: 'How we work',
-    processTitle: 'You know where your app stands *at every step*.',
-    process: [
-      ['You tell us your idea', 'Through the chat on this page, by email or on WhatsApp. A person on the team reads it and replies within 2 business days.'],
-      ['We talk and send you a proposal', 'A call with no commitment, under a non-disclosure agreement (NDA) if you ask, and then a written proposal with scope, dates and price.'],
-      ['We design and build it with you', 'You try the screens on your phone before any code is written. We use AI to move faster, and a person reviews and approves every change.'],
-      ['We launch it and stay with you', 'We take the app through Apple’s and Google’s review under your company’s account. The code is yours, and if you want, we maintain it month after month.'],
-    ],
+    processEyebrow: 'Our process',
+    processTitle: 'You know where your app stands *at every stage*.',
     processMore: 'Services and ways to work',
     aboutId: 'about',
     aboutEyebrow: 'Who we are',
@@ -723,7 +702,6 @@ const home = {
         ['No cookies, no analytics.', 'This site does not track you: it uses no cookies and no analytics tools.'],
       ];
     },
-    team: [],
     whoId: 'who-we-work-with',
     whoEyebrow: 'Who we work with',
     whoTitle: 'We work with people who have *something to build*.',
@@ -733,8 +711,7 @@ const home = {
       ['US companies', 'You are looking for a nearshore team in your hours (UTC−5) that works in English.'],
     ],
     faqId: 'faq',
-    faqEyebrow: 'Questions',
-    faq: [0, 1, 2, 3, 7],
+    faqEyebrow: 'Common questions',
     faqMore: 'More questions',
     contactId: 'contact',
     about: 'App studio from Medellín, Colombia. We build your app, from idea to the stores.',
@@ -794,9 +771,9 @@ const services = {
   es: {
     title: 'Hacemos tu app con IA: de la idea a App Store y Google Play',
     description:
-      'Tutos App es un estudio de apps con IA en Medellín. Llevamos tu idea a una app en App Store y Google Play: agentes de IA hacen el trabajo pesado y una persona revisa cada decisión.',
+      'Tutos App es un estudio de apps en Medellín. Llevamos tu idea a una app en App Store y Google Play: agentes de IA hacen el trabajo pesado y una persona revisa cada decisión.',
     navLabel: 'Hacemos tu app',
-    eyebrow: 'Hacemos tu app · Estudio de apps con IA en Medellín',
+    eyebrow: 'Hacemos tu app · Estudio de apps en Medellín',
     headline: 'Apps, funciones e IA *para tu negocio*.',
     lead:
       'Apps nuevas, nuevas funciones para el producto que ya tienes, IA e integraciones. Agentes de IA hacen el trabajo pesado y una persona revisa cada decisión: rápido, con calidad y sin sorpresas.',
@@ -864,15 +841,16 @@ const services = {
     offerMail: (name) => [`Tutos App: ${name}`, `Hola, me interesa "${name}".\n\nMi nombre: \nMi empresa o proyecto: \nMi idea: \n`],
     faqId: 'preguntas',
     faqEyebrow: 'Dudas',
+    // A question marked 'home' is also shown on the home page.
     faq: [
-      ['¿Mi idea queda protegida?', 'Sí. Tu idea es tuya: la tratamos con confidencialidad, no la compartimos ni la usamos para nada distinto a responderte, y si quieres firmamos un acuerdo de confidencialidad (NDA) antes de la primera llamada.'],
-      ['¿Cuánto tiempo toma?', 'Depende del alcance. Un MVP enfocado se mide en semanas, no en meses. En la primera llamada te damos un estimado, y la propuesta lleva fechas y lo que entra en cada entrega.'],
-      ['¿De quién es el código?', 'Tuyo. El código, los diseños y las cuentas de las tiendas quedan a nombre de tu empresa, y así queda por escrito en el contrato.'],
-      ['¿Ustedes publican la app en las tiendas?', 'Sí. Preparamos las fichas, las capturas, la política de privacidad y los términos, y llevamos la app por la revisión de Apple y de Google, como hacemos con nuestras propias apps. La app sale con la cuenta de desarrollador de tu empresa.'],
+      ['¿Mi idea queda protegida?', 'Sí. Tu idea es tuya: la tratamos con confidencialidad, no la compartimos ni la usamos para nada distinto a responderte, y si quieres firmamos un acuerdo de confidencialidad (NDA) antes de la primera llamada.', 'home'],
+      ['¿Cuánto tiempo toma?', 'Depende del alcance. Un MVP enfocado se mide en semanas, no en meses. En la primera llamada te damos un estimado, y la propuesta lleva fechas y lo que entra en cada entrega.', 'home'],
+      ['¿De quién es el código?', 'Tuyo. El código, los diseños y las cuentas de las tiendas quedan a nombre de tu empresa, y así queda por escrito en el contrato.', 'home'],
+      ['¿Ustedes publican la app en las tiendas?', 'Sí. Preparamos las fichas, las capturas, la política de privacidad y los términos, y llevamos la app por la revisión de Apple y de Google, como hacemos con nuestras propias apps. La app sale con la cuenta de desarrollador de tu empresa.', 'home'],
       ['¿Cómo cuidan la privacidad de los datos?', 'Diseñamos desde el inicio con la Ley 1581 de 2012 de protección de datos personales de Colombia: pedimos solo los datos necesarios, decimos para qué se usan y te ayudamos a preparar la política de privacidad. Si tu app es para otros países, tenemos en cuenta sus reglas y las de las tiendas.'],
       ['¿En qué idiomas trabajan?', 'En español y en inglés, y tu app puede salir en los dos, como todas las nuestras. Trabajamos con empresas de Colombia, de Latinoamérica y de Estados Unidos.'],
       ['¿Trabajan con empresas de Estados Unidos?', 'Sí. Medellín está en UTC−5: la misma hora de la costa este de Estados Unidos en invierno, y una hora menos en verano. Las reuniones caben en tu jornada.'],
-      ['¿Qué hace la IA y qué hacen las personas?', 'Los agentes de IA escriben código, pruebas y borradores en paralelo, y por eso avanzamos rápido. Las decisiones de producto, de diseño y cada cambio que entra al código las revisa y aprueba una persona del equipo.'],
+      ['¿Qué hace la IA y qué hacen las personas?', 'Los agentes de IA escriben código, pruebas y borradores en paralelo, y por eso avanzamos rápido. Las decisiones de producto, de diseño y cada cambio que entra al código las revisa y aprueba una persona del equipo.', 'home'],
     ],
     contactId: 'contacto',
     contactEyebrow: 'Hablemos',
@@ -936,9 +914,9 @@ const services = {
   en: {
     title: 'We build your AI app: from idea to the App Store and Google Play',
     description:
-      'Tutos App is an AI app studio in Medellín, Colombia. We take your idea to an app on the App Store and Google Play: AI agents do the heavy lifting and a person reviews every decision.',
+      'Tutos App is an app studio in Medellín, Colombia. We take your idea to an app on the App Store and Google Play: AI agents do the heavy lifting and a person reviews every decision.',
     navLabel: 'We build your app',
-    eyebrow: 'We build your app · AI app studio in Medellín',
+    eyebrow: 'We build your app · App studio in Medellín',
     headline: 'Apps, features and AI *for your business*.',
     lead:
       'New apps, new features for the product you already have, AI and integrations. AI agents do the heavy lifting and a person reviews every decision: fast, with quality and no surprises.',
@@ -1007,14 +985,14 @@ const services = {
     faqId: 'faq',
     faqEyebrow: 'Questions',
     faq: [
-      ['Is my idea protected?', 'Yes. Your idea is yours: we treat it as confidential, we do not share it or use it for anything other than replying to you, and if you want, we sign a non-disclosure agreement (NDA) before the first call.'],
-      ['How long does it take?', 'It depends on the scope. A focused MVP is measured in weeks, not months. On the first call we give you an estimate, and the proposal includes dates and what goes into each delivery.'],
-      ['Who owns the code?', 'You do. The code, the designs and the store accounts are in your company’s name, and the contract says so in writing.'],
-      ['Do you publish the app in the stores?', 'Yes. We prepare the listings, screenshots, privacy policy and terms, and take the app through Apple’s and Google’s review, as we do with our own apps. The app ships under your company’s developer account.'],
+      ['Is my idea protected?', 'Yes. Your idea is yours: we treat it as confidential, we do not share it or use it for anything other than replying to you, and if you want, we sign a non-disclosure agreement (NDA) before the first call.', 'home'],
+      ['How long does it take?', 'It depends on the scope. A focused MVP is measured in weeks, not months. On the first call we give you an estimate, and the proposal includes dates and what goes into each delivery.', 'home'],
+      ['Who owns the code?', 'You do. The code, the designs and the store accounts are in your company’s name, and the contract says so in writing.', 'home'],
+      ['Do you publish the app in the stores?', 'Yes. We prepare the listings, screenshots, privacy policy and terms, and take the app through Apple’s and Google’s review, as we do with our own apps. The app ships under your company’s developer account.', 'home'],
       ['How do you handle data privacy?', 'We design for Colombia’s personal data protection law (Ley 1581 of 2012) from the start: we ask only for the data needed, say what it is used for and help you prepare the privacy policy. If your app is for other countries, we take their rules and the stores’ rules into account.'],
       ['Which languages do you work in?', 'English and Spanish, and your app can ship in both, like all of ours. We work with companies in Colombia, Latin America and the United States.'],
       ['Do you work with US companies?', 'Yes. Medellín is on UTC−5: the same time as the US East Coast in winter, and one hour behind in summer. Meetings fit in your workday.'],
-      ['What does AI do, and what do people do?', 'AI agents write code, tests and drafts in parallel, which is why we move fast. Product and design decisions, and every change that goes into the code, are reviewed and approved by a person on the team.'],
+      ['What does AI do, and what do people do?', 'AI agents write code, tests and drafts in parallel, which is why we move fast. Product and design decisions, and every change that goes into the code, are reviewed and approved by a person on the team.', 'home'],
     ],
     contactId: 'contact',
     contactEyebrow: 'Let’s talk',
@@ -1133,8 +1111,6 @@ const icons = {
   mail: svg('<path d="M3.5 6h17v12h-17zM3.5 7l8.5 6 8.5-6"/>', 20),
   arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>', 18),
   check: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>', 18, 2.2),
-  pause: svg('<path d="M9 5v14M15 5v14"/>', 14, 2.4),
-  playSmall: svg('<path d="M7 4.5v15l12-7.5z"/>', 14),
   plus: svg('<path d="M12 5v14M5 12h14"/>', 18, 2),
   chevron: svg('<path d="m6 9 6 6 6-6"/>', 14, 2.4),
   calendar: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', 20),
@@ -1256,12 +1232,13 @@ function legalLinks(app, lang, path) {
 }
 
 // The "Tell us your idea" chat on every page: a round button in the bottom-right corner that
-// opens the chat in a panel (a modal <dialog>, full screen on a phone), shown once the visitor
-// scrolls past the first screen. Pages with the chat in their contact section (chat: 'inline') move that same chat into
+// opens the chat in a panel (a modal <dialog>, full screen on a phone). On the home (early) it
+// shows once the visitor scrolls past the first screen, where the hero already leads to the
+// contact; on every other page it is there from the start. Pages with the chat in their contact section (chat: 'inline') move that same chat into
 // the panel; every other page carries its own copy in the panel. assets/brief.js runs it all, so
 // without JavaScript the button stays hidden. The empty .chat-note is where it says, politely, how a
 // send ended when the panel was closed before the answer came. `to` turns a site path into the URL to use from the page.
-function chatLauncher(lang, to, chat) {
+function chatLauncher(lang, to, chat, early = false) {
   const c = services[lang].chat;
   const close = svg('<path d="M6 6l12 12M18 6 6 18"/>', 20, 2.2);
   return `
@@ -1269,14 +1246,14 @@ function chatLauncher(lang, to, chat) {
       <button class="chat-close" type="button" aria-label="${esc(c.close)}">${close}</button>
       <div class="chat-slot">${chat === 'inline' ? '' : briefForm(lang, to)}</div>
     </dialog>
-    <div class="chat-float" hidden>
+    <div class="chat-float"${early ? ' data-early' : ''} hidden>
       <div class="chat-note" aria-live="polite"></div>
       <button class="chat-fab" type="button" aria-label="${esc(c.launcher)}" aria-haspopup="dialog" aria-controls="chat-sheet" aria-expanded="false">${svg('<path d="M20.5 11.5a8 8 0 0 1-11.8 7.1L3.5 20l1.4-4.9A8 8 0 1 1 20.5 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>', 26, 2)}</button>
     </div>
     ${briefScript(to)}`;
 }
 
-function footer({ lang, path, only, chat = 'sheet' }) {
+function footer({ lang, path, only, chat = 'sheet', early = false }) {
   const t = ui[lang];
   const h = home[lang];
   // The home footer lists every app; an app page's footer is about that app alone.
@@ -1306,7 +1283,7 @@ function footer({ lang, path, only, chat = 'sheet' }) {
         </div>
       </div>
       <p class="wordmark" aria-hidden="true">Tutos App</p>
-    </footer>${chatLauncher(lang, (p) => rel(path, p), chat)}
+    </footer>${chatLauncher(lang, (p) => rel(path, p), chat, early)}
   </body>
 </html>
 `;
@@ -1923,8 +1900,8 @@ function workSection(lang, path, n, id) {
       </section>`;
 }
 
-// Ways to work together, each with a prefilled email; more links below the cards.
-function offersSection(lang, path, n, { id, eyebrow, title, lead, more = '' }) {
+// Ways to work together, each with a prefilled email.
+function offersSection(lang, path, n, { id, eyebrow, title, lead }) {
   const s = services[lang];
   return `<section class="section wrap" id="${id}" aria-labelledby="offers-h">
         <div class="section-head reveal">
@@ -1941,7 +1918,7 @@ function offersSection(lang, path, n, { id, eyebrow, title, lead, more = '' }) {
               .join('')}</ul><a class="inline-link" href="${mailto(subject, body)}">${esc(s.offerCta)}<span class="sr-only">: ${esc(name)}</span></a></li>`;
           })
           .join('')}
-        </ul>${more}
+        </ul>
       </section>`;
 }
 
@@ -2134,15 +2111,6 @@ function appCase(app, lang, path) {
           </li>`;
 }
 
-// The people behind the studio, once home[lang].team lists them (with their permission).
-function teamList(lang, path) {
-  const team = home[lang].team;
-  if (!team.length) return '';
-  return `<ul class="team">${team
-    .map((p) => `<li><img src="${rel(path, p.photo)}" alt="" width="96" height="96" loading="lazy"><b>${esc(p.name)}</b><span>${esc(p.role)}</span></li>`)
-    .join('')}</ul>`;
-}
-
 function homePage(lang) {
   const t = ui[lang];
   const h = home[lang];
@@ -2202,25 +2170,24 @@ function homePage(lang) {
         </ul>
       </section>
 
-      <section class="section wrap" id="${h.processId}" aria-labelledby="process-h">
-        ${head2('process-h', h.processEyebrow, h.processTitle)}
-        <ol class="path">${h.process
-          .map(([name, d], i) => `
-          <li><span class="path-n" aria-hidden="true">${i + 1}</span><h3>${esc(name)}</h3><p>${esc(d)}</p></li>`)
-          .join('')}
-        </ol>
-        <p class="section-more"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
-      </section>
-
       <section class="section wrap about" id="${h.aboutId}" aria-labelledby="about-h">
         ${head2('about-h', h.aboutEyebrow, h.aboutTitle, h.aboutLead)}
-        ${teamList(lang, path)}
         <ul class="proofs">${h
           .proofs(path)
           .map(([title, d, href, label]) => `
           <li><h3>${esc(title)}</h3><p>${esc(d)}</p>${href ? `<a class="text-link" href="${href}">${esc(label)} ${icons.arrow}</a>` : ''}</li>`)
           .join('')}
         </ul>
+      </section>
+
+      <section class="section wrap" id="${h.processId}" aria-labelledby="process-h">
+        ${head2('process-h', h.processEyebrow, h.processTitle)}
+        <ol class="path">${s.process
+          .map(([name, d], i) => `
+          <li><span class="path-n" aria-hidden="true">${i + 1}</span><h3>${esc(name)}</h3><p>${esc(d)}</p></li>`)
+          .join('')}
+        </ol>
+        <p class="section-more"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
       </section>
 
       <section class="section wrap" id="${h.whoId}" aria-labelledby="who-h">
@@ -2238,8 +2205,8 @@ function homePage(lang) {
           <h2 id="faq-h">${t.faq}</h2>
           <p><a href="${rel(path, services.paths[lang])}#${s.faqId}">${esc(h.faqMore)}</a><br><a href="mailto:${EMAIL}">${EMAIL}</a></p>
         </div>
-        <div class="faq">${h.faq
-          .map((i) => s.faq[i])
+        <div class="faq">${s.faq
+          .filter(([, , where]) => where === 'home')
           .map(
             ([q, a]) => `
           <details><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(a)}</p></details>`
@@ -2250,7 +2217,7 @@ function homePage(lang) {
 
       ${contactSection(lang, path, 0, h.contactId)}
     </main>` +
-    footer({ lang, path, chat: 'inline' })
+    footer({ lang, path, chat: 'inline', early: true })
   );
 }
 

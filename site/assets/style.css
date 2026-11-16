@@ -3030,8 +3030,8 @@ h2 em {
 
 /* The chat on every page: a round button in the bottom-right corner and the panel it opens (a
    modal dialog: bottom-right on a computer, full screen on a phone). assets/brief.js shows the
-   button once the visitor has scrolled past the first screen (.is-early before that), and it
-   steps aside (.is-away, .is-tucked) while the chat is open, while the contact section is on
+   button, on the home once the visitor has scrolled past the first screen (.is-early before
+   that), and it steps aside (.is-away, .is-tucked) while the chat is open, while the contact section is on
    screen and while a page button passes under it. */
 .chat-float {
   position: fixed;
@@ -3617,7 +3617,7 @@ h2 em {
   width: min(250px, 66%);
 }
 
-/* How we work: four plain steps. */
+/* Our process: the six stages, plainly. */
 .path {
   display: grid;
   padding: 0;
@@ -3687,31 +3687,6 @@ h2 em {
 
 .proofs .text-link {
   margin-top: auto;
-}
-
-.team {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 24px;
-  padding: 0;
-  margin: clamp(44px, 5vw, 64px) 0 0;
-  list-style: none;
-}
-
-.team li {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.team img {
-  width: 96px;
-  margin-bottom: 10px;
-  border-radius: 50%;
-}
-
-.team span {
-  color: var(--muted);
 }
 
 /* Who we work with */
@@ -3792,8 +3767,8 @@ h2 em {
   }
 
   .path {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 32px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 44px 32px;
     border-top: 0;
   }
 

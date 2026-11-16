@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { apps } from '../scripts/build.mjs';
+import { apps, home, services } from '../scripts/build.mjs';
 
 const SITE = 'https://tutosapp.co/';
 const pages = [...readFileSync(new URL('../site/sitemap.xml', import.meta.url), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -188,6 +188,22 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
     }
     // Nothing on the home moves by itself: no app band and no stacking cards.
     await expect(page.locator('.marquee, .work-card')).toHaveCount(0);
+  });
+}
+
+// The home tells who we are before how we work, shows the same six stages as the services page,
+// and answers the questions that page marks for the home.
+for (const lang of ['es', 'en']) {
+  test(`/${home.paths[lang]} shows who we are, then the services page's process, and the questions marked for the home`, async ({ page }) => {
+    const h = home[lang];
+    const s = services[lang];
+    await page.goto('/' + home.paths[lang]);
+    const order = await page.locator('main > section[id]').evaluateAll((all) => all.map((x) => x.id));
+    expect(order).toEqual([h.workId, h.aboutId, h.processId, h.whoId, h.faqId, h.contactId]);
+    await expect(page.locator(`#${h.processId} .path h3`)).toHaveText(s.process.map(([name]) => name));
+    const marked = s.faq.filter(([, , where]) => where === 'home').map(([q]) => q);
+    expect(marked.length).toBeGreaterThan(0);
+    await expect(page.locator(`#${h.faqId} summary`)).toHaveText(marked);
   });
 }
 

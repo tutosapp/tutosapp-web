@@ -240,9 +240,9 @@
   // On a page with the chat in its contact section, the panel borrows that same chat, answers
   // and all, and gives it back on close. The button steps aside while the chat is open, while the
   // contact section is on screen and while a button or store badge of the page passes under it.
-  // It also waits for the first scroll: on the first screen the page speaks for itself, so the
-  // button shows once the visitor has scrolled a little (at once on a page too short to scroll).
-  // It never pops up a message over the content.
+  // On the home (data-early) it also waits for the first scroll: the first screen already leads
+  // to the contact, so the button shows once the visitor has scrolled a little (at once on a page
+  // too short to scroll). It never pops up a message over the content.
   // If a send ends after the panel was closed, a short notice by the button says so: sent (it goes
   // away by itself) or not sent (it stays, with a dot on the button, until the panel is opened).
   const sheet = document.getElementById('chat-sheet');
@@ -274,11 +274,11 @@
     return r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
   };
 
-  // Still on the first screen: less than a third of a screen scrolled, on a page that can scroll
-  // that far, and the chat not opened yet. Once past it, the button stays for the rest of the page.
-  let started = false;
+  // Still on the home's first screen: less than a third of a screen scrolled, on a page that can
+  // scroll that far. Once past it, the button stays for the rest of the page.
+  let started = !('early' in float.dataset);
   const early = () => {
-    started ||= sheet.open || scrollY >= Math.min(innerHeight / 3, document.documentElement.scrollHeight - innerHeight - 1);
+    started ||= scrollY >= Math.min(innerHeight / 3, document.documentElement.scrollHeight - innerHeight - 1);
     return !started;
   };
 
