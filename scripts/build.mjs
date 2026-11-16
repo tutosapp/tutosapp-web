@@ -81,7 +81,7 @@ const OJITO_VERSION = '0.1.17';
 // The Resume Roast version that is live on Google Play (the iPhone app is not public yet). Its page
 // says what that version brought on Android (the last FAQ answer) and its structured data carries
 // the number, so change both together on each release.
-const RESUME_ROAST_ANDROID_VERSION = '0.5.3';
+const RESUME_ROAST_ANDROID_VERSION = '0.5.4';
 
 const apps = [
   {
@@ -295,7 +295,7 @@ const apps = [
         ['Which languages does it support?', 'The app is in English and Spanish, and your resume can come out in English, Spanish, Portuguese, French, Italian or German.'],
         ['What is an ATS-friendly PDF?', 'Many companies use software that reads your resume before a person does. Resume Roast exports a PDF with selectable text that those systems can read, in three modern templates.'],
         ['Is it on iPhone?', 'It’s on Google Play today. The iPhone version is coming soon: email us and we’ll let you know.'],
-        [`What’s new in version ${RESUME_ROAST_ANDROID_VERSION} for Android?`, 'Uploading your resume is now a guided flow in three steps. First, how to give us your resume: upload a file, paste the text or reuse your last one, which is saved only on your phone. Then, if you want, a role or a job posting. Last, a review with the credit cost before you start. Word files are now read correctly.'],
+        [`What’s new in version ${RESUME_ROAST_ANDROID_VERSION} for Android?`, 'If the app closes while your roast is being made, the roast is recovered the next time you open it, and you are not charged twice. You can also delete the resume and goal the app saved from your phone. Since 0.5.3, uploading your resume is a guided flow in three steps and Word files are read correctly.'],
       ],
       notifyLabel: 'On iPhone? Get notified',
       notify: mailto('Resume Roast for iPhone', 'Hi, please let me know when Resume Roast is on the App Store.'),
@@ -348,7 +348,7 @@ const apps = [
         ['¿En qué idiomas funciona?', 'La app está en español y en inglés, y tu CV puede salir en español, inglés, portugués, francés, italiano o alemán.'],
         ['¿Qué es un PDF que pasa los filtros (ATS)?', 'Muchas empresas usan programas que leen tu CV antes que una persona. Resume Roast exporta un PDF con texto seleccionable que esos programas pueden leer, con tres plantillas modernas.'],
         ['¿Está en iPhone?', 'Hoy está en Google Play. La versión para iPhone viene pronto: escríbenos y te avisamos.'],
-        [`¿Qué trae la versión ${RESUME_ROAST_ANDROID_VERSION} para Android?`, 'Subir tu CV ahora es un proceso guiado de tres pasos. Primero, cómo nos das tu CV: subes un archivo, pegas el texto o usas el último, que queda guardado solo en tu celular. Después, si quieres, un puesto o una oferta de empleo. Al final, una revisión con el costo en créditos antes de empezar. Los archivos de Word ya se leen bien.'],
+        [`¿Qué trae la versión ${RESUME_ROAST_ANDROID_VERSION} para Android?`, 'Si la app se cierra mientras se hace tu análisis, el análisis se recupera la próxima vez que la abras y no se te cobra dos veces. También puedes borrar de tu celular el CV y el objetivo que la app guardó. Desde la 0.5.3, subir tu CV es un proceso guiado de tres pasos y los archivos de Word se leen bien.'],
       ],
       notifyLabel: '¿Tienes iPhone? Te avisamos',
       notify: mailto('Resume Roast para iPhone', 'Hola, avísenme cuando Resume Roast esté en App Store.'),
