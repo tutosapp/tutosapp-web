@@ -117,6 +117,15 @@
     <li>We do <strong>not</strong> receive or store your payment card details, your Apple ID or your Google account.</li>
 </ul>
 
+<h3>Your Roast Result, Kept for 24 Hours</h3>
+<p>This is the one case in which something derived from your resume stays on our server. When the App (on Android, in the version that follows 0.5.3) asks for a review, it sends an identifier for that request. We then keep the <strong>finished result</strong> (the score, the verdict, the comments and the match with the role) for <strong>24 hours</strong> after it is ready.</p>
+<ul>
+    <li><strong>Why</strong>: if the App is closed, or the connection drops, while the review is running, you can get the review you already paid for instead of paying again.</li>
+    <li><strong>What is kept</strong>: the result, which is derived from your resume and may repeat details from it, and a one-way fingerprint (a SHA-256 hash) of the request, used to check that a repeated request is the same one. <strong>Your resume text, target role and job posting are still never stored.</strong></li>
+    <li><strong>Tied to your device by a hashed identifier</strong>: the record is stored under a hash of your device identifier and the request identifier, and holds a hash of your device identifier, never the identifier itself. It is returned only to the same device, for the same request.</li>
+    <li><strong>Deletion</strong>: it is deleted automatically 24 hours after the result is ready; our hourly cleanup removes it within about an hour after that. You can ask us to delete it earlier by writing to hola@tutosapp.co (see "How to Exercise Them").</li>
+</ul>
+
 <h3>Language Preference</h3>
 <ul>
     <li>The language you want the review in, which you can pick manually or let the App detect from your resume's own language. It is sent with the request and is not stored on our servers.</li>
@@ -137,7 +146,7 @@
 <h2 id="how-your-resume-is-processed">How Your Resume Is Processed</h2>
 <p>When you request a review or a rewrite, the resume text is sent over an encrypted connection (HTTPS) to our backend (Google Cloud / Firebase Functions), which forwards it to our AI provider (<strong>Anthropic</strong>, Claude model) to generate the result that is returned to your device.</p>
 <ul>
-    <li>We do <strong>not</strong> store your resume text on our servers. It is processed <strong>ephemerally</strong>: used in memory solely to answer that specific request, and never written to a database or to our server logs.</li>
+    <li>We do <strong>not</strong> store your resume text on our servers. It is processed <strong>ephemerally</strong>: used in memory solely to answer that specific request, and never written to a database or to our server logs. The only thing derived from it that we keep is the finished result, for 24 hours (see "Your Roast Result, Kept for 24 Hours").</li>
     <li>Our AI provider processes the text to generate the output under its API terms, and may keep it for a limited time for trust and safety purposes. Anthropic does not use data submitted through its API to train its models by default.</li>
 </ul>
 
@@ -162,6 +171,7 @@
 <ul>
     <li>To generate the AI review and optional rewrite of your resume, once you consent.</li>
     <li>To display and store your results locally so you can revisit them.</li>
+    <li>To let you recover a review you already paid for if the App closes or the connection drops while it runs.</li>
     <li>To manage your credit balance and process purchases.</li>
     <li>To prevent abuse of the free credits and fraud.</li>
     <li>To review results you report to us, handle the reports and suggestions you send us, and reply to you.</li>
@@ -170,7 +180,7 @@
 
 <h2 id="third-party-services">Third-Party Services</h2>
 <ul>
-    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region) and the credit wallet and purchase database.</li>
+    <li><strong>Google Cloud / Firebase</strong> — hosts our backend (us-central1 region), the credit wallet and purchase database, and the roast result kept for 24 hours.</li>
     <li><strong>Anthropic</strong> — provides the AI model (Claude) that generates the review/rewrite. It is the only third party that receives your resume content.</li>
     <li><strong>Google Play Billing</strong> and <strong>Google Play Integrity</strong> (Android) — process purchases and verify that the App is genuine.</li>
     <li><strong>Apple App Store / StoreKit</strong> and <strong>Apple App Attest</strong> (iPhone) — process purchases and verify that the App is genuine.</li>
@@ -185,6 +195,7 @@
     <thead><tr><th>Data</th><th>Retention</th></tr></thead>
     <tbody>
         <tr><td>Resume content, target role and job postings</td><td>Not retained; only for the duration of the request</td></tr>
+        <tr><td>Finished roast result and request fingerprint, tied to your device by a hashed identifier</td><td>24 hours after the result is ready; then deleted within about an hour. Earlier on request</td></tr>
         <tr><td>Last resume kept for reuse, with the target role, job posting and review language (Android)</td><td>Only on your phone; the resume until you delete it in the App, and all of it until you clear the App's data or uninstall it</td></tr>
         <tr><td>Device identifier and credit balance</td><td>Until you request deletion</td></tr>
         <tr><td>App Attest key identifier and public key (iPhone)</td><td>Until you request deletion</td></tr>
@@ -198,7 +209,7 @@
 <h2 id="data-security">Data Security</h2>
 <ul>
     <li>All communication between the App, our server and the AI provider is encrypted using <strong>HTTPS/TLS</strong>.</li>
-    <li>We do not retain resume text on our servers after generating a result.</li>
+    <li>We do not retain resume text on our servers after generating a result. The finished result is kept for 24 hours only, under a hashed device identifier.</li>
     <li>The AI provider key and processing happen server-side; the App never contacts the AI vendor directly.</li>
     <li>iPhone purchases are only credited when Apple's signature is valid.</li>
 </ul>
@@ -219,7 +230,7 @@
     <li><strong>Access</strong>: your results and credits are visible within the App.</li>
     <li><strong>Local deletion</strong>: use "Clear history" in the App, or clear the App's data / uninstall it. On Android, "Delete this resume from my phone" deletes the last resume kept for reuse.</li>
     <li><strong>Server-side deletion</strong>: you can ask us to delete your device identifier, your credit balance, your App Attest data and your purchase records by writing to hola@tutosapp.co. The request is handled as a claim, within the time limits below. Deleting the wallet also deletes any credit balance you hold.</li>
-    <li>Because we do not retain your resume text, there is no server-side copy of it to delete.</li>
+    <li>Because we do not retain your resume text, there is no server-side copy of it to delete. The finished result of a review is deleted automatically within about 25 hours; to have it deleted sooner, write to hola@tutosapp.co.</li>
     <li>For any other right, write to the same email.</li>
 </ul>
 
@@ -239,7 +250,7 @@
 <p>The App is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
 <h2 id="changes-to-this-privacy-policy">Changes to This Privacy Policy</h2>
-<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
+<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. Version note, 16 November 2026: we now keep the finished result of a review for 24 hours so you can recover it if the App closes mid-analysis (Android, version after 0.5.3). If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
 <p>This policy takes effect on <strong>11 November 2026</strong>.</p>
 
 <div class="contact">
