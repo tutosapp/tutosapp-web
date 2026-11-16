@@ -81,7 +81,7 @@ const OJITO_VERSION = '0.1.17';
 // The Resume Roast version that is live on Google Play (the iPhone app is not public yet). Its page
 // says what that version brought on Android (the last FAQ answer) and its structured data carries
 // the number, so change both together on each release.
-const RESUME_ROAST_ANDROID_VERSION = '0.5.3';
+const RESUME_ROAST_ANDROID_VERSION = '0.5.4';
 
 const apps = [
   {
@@ -291,11 +291,11 @@ const apps = [
       faq: [
         ['How much does it cost?', 'You start with 3 free credits. One credit is one roast or one rewrite, and if the AI fails you get the credit back. Need more? Buy a pack once: no subscription, no ads and no account.', 'prices'],
         ['Does the AI invent experience?', 'No. The rewrite reorganizes and sharpens what you already have for the job, but it never invents jobs, titles or experience.'],
-        ['What happens to my resume?', 'To analyze it, your resume text goes through our server and an AI provider, and the text itself isn’t stored. On Android, the finished result is kept on our server for 24 hours, tied to your device by a hashed identifier, so you can recover a roast you paid for if the app closes mid-analysis; then it is deleted. Your history, photo and PDFs stay on your phone. On Android, the app also keeps your last resume on your phone only, so you can reuse it, and you can delete it from the app. The privacy policy has the details.'],
+        ['What happens to my resume?', 'To analyze it, your resume text goes through our server and an AI provider, and the text itself isn’t stored. On Android, the finished result is kept on our server for 24 hours, tied to your device by a hashed identifier, so you can recover a roast you paid for if the app closes mid-analysis; then it is deleted. Your history, photo and PDFs stay on your phone. On Android, the app also keeps your last resume on your phone only, so you can reuse it, and you can delete it, along with the goal saved with it, from the app. The privacy policy has the details.'],
         ['Which languages does it support?', 'The app is in English and Spanish, and your resume can come out in English, Spanish, Portuguese, French, Italian or German.'],
         ['What is an ATS-friendly PDF?', 'Many companies use software that reads your resume before a person does. Resume Roast exports a PDF with selectable text that those systems can read, in three modern templates.'],
         ['Is it on iPhone?', 'It’s on Google Play today. The iPhone version is coming soon: email us and we’ll let you know.'],
-        [`What’s new in version ${RESUME_ROAST_ANDROID_VERSION} for Android?`, 'Uploading your resume is now a guided flow in three steps. First, how to give us your resume: upload a file, paste the text or reuse your last one, which is saved only on your phone. Then, if you want, a role or a job posting. Last, a review with the credit cost before you start. Word files are now read correctly.'],
+        [`What’s new in version ${RESUME_ROAST_ANDROID_VERSION} for Android?`, 'If the app closes while your roast is being made, the roast is recovered the next time you open it, and you are not charged twice. You can also delete the resume and goal the app saved from your phone. Since 0.5.3, uploading your resume is a guided flow in three steps and Word files are read correctly.'],
       ],
       notifyLabel: 'On iPhone? Get notified',
       notify: mailto('Resume Roast for iPhone', 'Hi, please let me know when Resume Roast is on the App Store.'),
@@ -344,11 +344,11 @@ const apps = [
       faq: [
         ['¿Cuánto cuesta?', 'Empiezas con 3 créditos gratis. Un crédito es un análisis o una reescritura, y si la IA falla te lo devolvemos. ¿Necesitas más? Compras un paquete una sola vez: sin suscripción, sin anuncios y sin cuenta.', 'prices'],
         ['¿La IA inventa experiencia?', 'No. La reescritura ordena y mejora lo que ya tienes para esa vacante, pero nunca inventa trabajos, cargos ni experiencia.'],
-        ['¿Qué pasa con mi CV?', 'Para analizarlo, el texto de tu CV pasa por nuestro servidor y por un proveedor de inteligencia artificial, y el texto en sí no se guarda. En Android, el resultado terminado se guarda 24 horas en nuestro servidor, asociado a tu dispositivo mediante un hash del identificador, para que puedas recuperar un análisis que ya pagaste si la app se cierra a mitad del proceso; después se borra. Tu historial, tu foto y tus PDF se quedan en tu celular. En Android, la app también guarda tu último CV solo en tu celular, para que lo puedas volver a usar, y lo puedes borrar desde la app. Los detalles están en la política de privacidad.'],
+        ['¿Qué pasa con mi CV?', 'Para analizarlo, el texto de tu CV pasa por nuestro servidor y por un proveedor de inteligencia artificial, y el texto en sí no se guarda. En Android, el resultado terminado se guarda 24 horas en nuestro servidor, asociado a tu dispositivo mediante un hash del identificador, para que puedas recuperar un análisis que ya pagaste si la app se cierra a mitad del proceso; después se borra. Tu historial, tu foto y tus PDF se quedan en tu celular. En Android, la app también guarda tu último CV solo en tu celular, para que lo puedas volver a usar, y lo puedes borrar, junto con el objetivo guardado con él, desde la app. Los detalles están en la política de privacidad.'],
         ['¿En qué idiomas funciona?', 'La app está en español y en inglés, y tu CV puede salir en español, inglés, portugués, francés, italiano o alemán.'],
         ['¿Qué es un PDF que pasa los filtros (ATS)?', 'Muchas empresas usan programas que leen tu CV antes que una persona. Resume Roast exporta un PDF con texto seleccionable que esos programas pueden leer, con tres plantillas modernas.'],
         ['¿Está en iPhone?', 'Hoy está en Google Play. La versión para iPhone viene pronto: escríbenos y te avisamos.'],
-        [`¿Qué trae la versión ${RESUME_ROAST_ANDROID_VERSION} para Android?`, 'Subir tu CV ahora es un proceso guiado de tres pasos. Primero, cómo nos das tu CV: subes un archivo, pegas el texto o usas el último, que queda guardado solo en tu celular. Después, si quieres, un puesto o una oferta de empleo. Al final, una revisión con el costo en créditos antes de empezar. Los archivos de Word ya se leen bien.'],
+        [`¿Qué trae la versión ${RESUME_ROAST_ANDROID_VERSION} para Android?`, 'Si la app se cierra mientras se hace tu análisis, el análisis se recupera la próxima vez que la abras y no se te cobra dos veces. También puedes borrar de tu celular el CV y el objetivo que la app guardó. Desde la 0.5.3, subir tu CV es un proceso guiado de tres pasos y los archivos de Word se leen bien.'],
       ],
       notifyLabel: '¿Tienes iPhone? Te avisamos',
       notify: mailto('Resume Roast para iPhone', 'Hola, avísenme cuando Resume Roast esté en App Store.'),
