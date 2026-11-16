@@ -118,7 +118,7 @@
 </ul>
 
 <h3>Your Roast Result, Kept for 24 Hours</h3>
-<p>This is the one case in which something derived from your resume stays on our server. When the App (on Android, in the version that follows 0.5.3) asks for a review, it sends an identifier for that request. We then keep the <strong>finished result</strong> (the score, the verdict, the comments and the match with the role) for <strong>24 hours</strong> after it is ready.</p>
+<p>This is the one case in which something derived from your resume stays on our server. When the App (on Android, from version 0.5.4) asks for a review, it sends an identifier for that request. We then keep the <strong>finished result</strong> (the score, the verdict, the comments and the match with the role) for <strong>24 hours</strong> after it is ready.</p>
 <ul>
     <li><strong>Why</strong>: if the App is closed, or the connection drops, while the review is running, you can get the review you already paid for instead of paying again.</li>
     <li><strong>What is kept</strong>: the result, which is derived from your resume and may repeat details from it, and a one-way fingerprint (a SHA-256 hash) of the request, used to check that a repeated request is the same one. <strong>Your resume text, target role and job posting are still never stored.</strong></li>
@@ -163,7 +163,7 @@
     <li><strong>The generated PDFs</strong> and the score image for sharing, which only leave the device if you choose to save or share them.</li>
     <li><strong>Text recognition (OCR)</strong> and file reading, which run locally.</li>
     <li><strong>Your history</strong> (score, verdict, breakdown and, if you asked for one, the rewrite), your preferences, your AI consent choice and, on iPhone, the work in progress the App saves so it can be restored if the system closes it. All of this is stored only in the App's internal storage.</li>
-    <li><strong>Your last resume, on Android</strong>. So that you do not have to load it again, the App keeps on your phone the text of the last resume you loaded, with the target role, the job posting and the review language you entered, and offers it as "Use my last resume". It is saved as you move through the steps of loading your resume, when you start an analysis and when you leave that screen. It is excluded from cloud backup and from transfer to another device. It never leaves your phone on its own: it is sent only as part of an analysis you start, like any resume. You can delete the stored resume with <strong>"Delete this resume from my phone"</strong>; after that, no resume is stored again until you continue or start an analysis with one.</li>
+    <li><strong>Your last resume, on Android</strong>. So that you do not have to load it again, the App keeps on your phone the text of the last resume you loaded, with the target role, the job posting and the review language you entered, and offers it as "Use my last resume". It is saved as you move through the steps of loading your resume, when you start an analysis and when you leave that screen. It is excluded from cloud backup and from transfer to another device. It never leaves your phone on its own: it is sent only as part of an analysis you start, like any resume. You can delete it with <strong>"Delete this resume from my phone"</strong>: from version 0.5.4 this removes the stored resume together with the target role, the job posting and the review language (in earlier versions it removes the resume only). If a review you already paid for is still pending, the App asks you to confirm before deleting. After that, nothing is stored again until you continue or start an analysis with a resume.</li>
 </ul>
 <p>Uninstalling the App or clearing its data removes all of this local information (on iPhone the Keychain identifier is kept, as explained above). Note that <strong>your credit balance is not local</strong>: it lives on our server, tied to your device identifier, precisely so it is not lost on reinstall.</p>
 
@@ -196,7 +196,7 @@
     <tbody>
         <tr><td>Resume content, target role and job postings</td><td>Not retained; only for the duration of the request</td></tr>
         <tr><td>Finished roast result and request fingerprint, tied to your device by a hashed identifier</td><td>24 hours after the result is ready; then deleted within about an hour. Earlier on request</td></tr>
-        <tr><td>Last resume kept for reuse, with the target role, job posting and review language (Android)</td><td>Only on your phone; the resume until you delete it in the App, and all of it until you clear the App's data or uninstall it</td></tr>
+        <tr><td>Last resume kept for reuse, with the target role, job posting and review language (Android)</td><td>Only on your phone, until you delete it in the App (from version 0.5.4 this removes all of it; in earlier versions, the resume only), clear the App's data or uninstall it</td></tr>
         <tr><td>Device identifier and credit balance</td><td>Until you request deletion</td></tr>
         <tr><td>App Attest key identifier and public key (iPhone)</td><td>Until you request deletion</td></tr>
         <tr><td>App Attest attestation and Play Integrity token</td><td>Not retained; only for verification</td></tr>
@@ -228,7 +228,7 @@
 <h3>How to Exercise Them</h3>
 <ul>
     <li><strong>Access</strong>: your results and credits are visible within the App.</li>
-    <li><strong>Local deletion</strong>: use "Clear history" in the App, or clear the App's data / uninstall it. On Android, "Delete this resume from my phone" deletes the last resume kept for reuse.</li>
+    <li><strong>Local deletion</strong>: use "Clear history" in the App, or clear the App's data / uninstall it. On Android, "Delete this resume from my phone" deletes the last resume kept for reuse and, from version 0.5.4, the target role, job posting and review language kept with it; if a review you already paid for is still pending, the App asks you to confirm first.</li>
     <li><strong>Server-side deletion</strong>: you can ask us to delete your device identifier, your credit balance, your App Attest data and your purchase records by writing to hola@tutosapp.co. The request is handled as a claim, within the time limits below. Deleting the wallet also deletes any credit balance you hold.</li>
     <li>Because we do not retain your resume text, there is no server-side copy of it to delete. The finished result of a review is deleted automatically within about 25 hours; to have it deleted sooner, write to hola@tutosapp.co.</li>
     <li>For any other right, write to the same email.</li>
@@ -250,7 +250,7 @@
 <p>The App is not directed to children under 13, and we do not knowingly collect personal information from children under 13.</p>
 
 <h2 id="changes-to-this-privacy-policy">Changes to This Privacy Policy</h2>
-<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. Version note, 16 November 2026: we now keep the finished result of a review for 24 hours so you can recover it if the App closes mid-analysis (Android, version after 0.5.3). If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
+<p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date above. Version note, 16 November 2026: we now keep the finished result of a review for 24 hours so you can recover it if the App closes mid-analysis (Android, from version 0.5.4), and deleting your last resume in the App now also deletes the target role, job posting and review language kept with it, after a confirmation if a paid review is still pending (Android, from version 0.5.4). If a change affects what is sent to the AI, the App will ask for your consent again. If a substantial change affects who the controller is or the purposes of processing, we will tell you before applying it.</p>
 <p>This policy takes effect on <strong>11 November 2026</strong>.</p>
 
 <div class="contact">
