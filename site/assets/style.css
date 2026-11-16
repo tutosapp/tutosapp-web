@@ -3412,8 +3412,9 @@ h2 em {
 }
 
 /* ---------- Home: calm and editorial ----------
-   One idea per section, generous space, one picture where a picture helps. Buttons do not jump
-   on hover and nothing moves on its own. */
+   One idea per section, generous space, one picture where a picture helps. Nothing moves on its
+   own: the little motion there is follows the scroll or the pointer (see "Home motion" below),
+   and none of it with reduced motion. */
 
 .home .section {
   padding-top: clamp(104px, 13vw, 176px);
@@ -4382,5 +4383,170 @@ h2 em {
 @media (min-width: 1200px) {
   .cases.grid {
     --c: var(--cols);
+  }
+}
+
+/* ---------- Home motion ----------
+   Quiet, and only when the visitor has not asked for less; with reduced motion, or without
+   JavaScript for the stacking, everything is simply there. The hero's screen rises into its frame
+   once as the page opens, sections and cards settle in as they come on screen (side by side ones
+   one after another, by their column --k), the app cards stack as the page scrolls, and buttons
+   and cards answer the pointer. */
+
+/* The column of a card in a row of cards, to stagger how a row appears. assets/stack.js sets it
+   for the app cards. */
+@media (min-width: 760px) {
+  .proofs li:nth-child(2n),
+  .audiences li:nth-child(3n + 2) {
+    --k: 1;
+  }
+
+  .audiences li:nth-child(3n) {
+    --k: 2;
+  }
+}
+
+@media (min-width: 900px) {
+  .path li:nth-child(3n + 2) {
+    --k: 1;
+  }
+
+  .path li:nth-child(3n) {
+    --k: 2;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-figure > .phone,
+  .home-figure > .browser {
+    animation: rise-in 1.1s var(--ease) 0.1s both;
+  }
+
+  .home-figure figcaption {
+    animation: fade-up 0.7s var(--ease) 0.6s both;
+  }
+
+  .home .btn,
+  .case .store {
+    transition: translate 0.25s var(--ease), scale 0.15s var(--ease), background 0.25s, border-color 0.25s;
+  }
+
+  .home .btn:hover,
+  .case .store:hover {
+    translate: 0 -1px;
+  }
+
+  .home .btn:active,
+  .case .store:active {
+    translate: none;
+    scale: 0.97;
+  }
+
+  .case,
+  .proofs li {
+    transition: border-color 0.3s;
+  }
+
+  .case:hover,
+  .proofs li:hover {
+    border-color: var(--line-strong);
+  }
+
+  .case-visual > * {
+    transition: transform 0.5s var(--ease);
+  }
+
+  .case:hover .case-visual > * {
+    transform: translateY(-10px);
+  }
+
+  /* The app cards stack like the services page's "Our work": each card, or each row of cards in
+     a grid (--i, its row), stops a little lower than the one before, below the menu bar, or once
+     its bottom is on screen when it is taller than the screen (--h), and the next slides over it.
+     assets/stack.js measures them and turns this on. */
+  .cases.stacking .case {
+    position: sticky;
+    top: min(calc(96px + var(--i) * 22px), calc(100svh - var(--h) - 16px));
+    box-shadow: 0 -18px 40px -34px rgb(22 20 31 / 30%);
+  }
+
+  /* A keyboard-focused link is never hidden under the next card. */
+  .cases.stacking .case:has(:focus-visible) {
+    z-index: 1;
+  }
+
+  /* Questions open and close smoothly where the browser can animate to their height. */
+  .faq {
+    interpolate-size: allow-keywords;
+  }
+
+  .faq details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.35s var(--ease), content-visibility 0.35s allow-discrete;
+  }
+
+  .faq details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home .reveal {
+      animation-name: settle;
+      animation-range: entry calc(var(--k, 0) * 10%) entry calc(50% + var(--k, 0) * 10%);
+    }
+
+    /* What a card says fades in while its screen rises into the tinted frame. Only what is
+       inside the card moves: the card keeps its place, and its opaque background covers the
+       card it stacks over. */
+    .case {
+      view-timeline: --case block;
+    }
+
+    .case-copy {
+      animation: fade-in linear both;
+      animation-timeline: --case;
+      animation-range: entry calc(var(--k, 0) * 12%) entry calc(45% + var(--k, 0) * 12%);
+    }
+
+    .case-visual > * {
+      animation: screen-up linear both;
+      animation-timeline: --case;
+      animation-range: entry calc(var(--k, 0) * 12%) entry calc(70% + var(--k, 0) * 12%);
+    }
+  }
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes screen-up {
+  from {
+    translate: 0 64px;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    translate: 0 56px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 8px;
   }
 }

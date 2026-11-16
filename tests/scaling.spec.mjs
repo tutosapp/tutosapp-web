@@ -1,9 +1,9 @@
 // The site with more apps: local-only fixture builds (tests/fixtures.setup.mjs) of the real site
 // plus fake apps until there are 4, 6 and 8, among them a web app and apps coming soon. On a phone
-// and a desktop: the home shows every app, as a grid of even rows on a wide screen, with the counts
-// computed from the list; the menus, the services page and the footer hold them without sideways
-// scroll; and a web app and an app coming soon get the right page. Full-page screenshots of the home
-// land in test-results/screens/scaling-*.png.
+// and a desktop: the home shows every app, as a grid of even rows on a wide screen that stack row by
+// row as the page scrolls, with the counts computed from the list; the menus, the services page and
+// the footer hold them without sideways scroll; and a web app and an app coming soon get the right
+// page. Full-page screenshots of the home land in test-results/screens/scaling-*.png.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -89,6 +89,13 @@ for (const n of SIZES) {
           expect(rows.length, 'more than one card per row').toBeLessThan(n);
           expect(Math.max(...rows) - Math.min(...rows), 'rows of even length').toBeLessThanOrEqual(1);
         }
+
+        // They stack row by row as the page scrolls: cards side by side share a row (--i), which
+        // sets where they stop, and the next row slides over them.
+        await expect(cases.first()).toHaveCSS('position', 'sticky');
+        const rowOf = await cases.evaluateAll((all) => all.map((c) => c.style.getPropertyValue('--i')));
+        const sameRow = (i, j) => Math.round(boxes[i].y) === Math.round(boxes[j].y);
+        for (let i = 1; i < n; i++) expect(rowOf[i] === rowOf[i - 1], `card ${i} row`).toBe(sameRow(i, i - 1));
 
         // The app switcher lists them all and fits on screen, and the menu bar does not overflow.
         await page.locator('.apps-toggle').click();

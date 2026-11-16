@@ -186,8 +186,8 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
       for (const st of live) await expect(c.locator(`a.store[href="${st.url}"]`)).toHaveCount(1);
       if (live.length < 2) await expect(c.locator('.soon-line')).toBeVisible();
     }
-    // Nothing on the home moves by itself: no app band and no stacking cards.
-    await expect(page.locator('.marquee, .work-card')).toHaveCount(0);
+    // Nothing on the home moves by itself: no moving app band.
+    await expect(page.locator('.marquee')).toHaveCount(0);
   });
 }
 
@@ -207,13 +207,20 @@ for (const lang of ['es', 'en']) {
   });
 }
 
-// "Our work" cards on the services page stack as the page scrolls: each card stays put once it is
-// on screen and the next one slides over it. With reduced motion they simply scroll.
-const tops = (page) => page.locator('.work-card').evaluateAll((cards) => cards.map((c) => c.getBoundingClientRect().top));
-for (const path of ['/servicios/', '/en/services/']) {
-  test(`${path} work cards stack on scroll, and scroll normally with reduced motion`, async ({ page }) => {
+// The "Our work" cards of the services page and the app cards of the home stack as the page
+// scrolls: each card stays put once it is on screen and the next one slides over it. With reduced
+// motion they simply scroll.
+const stacks = [
+  ['/', '.cases > .case'],
+  ['/en/', '.cases > .case'],
+  ['/servicios/', '.work-card'],
+  ['/en/services/', '.work-card'],
+];
+const tops = (page, sel) => page.locator(sel).evaluateAll((cards) => cards.map((c) => c.getBoundingClientRect().top));
+for (const [path, sel] of stacks) {
+  test(`${path} ${sel} cards stack on scroll, and scroll normally with reduced motion`, async ({ page }) => {
     await page.goto(path);
-    const cards = page.locator('.work-card');
+    const cards = page.locator(sel);
     expect(await cards.count()).toBeGreaterThan(1);
     await expect(cards.first()).toHaveCSS('position', 'sticky');
 
@@ -222,17 +229,32 @@ for (const path of ['/servicios/', '/en/services/']) {
     const { innerHeight } = await page.evaluate(() => ({ innerHeight }));
     const second = await cards.nth(1).evaluate((c) => c.getBoundingClientRect().top + scrollY);
     await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), second - innerHeight / 2);
-    const before = await tops(page);
+    const before = await tops(page, sel);
     await page.mouse.wheel(0, 200);
-    await expect.poll(async () => (await tops(page))[1]).toBeLessThan(before[1] - 150);
-    const after = await tops(page);
+    await expect.poll(async () => (await tops(page, sel))[1]).toBeLessThan(before[1] - 150);
+    const after = await tops(page, sel);
     expect(after[0]).toBeCloseTo(before[0], 0);
     const first = await cards.first().boundingBox();
     expect(first.y + first.height).toBeLessThanOrEqual(innerHeight);
     expect(after[1]).toBeLessThan(first.y + first.height);
-    expect(await cards.nth(1).evaluate((c) => document.elementFromPoint(innerWidth / 2, c.getBoundingClientRect().top + 40)?.closest('.work-card') === c)).toBe(true);
+    expect(await cards.nth(1).evaluate((c, s) => document.elementFromPoint(innerWidth / 2, c.getBoundingClientRect().top + 40)?.closest(s) === c, sel)).toBe(true);
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await expect(cards.first()).toHaveCSS('position', 'relative');
+    await expect(cards.first()).not.toHaveCSS('position', 'sticky');
+  });
+}
+
+// With reduced motion the home is still: no entrance, nothing fades in or slides on scroll, and
+// every section and card is fully shown wherever the page is scrolled.
+for (const path of ['/', '/en/']) {
+  test(`${path} is still and fully shown with reduced motion`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(path);
+    const moving = await page.evaluate(() => document.getAnimations().filter((a) => a instanceof CSSAnimation).map((a) => a.animationName));
+    expect(moving).toEqual([]);
+    const faded = await page.locator('main .reveal, .case-copy, .case-visual > *, .home-figure > *').evaluateAll((all) =>
+      all.filter((e) => getComputedStyle(e).opacity !== '1' || !['none', '0px 0px'].includes(getComputedStyle(e).translate)).map((e) => e.className)
+    );
+    expect(faded).toEqual([]);
   });
 }
