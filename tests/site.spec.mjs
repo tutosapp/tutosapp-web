@@ -103,51 +103,6 @@ for (const path of pages) {
   }
 }
 
-test.describe('home marquee', () => {
-  for (const path of ['/', '/en/']) {
-    test(`${path} tiles are links with names, pausable, and still with reduced motion`, async ({ page }) => {
-      await page.goto(path);
-      const tiles = page.locator('.track a.tile:not([tabindex="-1"])');
-      await expect(tiles).toHaveCount(apps.length);
-      for (const tile of await tiles.all()) await expect(tile).toHaveAccessibleName(/\S/);
-      // Repeated tiles are decoration only: hidden from screen readers and out of the tab order.
-      const repeats = page.locator('.track li[aria-hidden="true"] a.tile');
-      expect(await repeats.count()).toBeGreaterThan(0);
-      for (const r of await repeats.all()) await expect(r).toHaveAttribute('tabindex', '-1');
-
-      const track = page.locator('.track');
-      await expect(track).toHaveCSS('animation-play-state', 'running');
-      await page.locator('.pause-label').click();
-      await expect(track).toHaveCSS('animation-play-state', 'paused');
-
-      await page.emulateMedia({ reducedMotion: 'reduce' });
-      await expect(track).toHaveCSS('animation-name', 'none');
-      await expect(page.locator('.track li[aria-hidden="true"]').first()).toBeHidden();
-      await expect(page.locator('.pause-label')).toBeHidden();
-    });
-  }
-
-  test('a keyboard-focused tile is shown inside the strip, wherever the animation was', async ({ page }) => {
-    await page.goto('/');
-    const tiles = page.locator('.track a.tile:not([tabindex="-1"])');
-    const n = await tiles.count();
-    const strip = await page.locator('.marquee').boundingBox();
-    // Move the animation to mid-cycle, where the focusable copies have slid out of view.
-    await page.evaluate(() => {
-      const [a] = document.querySelector('.track').getAnimations();
-      a.currentTime = a.effect.getComputedTiming().duration / 2;
-    });
-    await page.locator('.pause-toggle').focus();
-    for (let i = 0; i < n; i++) {
-      await page.keyboard.press('Tab');
-      await expect(tiles.nth(i)).toBeFocused();
-      const box = await tiles.nth(i).boundingBox();
-      expect(box.x, `tile ${i} left edge`).toBeGreaterThanOrEqual(strip.x - 1);
-      expect(box.x + box.width, `tile ${i} right edge`).toBeLessThanOrEqual(strip.x + strip.width + 1);
-    }
-  });
-});
-
 // A stylesheet that stops parsing part of the way leaves pages half unstyled while every other
 // check still passes; the live site once showed its nav as a bulleted list that way.
 test.describe('stylesheet', () => {
@@ -214,10 +169,32 @@ for (const path of ['/', '/en/']) {
   });
 }
 
-// "Our work" cards stack as the page scrolls: each card stays put once it is on screen and the
-// next one slides over it. With reduced motion they simply scroll.
+// The home shows each app quietly: what it does in one line, one real screen, where to get it
+// and a link to its page, in the order of the app list.
+for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
+  test(`${path} shows each app with its claim, a screen, its stores and a link to its page`, async ({ page }) => {
+    await page.goto(path);
+    const cases = page.locator('.cases > .case');
+    await expect(cases).toHaveCount(apps.length);
+    for (const [i, app] of apps.entries()) {
+      const c = cases.nth(i);
+      await expect(c.locator('h3')).toHaveText(app[lang].work.claim);
+      await expect(c.locator('.case-visual img')).toHaveAttribute('alt', /\S/);
+      await expect(c.locator(`a.case-link[href$="${app.paths[lang]}"]`)).toHaveCount(1);
+      const live = Object.values(app.stores).filter((st) => st.status === 'live');
+      await expect(c.locator('a.store')).toHaveCount(live.length);
+      for (const st of live) await expect(c.locator(`a.store[href="${st.url}"]`)).toHaveCount(1);
+      if (live.length < 2) await expect(c.locator('.soon-line')).toBeVisible();
+    }
+    // Nothing on the home moves by itself: no app band and no stacking cards.
+    await expect(page.locator('.marquee, .work-card')).toHaveCount(0);
+  });
+}
+
+// "Our work" cards on the services page stack as the page scrolls: each card stays put once it is
+// on screen and the next one slides over it. With reduced motion they simply scroll.
 const tops = (page) => page.locator('.work-card').evaluateAll((cards) => cards.map((c) => c.getBoundingClientRect().top));
-for (const path of ['/', '/en/', '/servicios/', '/en/services/']) {
+for (const path of ['/servicios/', '/en/services/']) {
   test(`${path} work cards stack on scroll, and scroll normally with reduced motion`, async ({ page }) => {
     await page.goto(path);
     const cards = page.locator('.work-card');
