@@ -76,8 +76,9 @@ const LEGAL_SLUGS = {
 //   (shows, claim: its one line on its card in the catalogue, problem, built, ai). Without a live
 //   store it also needs notify (an email link) or cta.
 // destacada: true for the 2 or 3 apps the home shows as proof (the rest are only in the catalogue,
-//   /apps/ and /en/apps/). A featured app also needs work.took in each language: what building it
-//   took that a client's product would also need (in-app purchases, a store review, its privacy
+//   /apps/ and /en/apps/). A featured app also needs, in each language, work.story (its problem in
+//   one line and what we built in one or two) and work.took: up to three things building it took
+//   that a client's product would also need (in-app purchases, a store review, its privacy
 //   policy...), only things that are true and shown on its own page.
 // stores: any of play (Google Play), appStore (App Store) and web (a web app, used in the browser),
 //   each { status: 'live', url } or { status: 'soon' }. Only the ones listed are shown, so a web app
@@ -199,7 +200,8 @@ const apps = [
         problem: 'Leer una etiqueta en el supermercado toma tiempo, y lo que le sirve a un adulto no siempre le sirve a un bebé.',
         built: 'Una app que lee el código de barras y responde Bueno, Regular o Evítalo para cada persona de la casa, con el porqué, según los sellos de advertencia colombianos, los aditivos y las alergias.',
         ai: ['Lectura de códigos de barras con la cámara', 'IA que lee la etiqueta en una foto y revisa los productos que envía la comunidad', 'Reglas de nutrición por edad y alergias'],
-        took: ['Cámara que lee códigos de barras', 'IA que lee una etiqueta en una foto', 'La revisión de Apple para salir en App Store', 'Política de privacidad y términos publicados', 'Sin cuenta: los datos de la familia se quedan en el celular'],
+        story: ['Leer una etiqueta en el mercado toma tiempo, y lo que sirve a un adulto no siempre sirve a un bebé.', 'Una app que lee el código de barras y dice Bueno, Regular o Evítalo para cada persona de la casa, con el porqué.'],
+        took: ['IA que lee una etiqueta en una foto', 'La revisión de Apple para salir en App Store', 'Política de privacidad y términos publicados'],
       },
     },
     en: {
@@ -257,7 +259,8 @@ const apps = [
         problem: 'Reading a label at the supermarket takes time, and what works for an adult does not always work for a baby.',
         built: 'An app that reads the barcode and answers Good, Fair or Avoid for each person at home, with the reason, based on Colombian warning labels, additives and allergies.',
         ai: ['Barcode reading with the camera', 'AI that reads the label from a photo and reviews products the community sends in', 'Nutrition rules by age and allergy'],
-        took: ['A camera that reads barcodes', 'AI that reads a label from a photo', 'Apple’s review, to ship on the App Store', 'A published privacy policy and terms', 'No account: family data stays on the phone'],
+        story: ['Reading a label at the store takes time, and an adult’s answer is not a baby’s.', 'An app that reads the barcode and says Good, Fair or Avoid for each person at home, with the reason.'],
+        took: ['AI that reads a label from a photo', 'Apple’s review, to ship on the App Store', 'A published privacy policy and terms'],
       },
     },
   },
@@ -343,7 +346,8 @@ const apps = [
         problem: 'Job seekers rarely know why their resume does not get past the filters, or what to change.',
         built: 'An app that reads a resume as text, PDF, Word or a photo, scores it out of 100, matches it to a job posting and rewrites it without inventing anything, with a PDF that applicant tracking systems can read.',
         ai: ['Document AI: reads PDF, Word and photos', 'AI scoring and red flags', 'Guided rewrite for a job posting'],
-        took: ['AI that reads PDF, Word and photos', 'In-app purchases, with no subscription', 'Google’s review, to ship on Google Play', 'A published privacy policy and terms', 'A paid analysis comes back if the app closes'],
+        story: ['Job seekers rarely know why their resume does not get past the filters.', 'An app that reads the resume, scores it out of 100 and rewrites it for the job, without inventing anything.'],
+        took: ['AI that reads PDF, Word and photos', 'In-app purchases, with no subscription', 'Google’s review, to ship on Google Play'],
       },
     },
     es: {
@@ -398,7 +402,8 @@ const apps = [
         problem: 'Quien busca trabajo casi nunca sabe por qué su CV no pasa los filtros ni qué cambiarle.',
         built: 'Una app que lee un CV en texto, PDF, Word o foto, le pone un puntaje sobre 100, lo compara con una vacante y lo reescribe sin inventar nada, con un PDF que leen los filtros (ATS).',
         ai: ['IA de documentos: lee PDF, Word y fotos', 'Puntaje y red flags con IA', 'Reescritura guiada para una vacante'],
-        took: ['IA que lee PDF, Word y fotos', 'Compras dentro de la app, sin suscripción', 'La revisión de Google para salir en Google Play', 'Política de privacidad y términos publicados', 'Un análisis pagado se recupera si la app se cierra'],
+        story: ['Quien busca trabajo casi nunca sabe por qué su CV no pasa los filtros.', 'Una app que lee el CV, le pone un puntaje sobre 100 y lo reescribe para la vacante, sin inventar nada.'],
+        took: ['IA que lee PDF, Word y fotos', 'Compras dentro de la app, sin suscripción', 'La revisión de Google para salir en Google Play'],
       },
     },
   },
@@ -710,7 +715,7 @@ const home = {
     workTitle: 'Estas apps son nuestras. *Así aprendimos a hacer la tuya.*',
     workLead: 'No son proyectos de clientes: son productos de Tutos App, que diseñamos, construimos, publicamos y mantenemos nosotros. Están en App Store y Google Play, pasaron la revisión de Apple y de Google, y una cobra con compras dentro de la app. Lo que tuvimos que resolver en ellas es lo mismo que necesita tu producto.',
     kind: 'Producto propio',
-    story: { problem: 'El problema', built: 'Lo que construimos', took: 'Lo que hizo falta, y tu producto también puede necesitar', where: 'Dónde está hoy' },
+    took: 'Lo que hizo falta',
     seeApp: (name) => `Conoce ${name}`,
     allWork: 'Ver todos nuestros productos',
     refsTitle: '¿Y referencias de clientes?',
@@ -774,7 +779,7 @@ const home = {
     workTitle: 'These apps are ours. *That is how we learned to build yours.*',
     workLead: 'They are not client projects: they are Tutos App products that we design, build, launch and maintain ourselves. They are on the App Store and Google Play, they passed Apple’s and Google’s review, and one of them charges with in-app purchases. What we had to solve in them is what your product needs too.',
     kind: 'Our own product',
-    story: { problem: 'The problem', built: 'What we built', took: 'What it took, and your product may need too', where: 'Where it is today' },
+    took: 'What it took',
     seeApp: (name) => `See ${name}`,
     allWork: 'See all our products',
     refsTitle: 'What about client references?',
@@ -2262,23 +2267,20 @@ function appCase(app, lang, path) {
           </li>`;
 }
 
-// A featured app on the home, as a short capability story: the problem, what we built, what it took
-// that a client's product would also need, and where it is today.
+// A featured app on the home, as a short capability story: the problem in one line, what we built,
+// up to three things it took that a client's product would also need, and where it is today.
 function appStory(app, lang, path) {
   const h = home[lang];
   const w = app[lang].work;
-  const fact = (k, body) => `<div><dt>${esc(h.story[k])}</dt><dd>${body}</dd></div>`;
+  const [problem, built] = w.story;
   return `
           <li class="case story" id="app-${app.id}">
             <div class="case-copy">
               ${caseMark(app, lang, path)}
               <h3>${esc(w.shows)}</h3>
-              <dl class="story-facts">
-                ${fact('problem', `<p>${esc(w.problem)}</p>`)}
-                ${fact('built', `<p>${esc(w.built)}</p>`)}
-                ${fact('took', `<ul class="ai-chips">${w.took.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`)}
-                ${fact('where', `<div class="case-where">${availability(app, lang)}</div>`)}
-              </dl>
+              <div class="story-text"><p class="story-problem">${esc(problem)}</p><p>${esc(built)}</p></div>
+              <div class="story-took"><p class="story-label">${esc(h.took)}</p><ul class="ai-chips">${w.took.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+              <div class="case-where">${availability(app, lang)}</div>
               <a class="text-link case-link" href="${rel(path, app.paths[lang])}">${esc(h.seeApp(app.name))} ${icons.arrow}</a>
             </div>
             ${caseVisual(app, lang, path)}
@@ -2633,7 +2635,13 @@ function run() {
   // The home shows 2 or 3 featured apps (destacada), each as a short story with what it took.
   const picked = featured();
   if (picked.length < 2 || picked.length > 3) problems.push(`mark 2 or 3 apps destacada for the home (now ${picked.length})`);
-  for (const app of picked) for (const lang of langs) if (!app[lang]?.work?.took?.length) problems.push(`${app.id}: featured (destacada), so it needs ${lang} work.took`);
+  for (const app of picked) {
+    for (const lang of langs) {
+      const w = app[lang]?.work;
+      if (w?.story?.length !== 2) problems.push(`${app.id}: featured (destacada), so it needs ${lang} work.story: [problem, what we built]`);
+      if (!w?.took?.length || w.took.length > 3) problems.push(`${app.id}: featured (destacada), so it needs ${lang} work.took, 1 to 3 items`);
+    }
+  }
 
   if (check && !launchPriceActive) problems.push(`LAUNCH_PRICE_UNTIL ${LAUNCH_PRICE_UNTIL} has passed: extend it or remove the launch price`);
 

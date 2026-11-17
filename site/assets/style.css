@@ -3879,31 +3879,38 @@ h2 em {
   margin-top: -10px;
 }
 
-/* A featured app on the home: its story, in short facts. */
-.story-facts {
-  display: grid;
-  gap: 14px;
-  width: 100%;
-  margin: 0;
-}
-
-.story-facts > div {
+/* A featured app on the home: its story in two lines, what it took and where it is. The phone
+   keeps its proportions, centred in its tinted column however tall the text is. */
+.story-text {
   display: grid;
   gap: 8px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+  max-width: 36em;
 }
 
-.story-facts dt {
+.story-problem {
+  color: var(--muted);
+}
+
+.story-took {
+  display: grid;
+  gap: 10px;
+}
+
+.story-label {
   font-size: 0.88rem;
   font-weight: 620;
   color: var(--muted);
 }
 
-.story-facts dd {
-  display: grid;
-  gap: 10px;
-  margin: 0;
+@media (min-width: 900px) {
+  .story .case-visual {
+    align-items: center;
+    padding: 48px 0;
+  }
+
+  .story .case-visual .phone {
+    margin-bottom: 0;
+  }
 }
 
 .all-work {

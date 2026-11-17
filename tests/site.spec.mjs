@@ -170,7 +170,8 @@ for (const path of ['/', '/en/']) {
 }
 
 // The home shows only the featured apps (destacada), each as a short story of our own product: the
-// problem, what we built, what it took and where it is today, then links to the catalogue.
+// problem, what we built, up to three things it took and where it is today, then links to the
+// catalogue. The phone in each story keeps its proportions: never stretched into a tall frame.
 for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
   test(`${path} shows the featured apps as stories of our own products, and links every product`, async ({ page }) => {
     const h = home[lang];
@@ -184,11 +185,18 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
       const c = stories.nth(i);
       await expect(c.locator('.kind.own')).toHaveText(h.kind);
       await expect(c.locator('h3')).toHaveText(app[lang].work.shows);
-      await expect(c.locator('dt')).toHaveText(Object.values(h.story));
+      await expect(c.locator('.story-text p')).toHaveText(app[lang].work.story);
+      await expect(c.locator('.story-label')).toHaveText(h.took);
       await expect(c.locator('.ai-chips li')).toHaveText(app[lang].work.took);
+      expect(app[lang].work.took.length).toBeLessThanOrEqual(3);
       await expect(c.locator('.case-visual img')).toHaveAttribute('alt', /\S/);
       await expect(c.locator(`a.case-link[href$="${app.paths[lang]}"]`)).toHaveCount(1);
       for (const st of Object.values(app.stores).filter((x) => x.status === 'live')) await expect(c.locator(`a.store[href="${st.url}"]`)).toHaveCount(1);
+      const [w, hh] = app.screenSize;
+      const device = await c.locator('.case-visual > *').boundingBox();
+      const screen = await c.locator('.case-visual img').boundingBox();
+      expect(screen.height / screen.width, `${app.id} screen keeps its proportions`).toBeCloseTo(hh / w, 1);
+      expect(device.height - screen.height, `${app.id} device frame hugs its screen`).toBeLessThan(40);
     }
     await expect(page.locator(`#${h.workId} .all-work a`)).toHaveAttribute('href', new RegExp(`${catalog.paths[lang]}$`));
     await expect(page.locator('.nav-links a', { hasText: catalog[lang].navLabel })).toHaveAttribute('href', new RegExp(`${catalog.paths[lang]}$`));
