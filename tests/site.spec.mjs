@@ -169,6 +169,25 @@ for (const path of ['/', '/en/']) {
   });
 }
 
+// Roast Interview is live on the App Store for iPhone; Android is still coming soon.
+const RI_APP_STORE = 'https://apps.apple.com/app/id6832640298';
+for (const path of ['/roast-interview/', '/roast-interview/es/']) {
+  test(`${path} links Roast Interview's App Store listing`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator(`.hero-copy a.store[href="${RI_APP_STORE}"]`)).toBeVisible();
+    await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_APP_STORE);
+    const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
+    expect(ld.installUrl).toBe(RI_APP_STORE);
+    expect(ld.operatingSystem).toBe('Android, iOS');
+  });
+}
+for (const path of ['/apps/', '/en/apps/']) {
+  test(`${path} Roast Interview card links its App Store listing`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator(`a.store[href="${RI_APP_STORE}"]`).first()).toBeAttached();
+  });
+}
+
 // The home shows only the featured apps (destacada), each as a short story of our own product: the
 // problem, what we built, up to three things it took and where it is today, then links to the
 // catalogue. The phone in each story keeps its proportions: never stretched into a tall frame.

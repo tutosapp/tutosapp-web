@@ -417,8 +417,9 @@ const apps = [
     fonts: [],
     icon: 'assets/img/roast-interview/icon.png',
     paths: { en: 'roast-interview/', es: 'roast-interview/es/' },
-    status: 'soon',
-    stores: { play: { status: 'soon' }, appStore: { status: 'soon' } },
+    status: 'live',
+    // iPhone: live on the App Store since 2026-11-17. Android: coming soon (notify by email).
+    stores: { play: { status: 'soon' }, appStore: { status: 'live', url: APP_STORE('6832640298') } },
     category: 'EducationalApplication',
     prices: [
       { usd: 0.99, en: '1 full interview', es: '1 entrevista completa' },
