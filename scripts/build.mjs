@@ -473,7 +473,7 @@ const apps = [
         ['Get your verdict', 'Your score, detected level and what you did well. The full report adds red flags, your weakest moment with a better answer, and a plan to improve.'],
       ],
       faq: [
-        ['When does it launch?', 'We’re finishing testing. It’s coming soon to Google Play and the App Store: email us and we’ll tell you the day it launches.'],
+        ['Where can I get it?', 'Roast Interview is on the App Store for iPhone. It’s coming soon to Google Play for Android: email us and we’ll tell you the day it launches.'],
         ['How much will it cost?', 'Every day you get one free mini interview of 8 questions, with a score and a verdict. Full interviews with the full report are bought once, with no subscription.', 'prices'],
         ['Which language is the interview in?', 'Spanish or English. By default it follows the language of your resume, and you can change it before you start.'],
         ['Can I answer out loud?', 'Yes. Answer by typing or with your voice; your voice is turned into text and the audio is not kept.'],
@@ -481,8 +481,8 @@ const apps = [
         ['What happens to my data?', 'Interview sessions are deleted after 24 hours, and you can delete your data from Settings. The privacy policy has the details.'],
       ],
       notify: mailto('Roast Interview: tell me when it launches', 'Hi, please let me know when Roast Interview launches.\n\nMy phone is Android / iPhone: '),
-      closing: ['Walk into your next interview *already practiced*.', 'Roast Interview is coming soon. Email us and we’ll let you know when it launches.'],
-      share: 'Roast Interview: practice job interviews with an AI that tells you the truth. Coming soon.',
+      closing: ['Walk into your next interview *already practiced*.', 'Get it on the App Store for iPhone. Android is coming soon: email us and we’ll let you know when it launches.'],
+      share: 'Roast Interview: practice job interviews with an AI that tells you the truth. Now on the App Store for iPhone.',
       work: {
         shows: 'A voice AI interviewer',
         claim: 'Practice out loud a job interview built from your resume, before the real one.',
@@ -523,7 +523,7 @@ const apps = [
         ['Recibe tu veredicto', 'Tu puntaje, tu nivel detectado y lo que hiciste bien. El informe completo suma las red flags, tu peor momento con una mejor respuesta y un plan de mejora.'],
       ],
       faq: [
-        ['¿Cuándo sale?', 'Estamos terminando las pruebas. Muy pronto estará en Google Play y en App Store: escríbenos y te avisamos el día que salga.'],
+        ['¿Dónde la descargo?', 'Roast Interview ya está en App Store para iPhone. Muy pronto estará en Google Play para Android: escríbenos y te avisamos el día que salga.'],
         ['¿Cuánto va a costar?', 'Cada día tienes una mini entrevista gratis de 8 preguntas, con puntaje y veredicto. Las entrevistas completas, con el informe completo, se compran una sola vez y sin suscripción.', 'prices'],
         ['¿En qué idioma es la entrevista?', 'En español o en inglés. Por defecto sigue el idioma de tu CV, y puedes cambiarlo antes de empezar.'],
         ['¿Puedo responder hablando?', 'Sí. Respondes por escrito o con tu voz; tu voz se convierte en texto y el audio no se guarda.'],
@@ -531,8 +531,8 @@ const apps = [
         ['¿Qué pasa con mis datos?', 'Las sesiones de entrevista se borran a las 24 horas y puedes eliminar tus datos desde Ajustes. Los detalles están en la política de privacidad.'],
       ],
       notify: mailto('Roast Interview: avísame cuando salga', 'Hola, avísenme cuando salga Roast Interview.\n\nMi teléfono es Android / iPhone: '),
-      closing: ['Llega a tu próxima entrevista *con práctica*.', 'Roast Interview sale muy pronto. Escríbenos y te avisamos cuando esté lista.'],
-      share: 'Roast Interview: practica entrevistas de trabajo con una IA que te dice la verdad. Muy pronto.',
+      closing: ['Llega a tu próxima entrevista *con práctica*.', 'Descárgala en App Store para iPhone. Android sale muy pronto: escríbenos y te avisamos cuando esté lista.'],
+      share: 'Roast Interview: practica entrevistas de trabajo con una IA que te dice la verdad. Ya en App Store para iPhone.',
       work: {
         shows: 'Una entrevistadora de voz con IA',
         claim: 'Practicas en voz alta una entrevista hecha a partir de tu CV, antes de la de verdad.',
