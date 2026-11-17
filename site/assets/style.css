@@ -3831,6 +3831,124 @@ h2 em {
   border-radius: 32px;
 }
 
+/* What we do for you: three blocks in the visitor's words, each with what they get. */
+.offer-list {
+  display: grid;
+  gap: 16px;
+  padding: 0;
+  margin: clamp(44px, 5vw, 64px) 0 0;
+  list-style: none;
+}
+
+.offer-list > li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  padding: clamp(24px, 3vw, 34px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+
+.offer-list h3 {
+  font-size: 1.3rem;
+}
+
+.offer-list p {
+  color: var(--muted);
+}
+
+.offer-list .gets {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 620;
+  color: var(--text);
+}
+
+.offer-list .ticks svg {
+  color: var(--accent-text);
+}
+
+/* Our own products: every card says so, with where the app is today. */
+.case-kind {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: -10px;
+}
+
+/* A featured app on the home: its story in two lines, what it took and where it is. The phone
+   keeps its proportions, centred in its tinted column however tall the text is. */
+.story-text {
+  display: grid;
+  gap: 8px;
+  max-width: 36em;
+}
+
+.story-problem {
+  color: var(--muted);
+}
+
+.story-took {
+  display: grid;
+  gap: 10px;
+}
+
+.story-label {
+  font-size: 0.88rem;
+  font-weight: 620;
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .story .case-visual {
+    align-items: center;
+    padding: 48px 0;
+  }
+
+  .story .case-visual .phone {
+    margin-bottom: 0;
+  }
+}
+
+.all-work {
+  margin-top: 32px;
+  font-size: 1.1rem;
+}
+
+/* Instead of client references: what anyone can check. */
+.refs {
+  padding-top: clamp(40px, 5vw, 56px);
+  margin-top: clamp(56px, 7vw, 88px);
+  border-top: 1px solid var(--line-strong);
+}
+
+.refs > h3 {
+  font-size: clamp(1.45rem, 1.1rem + 1.1vw, 2rem);
+  font-weight: 620;
+  letter-spacing: -0.025em;
+}
+
+.refs .lead {
+  max-width: 40em;
+  margin-top: 14px;
+}
+
+.refs .proofs {
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
+/* The catalogue's hero: words only, the apps follow (one column on wide screens too, below). */
+.catalog .catalog-hero h1 {
+  max-width: 16ch;
+}
+
+.catalog #apps {
+  padding-top: clamp(56px, 7vw, 88px);
+}
+
 @media (min-width: 760px) {
   .home .facts {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3851,6 +3969,11 @@ h2 em {
 
   .proofs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .catalog .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 560px;
   }
 
   .audiences {
@@ -3920,6 +4043,18 @@ h2 em {
   .home .home-hero .hero-grid {
     grid-template-columns: 1.1fr 0.9fr;
     gap: 72px;
+  }
+}
+
+@media (min-width: 900px) {
+  .offer-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1000px) {
+  .catalog .catalog-hero .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -4051,6 +4186,23 @@ h2 em {
 @media (max-width: 860px) {
   .nav-menu {
     display: none;
+  }
+}
+
+/* The studio menu has six links. On a narrow computer they sit closer together, and the contact
+   link leaves: the button beside it goes to the same section. */
+@media (min-width: 861px) and (max-width: 1040px) {
+  .page-studio .nav-links a {
+    padding: 8px;
+    font-size: 0.86rem;
+  }
+
+  .page-studio .nav-links li:last-child {
+    display: none;
+  }
+
+  .page-studio .brand {
+    margin-right: 4px;
   }
 }
 
@@ -4408,11 +4560,13 @@ h2 em {
 }
 
 @media (min-width: 900px) {
-  .path li:nth-child(3n + 2) {
+  .path li:nth-child(3n + 2),
+  .offer-list li:nth-child(3n + 2) {
     --k: 1;
   }
 
-  .path li:nth-child(3n) {
+  .path li:nth-child(3n),
+  .offer-list li:nth-child(3n) {
     --k: 2;
   }
 }
@@ -4444,12 +4598,14 @@ h2 em {
   }
 
   .case,
-  .proofs li {
+  .proofs li,
+  .offer-list > li {
     transition: border-color 0.3s;
   }
 
   .case:hover,
-  .proofs li:hover {
+  .proofs li:hover,
+  .offer-list > li:hover {
     border-color: var(--line-strong);
   }
 
@@ -4512,6 +4668,12 @@ h2 em {
       animation: fade-in linear both;
       animation-timeline: --case;
       animation-range: entry calc(var(--k, 0) * 12%) entry calc(45% + var(--k, 0) * 12%);
+    }
+
+    /* The catalogue's first card already shows at the foot of the first screen, before any
+       scroll: its words are readable from the start. */
+    .catalog .case:first-child .case-copy {
+      animation: none;
     }
 
     .case-visual > * {

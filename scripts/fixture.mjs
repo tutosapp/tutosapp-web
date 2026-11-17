@@ -4,7 +4,7 @@
 // app coming soon and an app in both stores, in that order), and builds there with the same
 // scripts/build.mjs and its checks. The fake apps use drawn SVG images and short legal pages.
 //   node scripts/fixture.mjs <total> <dir>     then: SITE_DIR=<dir>/site node scripts/serve.mjs
-// tests/scaling.spec.mjs builds 4 to 8 apps this way and checks the home, the services page,
+// tests/scaling.spec.mjs builds 4 to 8 apps this way and checks the home, the catalogue, the services page,
 // the menus and the new apps' pages on a phone and a desktop.
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
