@@ -179,7 +179,7 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
     const stories = page.locator('.cases > .case');
     const picked = featured();
     expect(picked.length).toBeGreaterThanOrEqual(2);
-    expect(picked.length).toBeLessThan(apps.length + 1);
+    expect(picked.length).toBeLessThanOrEqual(3);
     await expect(stories).toHaveCount(picked.length);
     for (const [i, app] of picked.entries()) {
       const c = stories.nth(i);
@@ -240,15 +240,15 @@ for (const path of ['/', '/en/', '/' + catalog.paths.es, '/' + catalog.paths.en]
   });
 }
 
-// The home says first what we do for the visitor, then how we work, then the proof, who we are,
+// The home says first what we do for the visitor, then who it is for, how we work, then the proof, who we are,
 // the questions the services page marks for the home, and the contact.
 for (const lang of ['es', 'en']) {
-  test(`/${home.paths[lang]} sells the service first, then the process, the proof, who we are and the questions marked for the home`, async ({ page }) => {
+  test(`/${home.paths[lang]} sells the service first, then who it is for, the process, the proof, who we are and the questions marked for the home`, async ({ page }) => {
     const h = home[lang];
     const s = services[lang];
     await page.goto('/' + home.paths[lang]);
     const order = await page.locator('main > section[id]').evaluateAll((all) => all.map((x) => x.id));
-    expect(order).toEqual([h.offerId, h.processId, h.workId, h.aboutId, h.faqId, h.contactId]);
+    expect(order).toEqual([h.offerId, h.whoId, h.processId, h.workId, h.aboutId, h.faqId, h.contactId]);
     await expect(page.locator(`#${h.offerId} .offer-list > li h3`)).toHaveText(h.offer.map(([, title]) => title));
     await expect(page.locator(`#${h.processId} .path h3`)).toHaveText(s.process.map(([name]) => name));
     const marked = s.faq.filter(([, , where]) => where === 'home').map(([q]) => q);

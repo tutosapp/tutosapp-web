@@ -694,8 +694,7 @@ const home = {
       ['Tu código', 'a nombre de tu empresa'],
       ['NDA', 'si lo pides, antes de hablar'],
     ],
-    figureKind: 'Producto propio',
-    nav: [['#que-hacemos', 'Qué hacemos'], ['#proceso', 'Proceso'], ['#trabajo', 'Productos'], ['#contacto', 'Contacto']],
+    nav: [['#que-hacemos', 'Qué hacemos'], ['#proceso', 'Proceso'], ['#nosotros', 'Nosotros'], ['#contacto', 'Contacto']],
     offerId: 'que-hacemos',
     offerEyebrow: 'Qué hacemos por ti',
     offerTitle: 'Dinos qué necesitas. *Te decimos qué recibes.*',
@@ -705,6 +704,14 @@ const home = {
       ['phone', 'Una app para iPhone y Android', 'Para llevar tu idea o tu negocio al celular de tus clientes o de tu equipo.', ['La app diseñada, construida y probada en teléfonos reales', 'Publicada en App Store y Google Play, con la cuenta de tu empresa', 'Sus fichas, capturas, política de privacidad y términos']],
       ['globe', 'Una aplicación web o un sitio', 'Para una plataforma, un panel interno o la página de tu empresa o de tu producto.', ['Una web rápida, accesible y lista para buscadores', 'En línea en tu dominio', 'En español y en inglés, si la necesitas en los dos']],
       ['spark', 'Funciones nuevas para lo que ya tienes', 'Para la app o la web que ya funciona y necesita crecer.', ['Funciones nuevas e integraciones con tus sistemas', 'IA donde suma: fotos, documentos, voz o chat', 'Sobre tu código, sin rehacerlo, y mantenimiento mes a mes']],
+    ],
+    whoId: 'para-quien',
+    whoEyebrow: 'Para quién',
+    whoTitle: 'Para quien tiene *algo que construir*.',
+    who: [
+      ['Fundadores y startups', 'Tienes una idea, para el celular o para la web, y quieres probarla con usuarios reales pronto, sin armar un equipo desde cero.'],
+      ['Pymes y empresas en Colombia y Latinoamérica', 'Quieres una app, una plataforma web o un sitio para tus clientes o tu equipo, o sumarle funciones a lo que ya tienes.'],
+      ['Empresas de Estados Unidos', 'Buscas un equipo nearshore en tu horario (UTC−5), que trabaje en inglés.'],
     ],
     processId: 'proceso',
     processEyebrow: 'Cómo trabajamos',
@@ -759,8 +766,7 @@ const home = {
       ['Your code', 'in your company’s name'],
       ['NDA', 'before we talk, if you ask'],
     ],
-    figureKind: 'Our own product',
-    nav: [['#what-we-build', 'What we build'], ['#process', 'Process'], ['#work', 'Products'], ['#contact', 'Contact']],
+    nav: [['#what-we-build', 'What we build'], ['#process', 'Process'], ['#about', 'About'], ['#contact', 'Contact']],
     offerId: 'what-we-build',
     offerEyebrow: 'What we do for you',
     offerTitle: 'Tell us what you need. *We tell you what you get.*',
@@ -769,6 +775,14 @@ const home = {
       ['phone', 'An iPhone and Android app', 'To bring your idea or your business to your customers’ or your team’s phones.', ['The app designed, built and tested on real phones', 'Live on the App Store and Google Play, under your company’s account', 'Its listings, screenshots, privacy policy and terms']],
       ['globe', 'A web app or a website', 'For a platform, an internal dashboard or the page for your company or your product.', ['A fast, accessible website, ready for search engines', 'Live on your domain', 'In English and Spanish, if you need both']],
       ['spark', 'New features for what you already have', 'For the app or website that already works and needs to grow.', ['New features and integrations with your systems', 'AI where it helps: photos, documents, voice or chat', 'On your code, without a rebuild, and maintenance month after month']],
+    ],
+    whoId: 'who-we-work-with',
+    whoEyebrow: 'Who it is for',
+    whoTitle: 'For people who have *something to build*.',
+    who: [
+      ['Founders and startups', 'You have an idea, for phones or for the web, and want to test it with real users soon, without building a team from scratch.'],
+      ['SMEs and companies in Colombia and Latin America', 'You want an app, a web platform or a website for your customers or your team, or to add features to what you already have.'],
+      ['US companies', 'You are looking for a nearshore team in your hours (UTC−5) that works in English.'],
     ],
     processId: 'process',
     processEyebrow: 'How we work',
@@ -2237,7 +2251,7 @@ function heroFigure(lang, path) {
   const alt = `${ui[lang].screenshotOf} ${a.name}: ${a[lang].tabs[0][2]}`;
   return `<figure class="home-figure">
             <div class="${frame(a)}"><div class="screen"><img src="${rel(path, a.screens(lang)[0])}" alt="${esc(alt)}" width="${w}" height="${h}" fetchpriority="high" decoding="async"></div></div>
-            <figcaption><img src="${rel(path, a.icon)}" alt="" width="32" height="32"><span><b>${esc(a.name)}</b><span>${esc(home[lang].figureKind)} · ${esc(a[lang].category)}</span></span></figcaption>
+            <figcaption><img src="${rel(path, a.icon)}" alt="" width="32" height="32"><span><b>${esc(a.name)}</b><span>${esc(home[lang].kind)} · ${esc(a[lang].category)}</span></span></figcaption>
           </figure>`;
 }
 
@@ -2311,17 +2325,18 @@ const proofList = (items, cls = 'proofs') => `<ul class="${cls}">${items
   .join('')}
         </ul>`;
 
-// The menu of the studio's own pages (the home, the catalogue): the home's sections, the catalogue,
-// the services page and the contact.
-const studioNav = (lang, path, here) => {
+// The menu of the studio's own pages (the home, the catalogue): the home's sections, the catalogue
+// (marked as the current page when on it), the services page and the contact.
+const studioNav = (lang, path) => {
   const h = home[lang];
   const onHome = path === home.paths[lang];
   const homeLink = (hash) => (onHome ? hash : `${rel(path, home.paths[lang])}${hash}`);
-  const [offer, process, , contact] = h.nav;
+  const [offer, process, about, contact] = h.nav;
   return [
     [homeLink(offer[0]), offer[1]],
     [homeLink(process[0]), process[1]],
-    [rel(path, catalog.paths[lang]), catalog[lang].navLabel, here === 'catalog'],
+    [rel(path, catalog.paths[lang]), catalog[lang].navLabel, path === catalog.paths[lang]],
+    [homeLink(about[0]), about[1]],
     [rel(path, services.paths[lang]), services[lang].navLabel],
     [homeLink(contact[0]), contact[1]],
   ];
@@ -2353,7 +2368,7 @@ function homePage(lang) {
       lang,
       path,
       theme: 't-home',
-      items: studioNav(lang, path, 'home'),
+      items: studioNav(lang, path),
       other: { lang: otherLang, path: home.paths[otherLang] },
       cta: { href: contact, label: s.navCta },
     }) +
@@ -2385,6 +2400,15 @@ function homePage(lang) {
           <li class="reveal"><span class="glyph">${svg(glyphs[g])}</span><h3>${esc(title)}</h3><p>${esc(forWho)}</p><p class="gets">${esc(h.offerGets)}</p><ul class="ticks">${gets
             .map((x) => `<li>${icons.check}<span>${esc(x)}</span></li>`)
             .join('')}</ul></li>`)
+          .join('')}
+        </ul>
+      </section>
+
+      <section class="section wrap" id="${h.whoId}" aria-labelledby="who-h">
+        ${sectionHead('who-h', h.whoEyebrow, h.whoTitle)}
+        <ul class="audiences">${h.who
+          .map(([title, d]) => `
+          <li class="reveal"><h3>${esc(title)}</h3><p>${esc(d)}</p></li>`)
           .join('')}
         </ul>
       </section>
@@ -2474,7 +2498,7 @@ function catalogPage(lang) {
       lang,
       path,
       theme: 't-home page-catalog',
-      items: studioNav(lang, path, 'catalog'),
+      items: studioNav(lang, path),
       other: { lang: otherLang, path: catalog.paths[otherLang] },
       cta: { href: `#${h.contactId}`, label: s.navCta },
       onHome: false,
