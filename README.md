@@ -156,7 +156,7 @@ Se cambia su `status` a `'live'` y el de la tienda (`stores.play` o `stores.appS
 |---|---|---|
 | Ojito | Próximamente (en prueba cerrada; "Probarla en Android" pide entrar por correo) | Enlace a `id6832288734` |
 | Resume Roast | Enlace a `com.resumeroast.app` | Próximamente |
-| Roast Interview | Próximamente | Próximamente |
+| Roast Interview | Próximamente | Enlace a `id6832640298` |
 
 ## Páginas legales
 
