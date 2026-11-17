@@ -179,6 +179,10 @@ for (const path of ['/roast-interview/', '/roast-interview/es/']) {
     const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
     expect(ld.installUrl).toBe(RI_APP_STORE);
     expect(ld.operatingSystem).toBe('Android, iOS');
+    // The Android notify link must carry a real label, never a missing-value placeholder.
+    const notify = page.locator('.hero-copy a.inline-link').first();
+    await expect(notify).toHaveText(/Android/);
+    await expect(page.locator('.nav-cta')).toHaveText(path.includes('/es/') ? 'Descargar' : 'Get the app');
   });
 }
 for (const path of ['/apps/', '/en/apps/']) {
