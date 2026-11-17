@@ -2326,7 +2326,9 @@ const proofList = (items, cls = 'proofs') => `<ul class="${cls}">${items
         </ul>`;
 
 // The menu of the studio's own pages (the home, the catalogue): the home's sections, the catalogue
-// (marked as the current page when on it), the services page and the contact.
+// (marked as the current page when on it), the services page and the contact section, which both
+// pages have. Both pages carry page-studio, which keeps this menu's six links inside the bar on a
+// narrow computer (style.css).
 const studioNav = (lang, path) => {
   const h = home[lang];
   const onHome = path === home.paths[lang];
@@ -2338,7 +2340,7 @@ const studioNav = (lang, path) => {
     [rel(path, catalog.paths[lang]), catalog[lang].navLabel, path === catalog.paths[lang]],
     [homeLink(about[0]), about[1]],
     [rel(path, services.paths[lang]), services[lang].navLabel],
-    [homeLink(contact[0]), contact[1]],
+    contact,
   ];
 };
 
@@ -2367,7 +2369,7 @@ function homePage(lang) {
     nav({
       lang,
       path,
-      theme: 't-home',
+      theme: 't-home page-studio',
       items: studioNav(lang, path),
       other: { lang: otherLang, path: home.paths[otherLang] },
       cta: { href: contact, label: s.navCta },
@@ -2497,7 +2499,7 @@ function catalogPage(lang) {
     nav({
       lang,
       path,
-      theme: 't-home page-catalog',
+      theme: 't-home page-studio page-catalog',
       items: studioNav(lang, path),
       other: { lang: otherLang, path: catalog.paths[otherLang] },
       cta: { href: `#${h.contactId}`, label: s.navCta },

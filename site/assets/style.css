@@ -4189,6 +4189,23 @@ h2 em {
   }
 }
 
+/* The studio menu has six links. On a narrow computer they sit closer together, and the contact
+   link leaves: the button beside it goes to the same section. */
+@media (min-width: 861px) and (max-width: 1040px) {
+  .page-studio .nav-links a {
+    padding: 8px;
+    font-size: 0.86rem;
+  }
+
+  .page-studio .nav-links li:last-child {
+    display: none;
+  }
+
+  .page-studio .brand {
+    margin-right: 4px;
+  }
+}
+
 @media (max-width: 520px) {
   .nav {
     padding: 0 8px;

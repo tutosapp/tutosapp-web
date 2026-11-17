@@ -226,6 +226,29 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
   });
 }
 
+// On a narrow computer the studio menu still fits in its bar, with the contact button in view, and on
+// both pages the menu's contact link goes to the contact section of that same page.
+for (const lang of ['es', 'en']) {
+  for (const path of [home.paths[lang], catalog.paths[lang]]) {
+    test(`/${path} keeps its menu and its contact button inside the bar on a narrow computer`, async ({ page }, info) => {
+      test.skip(info.project.name !== 'desktop', 'computer widths');
+      const h = home[lang];
+      for (const width of [861, 870, 1000, 1040, 1041]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto('/' + path);
+        expect(await page.locator('.nav-bar').evaluate((b) => b.scrollWidth - b.clientWidth), `bar overflow at ${width}`).toBeLessThanOrEqual(0);
+        await expect(page.locator('.nav-cta'), `contact button at ${width}`).toBeInViewport({ ratio: 1 });
+        await expect(page.locator('.nav-links a', { hasText: catalog[lang].navLabel })).toBeVisible();
+        await expect(page.locator(`.nav-links a[href$="#${h.aboutId}"]`)).toBeVisible();
+      }
+      await expect(page.locator(`.nav-links a[href$="#${h.contactId}"]`)).toHaveAttribute('href', `#${h.contactId}`);
+      await expect(page.locator(`main > section#${h.contactId}`)).toHaveCount(1);
+      await expect(page.locator('.nav-links li')).toHaveCount(6);
+      for (const a of await page.locator('.nav-links a').all()) await expect(a).toBeVisible();
+    });
+  }
+}
+
 // We have no client projects, so the home and the catalogue never present our apps as client work:
 // no client-project label, testimonial, client logo or client count, and every card says it is ours.
 for (const path of ['/', '/en/', '/' + catalog.paths.es, '/' + catalog.paths.en]) {
