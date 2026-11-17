@@ -1114,8 +1114,8 @@ const legalAlternates = (app, doc) => Object.fromEntries(Object.keys(app.paths).
 const CSS_PATH = 'assets/style.css';
 const CSS_VERSION = createHash('sha256').update(readFileSync(join(ROOT, CSS_PATH))).digest('hex').slice(0, 10);
 const stylesheet = (path) => `${rel(path, CSS_PATH)}?v=${CSS_VERSION}`;
-// The site's two scripts, the "Tell us your idea" chat and the stacking "Our work" cards, are
-// versioned the same way.
+// The site's two scripts, the "Tell us your idea" chat and the cards that stack as the page scrolls
+// (the services page's "Our work" and the home's apps), are versioned the same way.
 const versioned = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 10);
 const BRIEF_JS = 'assets/brief.js';
 const BRIEF_VERSION = versioned(BRIEF_JS);
@@ -2188,7 +2188,7 @@ function homePage(lang) {
   const path = home.paths[lang];
   const otherLang = lang === 'es' ? 'en' : 'es';
   const contact = `#${h.contactId}`;
-  const head2 = (id, eyebrow, title, lead = '') => `<div class="section-head">
+  const head2 = (id, eyebrow, title, lead = '') => `<div class="section-head reveal">
           ${kicker(0, eyebrow)}
           <h2 id="${id}">${rich(title)}</h2>${lead ? `
           <p class="lead">${esc(lead)}</p>` : ''}
@@ -2249,7 +2249,7 @@ function homePage(lang) {
         <ul class="proofs">${h
           .proofs(path)
           .map(([title, d, href, label]) => `
-          <li><h3>${esc(title)}</h3><p>${esc(d)}</p>${href ? `<a class="text-link" href="${href}">${esc(label)} ${icons.arrow}</a>` : ''}</li>`)
+          <li class="reveal"><h3>${esc(title)}</h3><p>${esc(d)}</p>${href ? `<a class="text-link" href="${href}">${esc(label)} ${icons.arrow}</a>` : ''}</li>`)
           .join('')}
         </ul>
       </section>
@@ -2258,23 +2258,23 @@ function homePage(lang) {
         ${head2('process-h', h.processEyebrow, h.processTitle)}
         <ol class="path">${s.process
           .map(([name, d], i) => `
-          <li><span class="path-n" aria-hidden="true">${i + 1}</span><h3>${esc(name)}</h3><p>${esc(d)}</p></li>`)
+          <li class="reveal"><span class="path-n" aria-hidden="true">${i + 1}</span><h3>${esc(name)}</h3><p>${esc(d)}</p></li>`)
           .join('')}
         </ol>
-        <p class="section-more"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
+        <p class="section-more reveal"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
       </section>
 
       <section class="section wrap" id="${h.whoId}" aria-labelledby="who-h">
         ${head2('who-h', h.whoEyebrow, h.whoTitle)}
         <ul class="audiences">${h.who
           .map(([title, d]) => `
-          <li><h3>${esc(title)}</h3><p>${esc(d)}</p></li>`)
+          <li class="reveal"><h3>${esc(title)}</h3><p>${esc(d)}</p></li>`)
           .join('')}
         </ul>
       </section>
 
       <section class="section wrap faq-section" id="${h.faqId}" aria-labelledby="faq-h">
-        <div class="faq-head">
+        <div class="faq-head reveal">
           ${kicker(0, h.faqEyebrow)}
           <h2 id="faq-h">${t.faq}</h2>
           <p><a href="${rel(path, services.paths[lang])}#${s.faqId}">${esc(h.faqMore)}</a><br><a href="mailto:${EMAIL}">${EMAIL}</a></p>
@@ -2283,14 +2283,15 @@ function homePage(lang) {
           .filter(([, , where]) => where === 'home')
           .map(
             ([q, a]) => `
-          <details><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(a)}</p></details>`
+          <details class="reveal"><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(a)}</p></details>`
           )
           .join('')}
         </div>
       </section>
 
       ${contactSection(lang, path, 0, h.contactId)}
-    </main>` +
+    </main>
+    ${stackScript(path)}` +
     footer({ lang, path, chat: 'inline', early: true })
   );
 }

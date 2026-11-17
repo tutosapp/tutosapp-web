@@ -1,12 +1,12 @@
 // Before the browser checks: builds the local-only fixture sites of tests/scaling.spec.mjs, the real
-// site plus fake apps until there are 4, 6 and 8 (scripts/fixture.mjs), in a temporary folder that
+// site plus fake apps until there are 4, 5, 6, 7 and 8 (scripts/fixture.mjs), in a temporary folder that
 // is never published and is removed after the run. The tests find it in TUTOSAPP_FIXTURES.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export const SIZES = [4, 6, 8];
+export const SIZES = [4, 5, 6, 7, 8];
 
 export default function setup() {
   const dir = mkdtempSync(join(tmpdir(), 'tutosapp-fixtures-'));
