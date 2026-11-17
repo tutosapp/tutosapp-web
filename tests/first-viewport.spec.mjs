@@ -35,6 +35,18 @@ for (const path of pages) {
       expect(seen.onTop, `${what} is not covered`).toBe(true);
     }
 
+    // An app card that already shows at the foot of the first screen (the catalogue's first one)
+    // has readable words: the fade that plays as cards scroll in has not left them faint.
+    const faint = await page.locator('.case-copy').evaluateAll((all) =>
+      all
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          return r.top < innerHeight && r.bottom > 0 && Number(getComputedStyle(el).opacity) < 0.99;
+        })
+        .map((el) => el.closest('.case').id),
+    );
+    expect(faint, 'app cards on the first screen with faded words').toEqual([]);
+
     // The hero content is stacked above the animated background, not left to the browser's
     // compositing (Safari paints a composited z-index: -1 layer over plain content).
     const layers = await page.evaluate(() => {

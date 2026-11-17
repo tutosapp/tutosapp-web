@@ -4670,6 +4670,12 @@ h2 em {
       animation-range: entry calc(var(--k, 0) * 12%) entry calc(45% + var(--k, 0) * 12%);
     }
 
+    /* The catalogue's first card already shows at the foot of the first screen, before any
+       scroll: its words are readable from the start. */
+    .catalog .case:first-child .case-copy {
+      animation: none;
+    }
+
     .case-visual > * {
       animation: screen-up linear both;
       animation-timeline: --case;
