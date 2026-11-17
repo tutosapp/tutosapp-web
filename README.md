@@ -69,7 +69,7 @@ Las preguntas y sus opciones están en `services.<idioma>.chat` de `scripts/buil
 
 ## Nuestro trabajo: apps propias y proyectos de clientes
 
-Las tarjetas de "Nuestro trabajo" de la página de servicios salen de `workItems()` en `scripts/build.mjs`. Primero van las apps de la lista `apps`, cada una con su `work` en cada idioma (`shows`, `problem`, `built` y `ai`; `claim` es la frase de su tarjeta en el inicio), y después los proyectos de clientes de la lista `projects`, que hoy está vacía; un comentario en el código muestra cómo es una entrada. Cada tarjeta dice si es "Producto propio" o "Proyecto para cliente". Un proyecto de cliente se publica solo con su permiso.
+Las tarjetas de "Nuestro trabajo" de la página de servicios salen de `workItems()` en `scripts/build.mjs`. Primero van las apps de la lista `apps`, cada una con su `work` en cada idioma (`shows`, `problem`, `built` y `ai`; `claim` es la frase de su tarjeta en el catálogo), y después los proyectos de clientes de la lista `projects`, que hoy está vacía; un comentario en el código muestra cómo es una entrada. Cada tarjeta dice si es "Producto propio" o "Proyecto para cliente". Un proyecto de cliente se publica solo con su permiso.
 
 ## Cómo cambiar algo
 

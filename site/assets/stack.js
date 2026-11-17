@@ -1,5 +1,5 @@
 // Cards stack as the page scrolls: the "Our work" cards of the services page and the app cards of
-// the home. Each card (or each row of cards, when they sit side by side in a grid) stays put once
+// the home and the catalogue. Each card (or each row of cards, when they sit side by side in a grid) stays put once
 // it is fully on screen and the next one slides over it. The cards are taller than many screens,
 // so style.css needs each card's height to know where it can stop (its --h), its row to know how
 // far below the menu bar (--i), and its column to stagger how it appears (--k), which this

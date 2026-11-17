@@ -64,13 +64,13 @@ const LEGAL_SLUGS = {
 
 // Our own products (apps), in the order they are shown. Adding one is one more entry here, plus its
 // images in site/assets/img/<id>/ and its privacy policy and terms in legal/<id>/ (README.md, "Cómo
-// agregar una app"): the home, the services page, the app switcher, the footers, the sitemap, the
+// agregar una app"): the catalogue, the services page, the app switcher, the footers, the sitemap, the
 // structured data, its own page and its legal pages follow, and --check says what is missing.
 // Required:
 //   id, name, color (its accent, also in the orb), icon (256 × 256), paths (the first language is
 //   its main one, hreflang x-default), status ('live', 'test' or 'soon'), stores, category (a
 //   schema.org applicationCategory), legal, screenSize and screens (2 to 8 real screens per
-//   language, the first one is the one shown on the home), and in each language (es, en):
+//   language, the first one is the one on its card in the catalogue and on the home), and in each language (es, en):
 //   category (its tagline), for, title, description, headline, lead, pitch, tabs (one
 //   [label, dot, description] per screen), benefits, steps, faq, closing, share, navCta and work
 //   (shows, claim: its one line on its card in the catalogue, problem, built, ai). Without a live
@@ -1216,7 +1216,7 @@ const CSS_PATH = 'assets/style.css';
 const CSS_VERSION = createHash('sha256').update(readFileSync(join(ROOT, CSS_PATH))).digest('hex').slice(0, 10);
 const stylesheet = (path) => `${rel(path, CSS_PATH)}?v=${CSS_VERSION}`;
 // The site's two scripts, the "Tell us your idea" chat and the cards that stack as the page scrolls
-// (the services page's "Our work" and the home's apps), are versioned the same way.
+// (the services page's "Our work" and the app cards of the home and the catalogue), are versioned the same way.
 const versioned = (file) => createHash('sha256').update(readFileSync(join(ROOT, file))).digest('hex').slice(0, 10);
 const BRIEF_JS = 'assets/brief.js';
 const BRIEF_VERSION = versioned(BRIEF_JS);
