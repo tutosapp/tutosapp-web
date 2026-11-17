@@ -1,5 +1,6 @@
-// Draws the social-share images of the home and the services page (site/assets/img/og/home-es.jpg,
-// home-en.jpg, services-es.jpg and services-en.jpg, 1200 × 630) from the same data as the site:
+// Draws the social-share images of the home, the catalogue and the services page
+// (site/assets/img/og/home-es.jpg, home-en.jpg, apps-es.jpg, apps-en.jpg, services-es.jpg and
+// services-en.jpg, 1200 × 630) from the same data as the site:
 // each page's eyebrow and headline, and one icon per app. It also draws the images of any app that
 // does not have its own yet (og/<id>-es.jpg and -en.jpg: its icon, name, tagline and headline, in
 // its color); an app's existing images are kept.
@@ -10,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
-import { apps, home, services, DOMAIN } from './build.mjs';
+import { apps, home, catalog, services, DOMAIN } from './build.mjs';
 
 const SITE = fileURLToPath(new URL('../site/', import.meta.url));
 const file = (p) => pathToFileURL(join(SITE, p)).href;
@@ -58,7 +59,7 @@ const dir = mkdtempSync(join(tmpdir(), 'tutosapp-og-'));
 const browser = await chromium.launch({ channel: 'chrome' });
 try {
   const tab = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-  const jobs = [['home', home], ['services', services]].flatMap(([name, source]) => ['es', 'en'].map((lang) => [name, lang, source[lang]]));
+  const jobs = [['home', home], ['apps', catalog], ['services', services]].flatMap(([name, source]) => ['es', 'en'].map((lang) => [name, lang, source[lang]]));
   for (const app of apps) for (const lang of ['es', 'en']) {
     if (!existsSync(join(SITE, `assets/img/og/${app.id}-${lang}.jpg`))) jobs.push([app.id, lang, app[lang], app]);
   }

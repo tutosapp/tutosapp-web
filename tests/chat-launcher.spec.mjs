@@ -10,13 +10,14 @@
 // the chat of the contact section is scrolled into view.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { apps, home, services, companyPrivacy, legalPages, CONTACT_ENDPOINT } from '../scripts/build.mjs';
+import { apps, home, catalog, services, companyPrivacy, legalPages, CONTACT_ENDPOINT } from '../scripts/build.mjs';
 
 const ojito = apps.find((a) => a.id === 'ojito');
 const pages = [
   { path: '/' + home.paths.es, lang: 'es', inline: true },
   { path: '/' + home.paths.en, lang: 'en', inline: true },
   { path: '/' + services.paths.es, lang: 'es', inline: true },
+  { path: '/' + catalog.paths.en, lang: 'en', inline: true },
   { path: '/' + ojito.paths.es, lang: 'es', inline: false },
   { path: '/' + ojito.paths.en, lang: 'en', inline: false },
   { path: '/' + companyPrivacy.paths.en, lang: 'en', inline: false },

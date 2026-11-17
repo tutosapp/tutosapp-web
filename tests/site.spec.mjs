@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { apps, home, services } from '../scripts/build.mjs';
+import { apps, featured, home, catalog, services } from '../scripts/build.mjs';
 
 const SITE = 'https://tutosapp.co/';
 const pages = [...readFileSync(new URL('../site/sitemap.xml', import.meta.url), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -169,16 +169,41 @@ for (const path of ['/', '/en/']) {
   });
 }
 
-// The home shows each app quietly: what it does in one line, one real screen, where to get it
-// and a link to its page, in the order of the app list.
+// The home shows only the featured apps (destacada), each as a short story of our own product: the
+// problem, what we built, what it took and where it is today, then links to the catalogue.
 for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
-  test(`${path} shows each app with its claim, a screen, its stores and a link to its page`, async ({ page }) => {
+  test(`${path} shows the featured apps as stories of our own products, and links every product`, async ({ page }) => {
+    const h = home[lang];
     await page.goto(path);
+    const stories = page.locator('.cases > .case');
+    const picked = featured();
+    expect(picked.length).toBeGreaterThanOrEqual(2);
+    expect(picked.length).toBeLessThan(apps.length + 1);
+    await expect(stories).toHaveCount(picked.length);
+    for (const [i, app] of picked.entries()) {
+      const c = stories.nth(i);
+      await expect(c.locator('.kind.own')).toHaveText(h.kind);
+      await expect(c.locator('h3')).toHaveText(app[lang].work.shows);
+      await expect(c.locator('dt')).toHaveText(Object.values(h.story));
+      await expect(c.locator('.ai-chips li')).toHaveText(app[lang].work.took);
+      await expect(c.locator('.case-visual img')).toHaveAttribute('alt', /\S/);
+      await expect(c.locator(`a.case-link[href$="${app.paths[lang]}"]`)).toHaveCount(1);
+      for (const st of Object.values(app.stores).filter((x) => x.status === 'live')) await expect(c.locator(`a.store[href="${st.url}"]`)).toHaveCount(1);
+    }
+    await expect(page.locator(`#${h.workId} .all-work a`)).toHaveAttribute('href', new RegExp(`${catalog.paths[lang]}$`));
+    await expect(page.locator('.nav-links a', { hasText: catalog[lang].navLabel })).toHaveAttribute('href', new RegExp(`${catalog.paths[lang]}$`));
+    // Nothing on the home moves by itself: no moving app band.
+    await expect(page.locator('.marquee')).toHaveCount(0);
+  });
+
+  test(`/${catalog.paths[lang]} shows every app with its claim, a screen, its stores and a link to its page`, async ({ page }) => {
+    await page.goto('/' + catalog.paths[lang]);
     const cases = page.locator('.cases > .case');
     await expect(cases).toHaveCount(apps.length);
     for (const [i, app] of apps.entries()) {
       const c = cases.nth(i);
       await expect(c.locator('h3')).toHaveText(app[lang].work.claim);
+      await expect(c.locator('.kind.own')).toHaveText(home[lang].kind);
       await expect(c.locator('.case-visual img')).toHaveAttribute('alt', /\S/);
       await expect(c.locator(`a.case-link[href$="${app.paths[lang]}"]`)).toHaveCount(1);
       const live = Object.values(app.stores).filter((st) => st.status === 'live');
@@ -186,20 +211,37 @@ for (const [path, lang] of [['/', 'es'], ['/en/', 'en']]) {
       for (const st of live) await expect(c.locator(`a.store[href="${st.url}"]`)).toHaveCount(1);
       if (live.length < 2) await expect(c.locator('.soon-line')).toBeVisible();
     }
-    // Nothing on the home moves by itself: no moving app band.
-    await expect(page.locator('.marquee')).toHaveCount(0);
+    await expect(page.locator('.home-hero .facts b').first()).toHaveText(String(apps.length));
+    const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+    expect(ld['@type']).toBe('CollectionPage');
+    expect(ld.mainEntity.itemListElement.map((x) => x.name)).toEqual(apps.map((a) => a.name));
   });
 }
 
-// The home tells who we are before how we work, shows the same six stages as the services page,
-// and answers the questions that page marks for the home.
+// We have no client projects, so the home and the catalogue never present our apps as client work:
+// no client-project label, testimonial, client logo or client count, and every card says it is ours.
+for (const path of ['/', '/en/', '/' + catalog.paths.es, '/' + catalog.paths.en]) {
+  test(`${path} never presents our own products as client work`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator('.kind.client, .testimonial, .logos, blockquote')).toHaveCount(0);
+    const text = await page.locator('main').innerText();
+    // Saying that they are not client projects is fine; a client label, case or claim is not.
+    expect(text).not.toMatch(/\b(Proyecto para cliente|Client project|casos? de clientes?|client case|nuestros clientes|our clients|clientes satisfechos|happy clients|trusted by)\b/i);
+    const cards = page.locator('.cases > .case');
+    await expect(cards.locator('.kind.own')).toHaveCount(await cards.count());
+  });
+}
+
+// The home says first what we do for the visitor, then how we work, then the proof, who we are,
+// the questions the services page marks for the home, and the contact.
 for (const lang of ['es', 'en']) {
-  test(`/${home.paths[lang]} shows who we are, then the services page's process, and the questions marked for the home`, async ({ page }) => {
+  test(`/${home.paths[lang]} sells the service first, then the process, the proof, who we are and the questions marked for the home`, async ({ page }) => {
     const h = home[lang];
     const s = services[lang];
     await page.goto('/' + home.paths[lang]);
     const order = await page.locator('main > section[id]').evaluateAll((all) => all.map((x) => x.id));
-    expect(order).toEqual([h.workId, h.aboutId, h.processId, h.whoId, h.faqId, h.contactId]);
+    expect(order).toEqual([h.offerId, h.processId, h.workId, h.aboutId, h.faqId, h.contactId]);
+    await expect(page.locator(`#${h.offerId} .offer-list > li h3`)).toHaveText(h.offer.map(([, title]) => title));
     await expect(page.locator(`#${h.processId} .path h3`)).toHaveText(s.process.map(([name]) => name));
     const marked = s.faq.filter(([, , where]) => where === 'home').map(([q]) => q);
     expect(marked.length).toBeGreaterThan(0);
@@ -207,12 +249,14 @@ for (const lang of ['es', 'en']) {
   });
 }
 
-// The "Our work" cards of the services page and the app cards of the home stack as the page
+// The "Our work" cards of the services page and the app cards of the home and the catalogue stack as the page
 // scrolls: each card stays put once it is on screen and the next one slides over it. With reduced
 // motion they simply scroll.
 const stacks = [
   ['/', '.cases > .case'],
   ['/en/', '.cases > .case'],
+  ['/' + catalog.paths.es, '.cases > .case'],
+  ['/' + catalog.paths.en, '.cases > .case'],
   ['/servicios/', '.work-card'],
   ['/en/services/', '.work-card'],
 ];
@@ -246,7 +290,7 @@ for (const [path, sel] of stacks) {
 
 // With reduced motion the home is still: no entrance, nothing fades in or slides on scroll, and
 // every section and card is fully shown wherever the page is scrolled.
-for (const path of ['/', '/en/']) {
+for (const path of ['/', '/en/', '/' + catalog.paths.es]) {
   test(`${path} is still and fully shown with reduced motion`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(path);

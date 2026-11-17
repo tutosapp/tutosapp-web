@@ -1,11 +1,12 @@
 // The site with more apps: local-only fixture builds (tests/fixtures.setup.mjs) of the real site
 // plus fake apps until there are 4, 5, 6, 7 and 8, among them a web app and apps coming soon. On a
-// phone and a desktop, and with 8 apps also on a narrower desktop that fits three per row: the home
-// shows every app, as a grid of full rows on a wide screen, with the counts computed from the list.
+// phone and a desktop, and with 8 apps also on a narrower desktop that fits three per row: the
+// catalogue (/apps/) shows every app, as a grid of full rows on a wide screen, with the counts
+// computed from the list, while the home keeps showing only the featured ones.
 // Full rows stack row by row as the page scrolls; when the last row is short (5 and 7 apps, or 8 in
 // rows of three) the cards scroll instead, so no row stays stuck showing beside it. The menus, the
 // services page and the footer hold them without sideways scroll; and a web app and an app coming
-// soon get the right page. Full-page screenshots of the home land in
+// soon get the right page. Full-page screenshots of the catalogue land in
 // test-results/screens/scaling-*.png.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -13,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { apps as realApps } from '../scripts/build.mjs';
+import { apps as realApps, featured } from '../scripts/build.mjs';
 import { SIZES } from './fixtures.setup.mjs';
 
 const STILL = '.reveal, .stage, .ask-card, .hero-bg, .studio-steps li { animation: none !important; }';
@@ -69,8 +70,8 @@ for (const n of SIZES) {
 
     // The narrower desktop fits three cards per row, which leaves 8 apps a short last row.
     const NARROW = 1100;
-    for (const [path, lang, width] of [['/', 'es'], ['/en/', 'en'], ...(n === 8 ? [['/', 'es', NARROW]] : [])]) {
-      test(`${path} home${width ? ` at ${width}px` : ''} shows every app and counts them`, async ({ page }, info) => {
+    for (const [path, lang, width] of [['/apps/', 'es'], ['/en/apps/', 'en'], ...(n === 8 ? [['/apps/', 'es', NARROW]] : [])]) {
+      test(`${path} catalogue${width ? ` at ${width}px` : ''} shows every app and counts them`, async ({ page }, info) => {
         test.skip(!!width && info.project.name !== 'desktop', 'a desktop width');
         if (width) await page.setViewportSize({ width, height: 900 });
         await page.goto(base + path);
@@ -148,9 +149,16 @@ for (const n of SIZES) {
         expect(axe.violations.map((v) => `${v.id}: ${v.nodes.map((x) => x.target.join(' ')).join(', ')}`)).toEqual([]);
         await page.addStyleTag({ content: STILL });
         await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
-        await page.screenshot({ path: `test-results/screens/scaling-n${n}-home-${lang}-${info.project.name}${width ? `-${width}` : ''}.png`, fullPage: true });
+        await page.screenshot({ path: `test-results/screens/scaling-n${n}-apps-${lang}-${info.project.name}${width ? `-${width}` : ''}.png`, fullPage: true });
       });
     }
+
+    test('the home keeps showing only the featured apps and links the catalogue', async ({ page }) => {
+      await page.goto(base + '/');
+      await expect(page.locator('.cases > .case')).toHaveCount(featured().length);
+      await expect(page.locator('.all-work a')).toHaveAttribute('href', 'apps/');
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
 
     test('/servicios/ shows a work card per app without sideways scroll', async ({ page }) => {
       await page.goto(base + '/servicios/');
@@ -178,7 +186,7 @@ for (const n of SIZES) {
 }
 
 test('the published site has only the real apps', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/apps/');
   await expect(page.locator('.cases > .case')).toHaveCount(realApps.length);
   await expect(page.locator('a[href*="fx-"]')).toHaveCount(0);
 });

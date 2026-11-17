@@ -1,7 +1,7 @@
-// Lighthouse CI: the home, the services page and every app page, in both languages, plus one legal
+// Lighthouse CI: the home, the catalogue of our apps, the services page and every app page, in both languages, plus one legal
 // page per app and the company's privacy policy. The list comes from the same data as the site
 // (scripts/build.mjs), so a new app is checked as soon as it is added.
-const { apps, home, services, companyPrivacy, legalPages } = require('./scripts/build.mjs');
+const { apps, home, catalog, services, companyPrivacy, legalPages } = require('./scripts/build.mjs');
 
 const url = (path) => `http://localhost/${path}index.html`;
 const legal = apps.map((app, i) => {
@@ -16,6 +16,7 @@ module.exports = {
       staticDistDir: './site',
       url: [
         ...Object.values(home.paths),
+        ...Object.values(catalog.paths),
         ...Object.values(services.paths),
         ...apps.flatMap((a) => Object.values(a.paths)),
         ...legal,

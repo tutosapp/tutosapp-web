@@ -13,6 +13,18 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://tutosapp.co/"/>
   </url>
   <url>
+    <loc>https://tutosapp.co/apps/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tutosapp.co/apps/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tutosapp.co/en/apps/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tutosapp.co/apps/"/>
+  </url>
+  <url>
+    <loc>https://tutosapp.co/en/apps/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://tutosapp.co/apps/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tutosapp.co/en/apps/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tutosapp.co/apps/"/>
+  </url>
+  <url>
     <loc>https://tutosapp.co/servicios/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://tutosapp.co/servicios/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://tutosapp.co/en/services/"/>
