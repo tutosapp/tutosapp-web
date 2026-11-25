@@ -55,7 +55,7 @@ const rich = (s) => esc(s).replace(/\*([^*]+)\*([.,!?]?)/g, '<em>$1$2</em>');
 const LEGAL_DIR = FIXTURE?.legal ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'legal');
 // The company's own privacy policy, for what people send through the contact chat (Colombia's
 // Ley 1581 de 2012): legal/tutosapp/<lang>-privacy.html, published at these paths.
-const companyPrivacy = { paths: { es: 'privacidad/', en: 'en/privacy/' }, date: '2026-11-11' };
+const companyPrivacy = { paths: { es: 'privacidad/', en: 'en/privacy/' }, date: '2026-11-25' };
 const LEGAL_DOCS = ['privacy', 'terms', 'support'];
 const LEGAL_SLUGS = {
   es: { privacy: 'privacidad', terms: 'terminos', support: 'soporte' },
@@ -131,7 +131,7 @@ const apps = [
     // iPhone: live on the App Store since 2026-11-12. Android: still closed testing, joined by email (cta).
     stores: { play: { status: 'soon', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
     category: 'FoodAndDrinkApplication',
-    legal: { privacy: '2026-11-22', terms: '2026-11-15', support: '2026-11-22' },
+    legal: { privacy: '2026-11-25', terms: '2026-11-15', support: '2026-11-25' },
     look: 'panels',
     shotSize: [540, 960],
     shots: (lang) =>
@@ -292,7 +292,7 @@ const apps = [
       { usd: 2.99, en: '20 credits', es: '20 créditos' },
       { usd: 6.99, en: '50 credits', es: '50 créditos' },
     ],
-    legal: { privacy: '2026-11-16', terms: '2026-11-11', support: '2026-11-17' },
+    legal: { privacy: '2026-11-25', terms: '2026-11-25', support: '2026-11-17' },
     look: 'panels',
     shotSize: [540, 960],
     shots: (lang) => ['01-result', '02-match', '04-rewrite', '06-share'].map((f) => `assets/img/resume-roast/${lang}-${f}.jpg`),
@@ -431,7 +431,7 @@ const apps = [
       { usd: 0.99, en: '1 full interview', es: '1 entrevista completa' },
       { usd: 1.99, en: '3 full interviews', es: '3 entrevistas completas' },
     ],
-    legal: { privacy: '2026-11-16', terms: '2026-11-11' },
+    legal: { privacy: '2026-11-25', terms: '2026-11-25' },
     look: 'phone',
     shotSize: [441, 960],
     shots: (lang) =>
