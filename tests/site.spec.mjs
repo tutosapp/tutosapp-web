@@ -297,6 +297,8 @@ for (const lang of ['es', 'en']) {
     const order = await page.locator('main > section[id]').evaluateAll((all) => all.map((x) => x.id));
     expect(order).toEqual([h.workId, h.offerId, h.whoId, h.processId, h.aboutId, h.faqId, h.contactId]);
     await expect(page.locator(`#${h.workId} .stats b`)).toHaveText(h.stats().map(([big]) => big));
+    const listings = apps.flatMap((a) => ['appStore', 'play'].filter((k) => a.stores[k]?.status === 'live'));
+    expect(h.stats()[1][0]).toBe(String(listings.length));
     await expect(page.locator(`#${h.offerId} .offer-list > li h3`)).toHaveText(h.offer.map(([, title]) => title));
     await expect(page.locator(`#${h.processId} .timeline h3`)).toHaveText(s.process.map(([name]) => name));
     await expect(page.locator(`#${h.processId} .timeline li > p:not(.who-line)`)).toHaveText(h.processShort);

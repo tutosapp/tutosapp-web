@@ -676,8 +676,9 @@ const ui = {
 };
 
 // Copy that depends on the app list, so it stays true when an app is added.
-// The stores (and the web) where at least one of our apps is live today.
-const liveStores = () => ['appStore', 'play', 'web'].filter((k) => apps.some((a) => a.stores[k]?.status === 'live'));
+// Each live App Store or Google Play listing of our apps (the web is not a store), App Store first.
+const storeListings = () => ['appStore', 'play'].flatMap((k) => apps.filter((a) => a.stores[k]?.status === 'live').map(() => k));
+const listingStores = (lang) => list(lang, [...new Set(storeListings())].map((k) => STORES[k].inLine[lang]));
 const liveCount = () => apps.filter((a) => Object.values(a.stores).some((s) => s.status === 'live')).length;
 const ownApps = (lang) =>
   lang === 'es' ? `${apps.length} ${apps.length === 1 ? 'app propia' : 'apps propias'}` : `${apps.length} ${apps.length === 1 ? 'app' : 'apps'} of our own`;
@@ -749,7 +750,7 @@ const home = {
     // Big numbers, all checkable: [number, what it counts]. The first two come from the app list.
     stats: () => [
       [String(apps.length), apps.length === 1 ? 'app propia' : 'apps propias'],
-      [String(liveStores().length), `${liveStores().length === 1 ? 'tienda donde ya están' : 'tiendas donde ya están'}: ${list('es', liveStores().map((k) => STORES[k].name.es))}`],
+      [String(storeListings().length), `${storeListings().length === 1 ? 'ficha publicada' : 'fichas publicadas'} en ${listingStores('es')}`],
       ['2', 'idiomas: español e inglés'],
       ['0', 'cookies y analítica en este sitio'],
     ],
@@ -834,7 +835,7 @@ const home = {
     workLead: 'They are not client projects: we design, launch and maintain them ourselves. What we solved in them is what your product needs.',
     stats: () => [
       [String(apps.length), apps.length === 1 ? 'app of our own' : 'apps of our own'],
-      [String(liveStores().length), `${liveStores().length === 1 ? 'store' : 'stores'} they are live on: ${list('en', liveStores().map((k) => STORES[k].inLine.en))}`],
+      [String(storeListings().length), `${storeListings().length === 1 ? 'app listing' : 'app listings'} live on ${listingStores('en')}`],
       ['2', 'languages: English and Spanish'],
       ['0', 'cookies or analytics on this site'],
     ],
