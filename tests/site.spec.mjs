@@ -286,17 +286,20 @@ for (const path of ['/', '/en/', '/' + catalog.paths.es, '/' + catalog.paths.en]
   });
 }
 
-// The home says first what we do for the visitor, then who it is for, how we work, then the proof, who we are,
-// the questions the services page marks for the home, and the contact.
+// Right after the hero, the proof: our own apps live in the stores, with numbers anyone can check.
+// Then what we do for the visitor, who it is for, how we work (a timeline, one short line per
+// stage), who we are, the questions the services page marks for the home, and the contact.
 for (const lang of ['es', 'en']) {
-  test(`/${home.paths[lang]} sells the service first, then who it is for, the process, the proof, who we are and the questions marked for the home`, async ({ page }) => {
+  test(`/${home.paths[lang]} shows our apps right after the hero, then what we do, who it is for, the process, who we are and the questions marked for the home`, async ({ page }) => {
     const h = home[lang];
     const s = services[lang];
     await page.goto('/' + home.paths[lang]);
     const order = await page.locator('main > section[id]').evaluateAll((all) => all.map((x) => x.id));
-    expect(order).toEqual([h.offerId, h.whoId, h.processId, h.workId, h.aboutId, h.faqId, h.contactId]);
+    expect(order).toEqual([h.workId, h.offerId, h.whoId, h.processId, h.aboutId, h.faqId, h.contactId]);
+    await expect(page.locator(`#${h.workId} .stats b`)).toHaveText(h.stats().map(([big]) => big));
     await expect(page.locator(`#${h.offerId} .offer-list > li h3`)).toHaveText(h.offer.map(([, title]) => title));
-    await expect(page.locator(`#${h.processId} .path h3`)).toHaveText(s.process.map(([name]) => name));
+    await expect(page.locator(`#${h.processId} .timeline h3`)).toHaveText(s.process.map(([name]) => name));
+    await expect(page.locator(`#${h.processId} .timeline li > p:not(.who-line)`)).toHaveText(h.processShort);
     const marked = s.faq.filter(([, , where]) => where === 'home').map(([q]) => q);
     expect(marked.length).toBeGreaterThan(0);
     await expect(page.locator(`#${h.faqId} summary`)).toHaveText(marked);
@@ -339,6 +342,19 @@ for (const [path, sel] of stacks) {
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(cards.first()).not.toHaveCSS('position', 'sticky');
+  });
+}
+
+// Calm is not motionless: when the visitor has not asked for less motion, the home keeps its
+// motion. The hero's glow drifts and the screen rises; where the browser supports scroll-driven
+// animations, the process line draws itself, its numbers light up and the big numbers grow in.
+for (const path of ['/', '/en/']) {
+  test(`${path} moves when motion is allowed`, async ({ page, browserName }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto(path);
+    const names = await page.evaluate(() => [...new Set(document.getAnimations().filter((a) => a instanceof CSSAnimation).map((a) => a.animationName))]);
+    expect(names).toEqual(expect.arrayContaining(['glow-drift', 'rise-in']));
+    if (browserName === 'chromium') expect(names).toEqual(expect.arrayContaining(['draw', 'node-on', 'count-in', 'settle']));
   });
 }
 

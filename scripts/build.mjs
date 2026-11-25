@@ -424,6 +424,7 @@ const apps = [
     icon: 'assets/img/roast-interview/icon.png',
     paths: { en: 'roast-interview/', es: 'roast-interview/es/' },
     status: 'live',
+    destacada: true,
     // iPhone: live on the App Store since 2026-11-17. Android: coming soon (notify by email).
     stores: { play: { status: 'soon' }, appStore: { status: 'live', url: APP_STORE('6832640298') } },
     category: 'EducationalApplication',
@@ -496,6 +497,8 @@ const apps = [
         problem: 'Rehearsing with generic questions does not prepare you for the ones you will really be asked.',
         built: 'An AI interviewer that asks about your resume, adapts the pressure to your answers, listens to your voice and gives you a score and a verdict for the role.',
         ai: ['Voice AI interviewer', 'Speech to text, without keeping the audio', 'A score and verdict calibrated to the role'],
+        story: ['Generic practice questions are not the ones you will really be asked.', 'An AI interviewer that asks from your resume, listens to your voice and gives you a score for the role.'],
+        took: ['Speech to text, without keeping the audio', 'In-app purchases, with no subscription', 'Apple’s review, to ship on the App Store'],
       },
     },
     es: {
@@ -547,6 +550,8 @@ const apps = [
         problem: 'Ensayar con preguntas genéricas no te prepara para las que de verdad te van a hacer.',
         built: 'Una entrevistadora con IA que pregunta desde tu CV, ajusta la presión según tus respuestas, escucha tu voz y te da un puntaje y un veredicto para el cargo.',
         ai: ['Entrevistadora de voz con IA', 'Voz a texto, sin guardar el audio', 'Puntaje y veredicto medidos para el cargo'],
+        story: ['Las preguntas genéricas no son las que de verdad te van a hacer.', 'Una entrevistadora con IA que pregunta desde tu CV, escucha tu voz y te da un puntaje para el cargo.'],
+        took: ['Voz a texto, sin guardar el audio', 'Compras dentro de la app, sin suscripción', 'La revisión de Apple para salir en App Store'],
       },
     },
   },
@@ -671,14 +676,16 @@ const ui = {
 };
 
 // Copy that depends on the app list, so it stays true when an app is added.
+// The stores (and the web) where at least one of our apps is live today.
+const liveStores = () => ['appStore', 'play', 'web'].filter((k) => apps.some((a) => a.stores[k]?.status === 'live'));
 const liveCount = () => apps.filter((a) => Object.values(a.stores).some((s) => s.status === 'live')).length;
 const ownApps = (lang) =>
   lang === 'es' ? `${apps.length} ${apps.length === 1 ? 'app propia' : 'apps propias'}` : `${apps.length} ${apps.length === 1 ? 'app' : 'apps'} of our own`;
 
 // Home page copy. The home sells the studio to companies and founders who want software built for
 // them: mobile apps, web apps and websites, or new features for what they already have (the plan is
-// in README.md). It says first what we do for the visitor, then how we work, and only then shows a
-// few of our own apps (the ones marked destacada) as proof, labeled as our own products: we have no
+// in README.md). Right after the hero it shows a few of our own apps (the ones marked destacada) as
+// proof, then what we do for the visitor and how we work. The apps are labeled as our own products: we have no
 // client projects to show, so it never says or implies that we built something for a client, and
 // where a visitor would look for client references it says what they can check instead. Every fact
 // on it is true and checkable: the company, the city, the apps and where each one is today, the
@@ -694,7 +701,7 @@ const home = {
     description: 'Estudio de software en Medellín, Colombia. Hacemos apps para iPhone y Android, aplicaciones web y sitios, y sumamos funciones a lo que ya tienes, con alcance, fechas y precio por escrito.',
     eyebrow: 'Estudio de software · Medellín, Colombia',
     headline: 'Hacemos tu app o tu web, *de la idea al lanzamiento*.',
-    lead: 'Apps para iPhone y Android, aplicaciones web y sitios, o nuevas funciones para lo que ya tienes. Lo diseñamos, lo construimos, lo publicamos y lo seguimos cuidando, como hacemos con nuestras propias apps.',
+    lead: 'Apps para iPhone y Android, webs y nuevas funciones para lo que ya tienes. Lo diseñamos, lo construimos, lo publicamos y lo cuidamos, como nuestras propias apps.',
     secondary: 'Qué podemos hacer por ti',
     // What we commit to, each one also on the services page (its contact steps and questions).
     facts: [
@@ -710,50 +717,66 @@ const home = {
     offerGets: 'Recibes',
     // [glyph, what it is, who it is for in their words, what they get]
     offer: [
-      ['phone', 'Una app para iPhone y Android', 'Para llevar tu idea o tu negocio al celular de tus clientes o de tu equipo.', ['La app diseñada, construida y probada en teléfonos reales', 'Publicada en App Store y Google Play, con la cuenta de tu empresa', 'Sus fichas, capturas, política de privacidad y términos']],
-      ['globe', 'Una aplicación web o un sitio', 'Para una plataforma, un panel interno o la página de tu empresa o de tu producto.', ['Una web rápida, accesible y lista para buscadores', 'En línea en tu dominio', 'En español y en inglés, si la necesitas en los dos']],
+      ['phone', 'Una app para iPhone y Android', 'Tu negocio, en el celular de tus clientes o de tu equipo.', ['Diseñada, construida y probada en teléfonos reales', 'En App Store y Google Play, con la cuenta de tu empresa', 'Fichas, capturas, privacidad y términos']],
+      ['globe', 'Una aplicación web o un sitio', 'Una plataforma, un panel interno o la página de tu empresa.', ['Rápida, accesible y lista para buscadores', 'En línea en tu dominio', 'En español y en inglés, si lo necesitas']],
       ['spark', 'Funciones nuevas para lo que ya tienes', 'Para la app o la web que ya funciona y necesita crecer.', ['Funciones nuevas e integraciones con tus sistemas', 'IA donde suma: fotos, documentos, voz o chat', 'Sobre tu código, sin rehacerlo, y mantenimiento mes a mes']],
     ],
     whoId: 'para-quien',
     whoEyebrow: 'Para quién',
     whoTitle: 'Para quien tiene *algo que construir*.',
     who: [
-      ['Fundadores y startups', 'Tienes una idea, para el celular o para la web, y quieres probarla con usuarios reales pronto, sin armar un equipo desde cero.'],
-      ['Pymes y empresas en Colombia y Latinoamérica', 'Quieres una app, una plataforma web o un sitio para tus clientes o tu equipo, o sumarle funciones a lo que ya tienes.'],
-      ['Empresas de Estados Unidos', 'Buscas un equipo nearshore en tu horario (UTC−5), que trabaje en inglés.'],
+      ['Fundadores y startups', 'Prueba tu idea con usuarios reales pronto, sin armar un equipo desde cero.'],
+      ['Pymes y empresas en Colombia y Latinoamérica', 'Una app, una plataforma o un sitio para tus clientes o tu equipo, o funciones nuevas para lo que ya tienes.'],
+      ['Empresas de Estados Unidos', 'Un equipo nearshore en tu horario (UTC−5), que trabaja en inglés.'],
     ],
     processId: 'proceso',
     processEyebrow: 'Cómo trabajamos',
     processTitle: 'Sabes en qué va tu proyecto *en cada etapa*.',
     processMore: 'Servicios y formas de trabajar',
+    // One short line per stage of services.es.process, same order.
+    processShort: [
+      'Tu idea, tus usuarios y el problema. Salimos con alcance y fechas.',
+      'Pantallas que pruebas en tu celular antes de escribir código.',
+      'La IA escribe y prueba el código; una persona revisa cada cambio.',
+      'Pruebas automáticas, accesibilidad y teléfonos reales.',
+      'En App Store y Google Play, o en tu dominio.',
+      'Métricas, errores, actualizaciones y funciones nuevas.',
+    ],
     workId: 'trabajo',
     workEyebrow: 'Productos propios',
-    workTitle: 'Estas apps son nuestras. *Así aprendimos a hacer la tuya.*',
-    workLead: 'No son proyectos de clientes: son productos de Tutos App, que diseñamos, construimos, publicamos y mantenemos nosotros. Están en App Store y Google Play, pasaron la revisión de Apple y de Google, y una cobra con compras dentro de la app. Lo que tuvimos que resolver en ellas es lo mismo que necesita tu producto.',
+    workTitle: 'Estas apps son nuestras. *Ya están en las tiendas.*',
+    workLead: 'No son proyectos de clientes: las diseñamos, las publicamos y las mantenemos nosotros. Lo que resolvimos en ellas es lo que tu producto necesita.',
+    // Big numbers, all checkable: [number, what it counts]. The first two come from the app list.
+    stats: () => [
+      [String(apps.length), apps.length === 1 ? 'app propia' : 'apps propias'],
+      [String(liveStores().length), `${liveStores().length === 1 ? 'tienda donde ya están' : 'tiendas donde ya están'}: ${list('es', liveStores().map((k) => STORES[k].name.es))}`],
+      ['2', 'idiomas: español e inglés'],
+      ['0', 'cookies y analítica en este sitio'],
+    ],
     kind: 'Producto propio',
     took: 'Lo que hizo falta',
     seeApp: (name) => `Conoce ${name}`,
     allWork: 'Ver todos nuestros productos',
     refsTitle: '¿Y referencias de clientes?',
-    refsLead: 'Las apps de arriba son nuestras. En lugar de logos o testimonios, esto es lo que puedes comprobar antes de contratarnos:',
+    refsLead: 'En lugar de logos o testimonios, esto lo puedes comprobar antes de contratarnos:',
     refs: (path) => [
-      ['Prueba nuestras apps hoy.', 'Descárgalas o úsalas: así se ve y se siente lo que hacemos.', rel(path, catalog.paths.es), 'Ver todos nuestros productos'],
-      ['Una propuesta por escrito.', 'Después de la primera llamada te mandamos el alcance, las fechas y el precio.'],
-      ['El código es tuyo.', 'El código, los diseños y las cuentas de las tiendas quedan a nombre de tu empresa, y así queda en el contrato.'],
-      ['Un NDA, si lo pides.', 'Firmamos un acuerdo de confidencialidad antes de la primera llamada.'],
+      ['Prueba nuestras apps hoy.', 'Descárgalas o úsalas: así se siente lo que hacemos.', rel(path, catalog.paths.es), 'Ver todos nuestros productos'],
+      ['Una propuesta por escrito.', 'Tras la primera llamada: alcance, fechas y precio.'],
+      ['El código es tuyo.', 'Código, diseños y cuentas de las tiendas a nombre de tu empresa, por contrato.'],
+      ['Un NDA, si lo pides.', 'Lo firmamos antes de la primera llamada.'],
     ],
     aboutId: 'nosotros',
     aboutEyebrow: 'Quiénes somos',
     aboutTitle: 'Una empresa colombiana *que puedes verificar*.',
-    aboutLead: `Tutos App es una marca de ${COMPANY.name}, una empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras propias apps y, con lo que aprendemos en ellas, hacemos la app o la web que necesitas.`,
+    aboutLead: `Tutos App es una marca de ${COMPANY.name}, empresa colombiana con sede en Medellín (NIT ${COMPANY.nit}). Hacemos nuestras apps y, con lo que aprendemos, la tuya.`,
     // What anyone can check on this site, each with the page that shows it.
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
       return [
-        ['En Ojito, ninguna marca paga por su puntaje.', 'Ninguna paga por aparecer ni por mejorarlo. En comida, el puntaje mira los sellos de advertencia colombianos, los aditivos y qué tan procesado está el producto, y la app te muestra el porqué.', rel(path, ojito.paths.es), 'Cómo funciona Ojito'],
-        ['Las reglas de cada app están publicadas.', 'Cada una tiene en este sitio su política de privacidad y sus términos, en español y en inglés.', rel(path, legalPath(ojito, 'es', 'privacy')), 'Privacidad de Ojito'],
-        ['Te responde una persona.', 'Lo que nos escribes lo lee alguien del equipo. Quién responde por tus datos y qué hacemos con ellos está en nuestra política de privacidad.', `${rel(path, companyPrivacy.paths.es)}#responsable`, 'Política de privacidad de Tutos App'],
-        ['Sin cookies ni analítica.', 'Este sitio no te sigue: no usa cookies ni herramientas de analítica.'],
+        ['En Ojito, ninguna marca paga por su puntaje.', 'Ni por aparecer ni por mejorarlo. En comida, el puntaje mira los sellos de advertencia, los aditivos y qué tan procesado está, y te muestra el porqué.', rel(path, ojito.paths.es), 'Cómo funciona Ojito'],
+        ['Las reglas de cada app están publicadas.', 'Su política de privacidad y sus términos, en este sitio, en español y en inglés.', rel(path, legalPath(ojito, 'es', 'privacy')), 'Privacidad de Ojito'],
+        ['Te responde una persona.', 'Alguien del equipo lee lo que escribes. Quién responde por tus datos está en nuestra política.', `${rel(path, companyPrivacy.paths.es)}#responsable`, 'Política de privacidad de Tutos App'],
+        ['Sin cookies ni analítica.', 'Este sitio no te sigue.'],
       ];
     },
     faqId: 'preguntas',
@@ -767,7 +790,7 @@ const home = {
     description: 'Software studio in Medellín, Colombia. We build iPhone and Android apps, web apps and websites, and add features to what you already have, with scope, dates and price in writing.',
     eyebrow: 'Software studio · Medellín, Colombia',
     headline: 'We build your app or website, *from idea to launch*.',
-    lead: 'iPhone and Android apps, web apps and websites, or new features for what you already have. We design it, build it, launch it and keep looking after it, as we do with our own apps.',
+    lead: 'iPhone and Android apps, websites and new features for what you already have. We design, build, launch and look after it, like our own apps.',
     secondary: 'What we can do for you',
     facts: [
       ['2 business days', 'to reply to you'],
@@ -781,49 +804,63 @@ const home = {
     offerTitle: 'Tell us what you need. *We tell you what you get.*',
     offerGets: 'You get',
     offer: [
-      ['phone', 'An iPhone and Android app', 'To bring your idea or your business to your customers’ or your team’s phones.', ['The app designed, built and tested on real phones', 'Live on the App Store and Google Play, under your company’s account', 'Its listings, screenshots, privacy policy and terms']],
-      ['globe', 'A web app or a website', 'For a platform, an internal dashboard or the page for your company or your product.', ['A fast, accessible website, ready for search engines', 'Live on your domain', 'In English and Spanish, if you need both']],
+      ['phone', 'An iPhone and Android app', 'Your business, on your customers’ or your team’s phones.', ['Designed, built and tested on real phones', 'On the App Store and Google Play, under your company’s account', 'Listings, screenshots, privacy policy and terms']],
+      ['globe', 'A web app or a website', 'A platform, an internal dashboard or your company’s page.', ['Fast, accessible and ready for search engines', 'Live on your domain', 'In English and Spanish, if you need both']],
       ['spark', 'New features for what you already have', 'For the app or website that already works and needs to grow.', ['New features and integrations with your systems', 'AI where it helps: photos, documents, voice or chat', 'On your code, without a rebuild, and maintenance month after month']],
     ],
     whoId: 'who-we-work-with',
     whoEyebrow: 'Who it is for',
     whoTitle: 'For people who have *something to build*.',
     who: [
-      ['Founders and startups', 'You have an idea, for phones or for the web, and want to test it with real users soon, without building a team from scratch.'],
-      ['SMEs and companies in Colombia and Latin America', 'You want an app, a web platform or a website for your customers or your team, or to add features to what you already have.'],
-      ['US companies', 'You are looking for a nearshore team in your hours (UTC−5) that works in English.'],
+      ['Founders and startups', 'Test your idea with real users soon, without building a team from scratch.'],
+      ['SMEs and companies in Colombia and Latin America', 'An app, a platform or a website for your customers or your team, or new features for what you have.'],
+      ['US companies', 'A nearshore team in your hours (UTC−5) that works in English.'],
     ],
     processId: 'process',
     processEyebrow: 'How we work',
     processTitle: 'You know where your project stands *at every stage*.',
     processMore: 'Services and ways to work',
+    processShort: [
+      'Your idea, your users and the problem. We leave with scope and dates.',
+      'Screens you try on your phone before any code is written.',
+      'AI writes and tests the code; a person reviews every change.',
+      'Automated tests, accessibility and real phones.',
+      'On the App Store and Google Play, or on your domain.',
+      'Metrics, errors, updates and new features.',
+    ],
     workId: 'work',
     workEyebrow: 'Our own products',
-    workTitle: 'These apps are ours. *That is how we learned to build yours.*',
-    workLead: 'They are not client projects: they are Tutos App products that we design, build, launch and maintain ourselves. They are on the App Store and Google Play, they passed Apple’s and Google’s review, and one of them charges with in-app purchases. What we had to solve in them is what your product needs too.',
+    workTitle: 'These apps are ours. *They are already in the stores.*',
+    workLead: 'They are not client projects: we design, launch and maintain them ourselves. What we solved in them is what your product needs.',
+    stats: () => [
+      [String(apps.length), apps.length === 1 ? 'app of our own' : 'apps of our own'],
+      [String(liveStores().length), `${liveStores().length === 1 ? 'store' : 'stores'} they are live on: ${list('en', liveStores().map((k) => STORES[k].inLine.en))}`],
+      ['2', 'languages: English and Spanish'],
+      ['0', 'cookies or analytics on this site'],
+    ],
     kind: 'Our own product',
     took: 'What it took',
     seeApp: (name) => `See ${name}`,
     allWork: 'See all our products',
     refsTitle: 'What about client references?',
-    refsLead: 'The apps above are our own. Instead of logos or testimonials, here is what you can check before you hire us:',
+    refsLead: 'Instead of logos or testimonials, here is what you can check before you hire us:',
     refs: (path) => [
-      ['Try our apps today.', 'Download them or use them: that is how our work looks and feels.', rel(path, catalog.paths.en), 'See all our products'],
-      ['A written proposal.', 'After the first call we send you the scope, the dates and the price.'],
-      ['The code is yours.', 'The code, the designs and the store accounts are in your company’s name, and the contract says so.'],
-      ['An NDA, if you ask.', 'We sign a non-disclosure agreement before the first call.'],
+      ['Try our apps today.', 'Download them or use them: that is how our work feels.', rel(path, catalog.paths.en), 'See all our products'],
+      ['A written proposal.', 'After the first call: scope, dates and price.'],
+      ['The code is yours.', 'Code, designs and store accounts in your company’s name, by contract.'],
+      ['An NDA, if you ask.', 'We sign it before the first call.'],
     ],
     aboutId: 'about',
     aboutEyebrow: 'Who we are',
     aboutTitle: 'A Colombian company *you can look up*.',
-    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn from them, we build the app or website you need.`,
+    aboutLead: `Tutos App is a brand of ${COMPANY.name}, a Colombian company based in Medellín (NIT ${COMPANY.nit}). We build our own apps and, with what we learn, yours.`,
     proofs: (path) => {
       const ojito = apps.find((a) => a.id === 'ojito');
       return [
-        ['On Ojito, no brand pays for its score.', 'None pays to appear or to improve it. For food, the score looks at Colombia’s warning labels, the additives and how processed the product is, and the app shows you why.', rel(path, ojito.paths.en), 'How Ojito works'],
-        ['Every app’s rules are published.', 'Each one has its privacy policy and terms on this site, in English and Spanish.', rel(path, legalPath(ojito, 'en', 'privacy')), 'Ojito privacy policy'],
-        ['A person replies to you.', 'Someone on the team reads what you write. Who answers for your data and what we do with it is in our privacy policy.', `${rel(path, companyPrivacy.paths.en)}#controller`, 'Tutos App privacy policy'],
-        ['No cookies, no analytics.', 'This site does not track you: it uses no cookies and no analytics tools.'],
+        ['On Ojito, no brand pays for its score.', 'Not to appear, not to improve it. For food, the score looks at warning labels, additives and how processed it is, and shows you why.', rel(path, ojito.paths.en), 'How Ojito works'],
+        ['Every app’s rules are published.', 'Its privacy policy and terms, on this site, in English and Spanish.', rel(path, legalPath(ojito, 'en', 'privacy')), 'Ojito privacy policy'],
+        ['A person replies to you.', 'Someone on the team reads what you write. Who answers for your data is in our policy.', `${rel(path, companyPrivacy.paths.en)}#controller`, 'Tutos App privacy policy'],
+        ['No cookies, no analytics.', 'This site does not track you.'],
       ];
     },
     faqId: 'faq',
@@ -2297,7 +2334,7 @@ function appStory(app, lang, path) {
   const w = app[lang].work;
   const [problem, built] = w.story;
   return `
-          <li class="case story" id="app-${app.id}">
+          <li class="case story${app.theme ? ` ${app.theme}` : ''}" id="app-${app.id}">
             <div class="case-copy">
               ${caseMark(app, lang, path)}
               <h3>${esc(w.shows)}</h3>
@@ -2404,6 +2441,24 @@ function homePage(lang) {
         </div>
       </section>
 
+      <section class="section wrap work-section" id="${h.workId}" aria-labelledby="work-h">
+        ${sectionHead('work-h', h.workEyebrow, h.workTitle, h.workLead)}
+        <ul class="stats">${h
+          .stats()
+          .map(([big, small]) => `
+          <li class="reveal"><b>${esc(big)}</b><span>${esc(small)}</span></li>`)
+          .join('')}
+        </ul>
+        <ul class="cases stories">${featured().map((a) => appStory(a, lang, path)).join('')}
+        </ul>
+        <p class="all-work reveal"><a class="text-link" href="${rel(path, catalog.paths[lang])}">${esc(h.allWork)} ${icons.arrow}</a></p>
+        <div class="refs reveal">
+          <h3>${esc(h.refsTitle)}</h3>
+          <p class="lead">${esc(h.refsLead)}</p>
+          ${proofList(h.refs(path), 'proofs refs-list')}
+        </div>
+      </section>
+
       <section class="section wrap" id="${h.offerId}" aria-labelledby="offer-h">
         ${sectionHead('offer-h', h.offerEyebrow, h.offerTitle)}
         <ul class="offer-list">${h.offer
@@ -2418,31 +2473,23 @@ function homePage(lang) {
       <section class="section wrap" id="${h.whoId}" aria-labelledby="who-h">
         ${sectionHead('who-h', h.whoEyebrow, h.whoTitle)}
         <ul class="audiences">${h.who
-          .map(([title, d]) => `
-          <li class="reveal"><h3>${esc(title)}</h3><p>${esc(d)}</p></li>`)
+          .map(([title, d], i) => `
+          <li class="reveal"><span class="audience-n" aria-hidden="true">${pad(i + 1)}</span><h3>${esc(title)}</h3><p>${esc(d)}</p></li>`)
           .join('')}
         </ul>
       </section>
 
-      <section class="section wrap" id="${h.processId}" aria-labelledby="process-h">
-        ${sectionHead('process-h', h.processEyebrow, h.processTitle)}
-        <ol class="path">${s.process
-          .map(([name, d], i) => `
-          <li class="reveal"><span class="path-n" aria-hidden="true">${i + 1}</span><h3>${esc(name)}</h3><p>${esc(d)}</p></li>`)
-          .join('')}
-        </ol>
-        <p class="section-more reveal"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
-      </section>
-
-      <section class="section wrap" id="${h.workId}" aria-labelledby="work-h">
-        ${sectionHead('work-h', h.workEyebrow, h.workTitle, h.workLead)}
-        <ul class="cases stories">${featured().map((a) => appStory(a, lang, path)).join('')}
-        </ul>
-        <p class="all-work reveal"><a class="text-link" href="${rel(path, catalog.paths[lang])}">${esc(h.allWork)} ${icons.arrow}</a></p>
-        <div class="refs reveal">
-          <h3>${esc(h.refsTitle)}</h3>
-          <p class="lead">${esc(h.refsLead)}</p>
-          ${proofList(h.refs(path), 'proofs refs-list')}
+      <section class="section process-band" id="${h.processId}" aria-labelledby="process-h">
+        <div class="wrap process-grid">
+          <div class="process-head">
+            ${sectionHead('process-h', h.processEyebrow, h.processTitle)}
+            <p class="section-more reveal"><a class="text-link" href="${rel(path, services.paths[lang])}">${esc(h.processMore)} ${icons.arrow}</a></p>
+          </div>
+          <ol class="path timeline">${s.process
+            .map(([name, , who], i) => `
+            <li class="reveal"><span class="path-n" aria-hidden="true">${pad(i + 1)}</span><h3>${esc(name)}</h3><p>${esc(h.processShort[i])}</p><p class="who-line ${who}">${esc(s.who[who])}</p></li>`)
+            .join('')}
+          </ol>
         </div>
       </section>
 
@@ -2670,6 +2717,7 @@ function run() {
   // The home shows 2 or 3 featured apps (destacada), each as a short story with what it took.
   const picked = featured();
   if (picked.length < 2 || picked.length > 3) problems.push(`mark 2 or 3 apps destacada for the home (now ${picked.length})`);
+  for (const lang of langs) if (home[lang].processShort.length !== services[lang].process.length) problems.push(`home.${lang}.processShort needs one line per stage of services.${lang}.process`);
   for (const app of picked) {
     for (const lang of langs) {
       const w = app[lang]?.work;

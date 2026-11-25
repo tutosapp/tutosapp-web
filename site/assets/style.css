@@ -180,6 +180,8 @@
 .tile.feature,
 .cta-band,
 .contact-panel,
+.home .story,
+.process-band,
 .t-rr .app-hero,
 .t-ri .app-hero {
   --text: var(--card-ink);
@@ -3411,11 +3413,11 @@ h2 em {
   margin-top: 28px;
 }
 
-/* ---------- Home: calm and editorial ----------
-   One idea per section, generous space, one picture where a picture helps. Nothing keeps moving
-   on its own: the hero's screen rises once as the page opens and the rest of the little motion
-   there is follows the scroll or the pointer (see "Home motion" below), none of it with reduced
-   motion. */
+/* ---------- Home ----------
+   One idea per section and short sentences, on alternating grounds (see "Home: rhythm" below).
+   Calm, not still: the hero's glow drifts slowly, its screen rises once as the page opens, and
+   the rest of the motion follows the scroll or the pointer (see "Home motion" below), none of it
+   with reduced motion. */
 
 .home .section {
   padding-top: clamp(104px, 13vw, 176px);
@@ -3539,6 +3541,7 @@ h2 em {
   position: absolute;
   bottom: 20px;
   left: 20px;
+  z-index: 2;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -3725,41 +3728,7 @@ h2 em {
   font-size: clamp(1.2rem, 1rem + 0.5vw, 1.4rem);
 }
 
-/* Our process: the six stages, plainly. */
-.path {
-  display: grid;
-  padding: 0;
-  margin: clamp(48px, 6vw, 72px) 0 0;
-  list-style: none;
-  border-top: 1px solid var(--line-strong);
-}
-
-.path li {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 8px 18px;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.path-n {
-  display: grid;
-  grid-row: span 2;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  font-size: 0.95rem;
-  font-weight: 620;
-  color: var(--accent-text);
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
-}
-
-.path h3 {
-  font-size: 1.22rem;
-}
-
-.path p,
+/* Our process: see "Process timeline" below. */
 .proofs p,
 .audiences p {
   color: var(--muted);
@@ -4017,26 +3986,6 @@ h2 em {
     width: min(220px, 66%);
     margin-bottom: 0;
   }
-
-  .path {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 44px 32px;
-    border-top: 0;
-  }
-
-  .path li {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    align-content: start;
-    padding: 28px 0 0;
-    border-top: 1px solid var(--line-strong);
-    border-bottom: 0;
-  }
-
-  .path-n {
-    grid-row: auto;
-    margin-bottom: 10px;
-  }
 }
 
 @media (min-width: 1000px) {
@@ -4056,6 +4005,305 @@ h2 em {
   .catalog .catalog-hero .hero-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* ---------- Home: rhythm ----------
+   After the hero the page alternates its grounds so it never reads like a document: our apps
+   right away, as big cards in their own colors, the offer and who it is for on paper, the
+   process on an ink band, the proof on paper and the contact on violet. */
+
+/* Big numbers, every one checkable (home.<lang>.stats in scripts/build.mjs). */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 20px;
+  padding: 0;
+  margin: clamp(40px, 5vw, 64px) 0 0;
+  list-style: none;
+}
+
+.stats li {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding-top: 20px;
+  border-top: 2px solid var(--accent-text);
+}
+
+.stats b {
+  font-size: clamp(3.2rem, 2rem + 4.6vw, 6rem);
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+  color: var(--accent-text);
+  letter-spacing: -0.05em;
+}
+
+.stats span {
+  max-width: 19ch;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+@media (min-width: 760px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .stats li:nth-child(2) {
+    --k: 1;
+  }
+
+  .stats li:nth-child(3) {
+    --k: 2;
+  }
+
+  .stats li:nth-child(4) {
+    --k: 3;
+  }
+}
+
+/* Our apps on the home, each card in its app's colors: the app's theme class (t-ojito, t-rr,
+   t-ri) gives the panel, and an app without one gets the studio's ink. The words switch to
+   light on dark with the other dark panels (Tokens, above). */
+.home .story {
+  --accent-text: #fff;
+
+  background: var(--card-bg);
+  border: 0;
+  border-radius: clamp(28px, 3.5vw, 40px);
+}
+
+.home .story.t-ojito {
+  --card-bg: radial-gradient(90% 80% at 100% 0%, rgb(255 200 61 / 22%), transparent 55%), linear-gradient(155deg, #1d4fc7, #11307f);
+  --card-muted: #e3eaff;
+}
+
+.home .story h3 {
+  max-width: 16ch;
+  font-family: var(--font);
+  font-size: clamp(1.75rem, 1.2rem + 1.9vw, 2.7rem);
+  font-weight: 660;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.home .story .case-visual {
+  background: radial-gradient(55% 50% at 50% 55%, rgb(255 255 255 / 16%), transparent 70%);
+}
+
+.home .story .kind {
+  border-color: rgb(255 255 255 / 45%);
+}
+
+.home .story .app-icon {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 20%), 0 10px 24px -10px rgb(0 0 0 / 55%);
+}
+
+/* On a colored card the store badges are white, so they read as the card's main action. */
+.home .story .store {
+  color: #0c0b12;
+  background: #fff;
+  border-color: transparent;
+}
+
+.home .story .store small {
+  color: #55535f;
+}
+
+.home .story .phone {
+  box-shadow:
+    inset 0 0 0 1.5px rgb(255 255 255 / 16%),
+    inset 0 0 0 5px #0a0a0c,
+    0 40px 80px -30px rgb(0 0 0 / 70%);
+}
+
+/* What we do: each block with a solid violet mark. */
+.home .offer-list .glyph {
+  width: 56px;
+  height: 56px;
+  color: #fff;
+  background: var(--accent-text);
+  border-radius: 16px;
+  box-shadow: 0 14px 30px -16px rgb(74 47 224 / 80%);
+}
+
+/* Who it is for: three tinted tiles, numbered. */
+.home .audiences {
+  gap: 16px;
+}
+
+.home .audiences li {
+  padding: clamp(24px, 3vw, 32px);
+  background: var(--tint);
+  border-top: 0;
+  border-radius: 22px;
+}
+
+.audience-n {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+/* Process timeline, on an ink band: the six stages down one line that draws itself as the page
+   scrolls, each stage's number lighting up as it reaches the middle of the screen (Home motion,
+   below). Without that motion the line is drawn and every number is lit. */
+.process-band {
+  --accent-text: #c4b5ff;
+  --card-muted: #c9c6d6;
+
+  padding-bottom: clamp(88px, 11vw, 150px);
+  margin-top: clamp(104px, 13vw, 176px);
+  background:
+    radial-gradient(70% 60% at 100% 0%, rgb(106 69 255 / 34%), transparent 60%),
+    radial-gradient(50% 50% at 0% 100%, rgb(53 87 255 / 16%), transparent 70%),
+    #121019;
+}
+
+.home .process-band {
+  padding-top: clamp(88px, 11vw, 150px);
+}
+
+.process-band h2 em {
+  --em: linear-gradient(#c4b5ff, #c4b5ff);
+}
+
+.process-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  padding: 0;
+  margin: clamp(40px, 5vw, 56px) 0 0;
+  list-style: none;
+  view-timeline: --path block;
+}
+
+.timeline::before,
+.timeline::after {
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 21px;
+  width: 2px;
+  content: "";
+  border-radius: 2px;
+}
+
+.timeline::before {
+  background: rgb(255 255 255 / 14%);
+}
+
+.timeline::after {
+  background: linear-gradient(#c4b5ff, #6a45ff);
+  transform-origin: top;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 6px 20px;
+  padding-bottom: 36px;
+}
+
+.timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.path-n {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-row: span 3;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #16141f;
+  background: #c4b5ff;
+  border-radius: 50%;
+}
+
+.timeline h3 {
+  padding-top: 9px;
+  font-size: 1.25rem;
+}
+
+.timeline p {
+  color: var(--muted);
+}
+
+.timeline .who-line {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@media (min-width: 1000px) {
+  .process-grid {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 72px;
+    align-items: start;
+  }
+
+  .process-head {
+    position: sticky;
+    top: 120px;
+  }
+
+  .timeline {
+    margin-top: 0;
+  }
+}
+
+/* The contact of the studio's pages on violet, the brand's color, so the call to action is the
+   strongest ground on the page. */
+.home .hire-panel,
+.catalog .hire-panel {
+  --card-bg:
+    radial-gradient(70% 70% at 100% 0%, rgb(147 180 255 / 26%), transparent 60%),
+    radial-gradient(60% 60% at 0% 100%, rgb(255 255 255 / 8%), transparent 70%),
+    linear-gradient(150deg, #4b2fe2, #2a1585);
+  --card-muted: #e4defc;
+}
+
+.home .hire-copy .kicker,
+.catalog .hire-copy .kicker {
+  --accent-text: #e4defc;
+}
+
+/* On a phone the hero's two actions are one full-width column. */
+@media (max-width: 559px) {
+  .home .hero-copy .actions .btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* The hero's frame glows softly behind the phone, drifting slowly (Home motion, below). */
+.home-figure::before {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(38% 34% at 32% 30%, rgb(106 69 255 / 26%), transparent 70%),
+    radial-gradient(34% 30% at 72% 72%, rgb(53 87 255 / 18%), transparent 70%);
+}
+
+.home-figure > .phone,
+.home-figure > .browser {
+  position: relative;
+  z-index: 1;
 }
 
 /* ---------- Not found ---------- */
@@ -4540,11 +4788,12 @@ h2 em {
 }
 
 /* ---------- Home motion ----------
-   Quiet, and only when the visitor has not asked for less; with reduced motion, or without
-   JavaScript for the stacking, everything is simply there. The hero's screen rises into its frame
-   once as the page opens, sections and cards settle in as they come on screen (side by side ones
-   one after another, by their column --k), the app cards stack as the page scrolls, and buttons
-   and cards answer the pointer. */
+   Only when the visitor has not asked for less; with reduced motion, or without JavaScript for
+   the stacking, everything is simply there. The hero's glow drifts and its screen rises into its
+   frame as the page opens, sections and cards settle in as they come on screen (side by side ones
+   one after another, by their column --k), the big numbers grow in, the app cards stack as the
+   page scrolls, the process line draws itself and lights each stage, and buttons and cards answer
+   the pointer. */
 
 /* The column of a card in a row of cards, to stagger how a row appears. assets/stack.js sets it
    for the app cards. */
@@ -4560,12 +4809,10 @@ h2 em {
 }
 
 @media (min-width: 900px) {
-  .path li:nth-child(3n + 2),
   .offer-list li:nth-child(3n + 2) {
     --k: 1;
   }
 
-  .path li:nth-child(3n),
   .offer-list li:nth-child(3n) {
     --k: 2;
   }
@@ -4579,6 +4826,30 @@ h2 em {
 
   .home-figure figcaption {
     animation: fade-up 0.7s var(--ease) 0.6s both;
+  }
+
+  /* The hero's glow drifts slowly, always: calm, not still. */
+  .home-figure::before {
+    animation: glow-drift 16s ease-in-out infinite alternate;
+  }
+
+  /* Blocks of the offer lift toward the pointer. */
+  .home .offer-list > li {
+    transition: border-color 0.3s, translate 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  }
+
+  .home .offer-list > li:hover {
+    translate: 0 -4px;
+    box-shadow: 0 24px 48px -32px rgb(22 20 31 / 40%);
+  }
+
+  .home .audiences li {
+    transition: translate 0.35s var(--ease), background 0.35s;
+  }
+
+  .home .audiences li:hover {
+    translate: 0 -4px;
+    background: #e6e2f5;
   }
 
   .home .btn,
@@ -4681,6 +4952,55 @@ h2 em {
       animation-timeline: --case;
       animation-range: entry calc(var(--k, 0) * 12%) entry calc(70% + var(--k, 0) * 12%);
     }
+
+    /* The process line draws itself as the band scrolls by, and each stage's number lights up
+       as it reaches the middle of the screen. */
+    .timeline::after {
+      animation: draw linear both;
+      animation-timeline: --path;
+      animation-range: cover 15% cover 65%;
+    }
+
+    .timeline .path-n {
+      animation: node-on linear both;
+      animation-timeline: view();
+      animation-range: entry 100% cover 50%;
+    }
+
+    /* The big numbers grow into place. */
+    .stats b {
+      animation: count-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--k, 0) * 10%) entry calc(80% + var(--k, 0) * 10%);
+    }
+  }
+}
+
+@keyframes draw {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes node-on {
+  from {
+    color: #c4b5ff;
+    background: #121019;
+    box-shadow: inset 0 0 0 2px rgb(196 181 255 / 45%);
+  }
+}
+
+@keyframes count-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+@keyframes glow-drift {
+  to {
+    translate: 8% -6%;
+    scale: 1.12;
   }
 }
 
