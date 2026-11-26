@@ -182,7 +182,7 @@ const apps = [
         ['¿Cómo sabe si es bueno para mi bebé?', 'Solo te pide la edad, nunca el nombre ni fotos. Con eso, debajo de tu resultado ves una línea para tu bebé, para el embarazo o la lactancia, o para otro adulto de tu casa, con la razón en pocas palabras.'],
         ['¿Ojito reemplaza al pediatra o al médico?', 'No. Ojito no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad. Te ayuda a leer la etiqueta. Si no ves una alerta, no quiere decir que el producto no tenga ese alérgeno: revisa siempre el empaque.'],
         ['¿Necesito crear una cuenta?', 'No. Abres la app y escaneas. Los datos de tu familia se quedan en tu celular.'],
-        ['¿Cuánto cuesta?', 'Escanear, ver el resultado, el porqué, las alertas de tu familia y otras opciones no tiene costo. Más adelante habrá una suscripción opcional, Ojito Familia, con el historial completo y la lista de compras.'],
+        ['¿Cuánto cuesta?', 'Escanear, ver el resultado, el porqué, las alertas de tu familia y otras opciones, y los 10 últimos productos de tu historial, no tienen costo, y nada de lo que hoy es gratis pasa a ser pago. Ojito Familia es una suscripción opcional que suma el historial completo, con búsqueda y filtro, y la lista de compras, solo en tu teléfono. Cuesta COP 59.900 al año, con 7 días de prueba gratis para quien la prueba por primera vez, o COP 9.900 al mes, con IVA incluido. La vende TUTOS APP S.A.S. por Google Play y la App Store, solo en Colombia. Ya está en Android, en Google Play, y llegará a iPhone cuando Apple la apruebe.', 'plans'],
         ['¿Dónde la descargo?', 'Ojito ya está en App Store para iPhone. En Android está en pruebas y muy pronto estará en Google Play: si quieres probarla antes, escríbenos y te sumamos al grupo de prueba.'],
         [`¿Qué trae la versión ${OJITO_VERSION}?`, 'Ojito explica mejor cuando hay que repetir una foto. Califica sal, aceites y otros básicos sin pedirte más fotos, y proteína y colágeno con un aviso de que son suplementos. Las fotos pendientes no se pierden si el sistema cierra la app, y los polvos se califican como los preparas, con el resultado diciéndote cómo.'],
       ],
@@ -247,7 +247,7 @@ const apps = [
         ['How does it know what’s good for my baby?', 'It only asks for their age, never a name or photos. Below your result you then see a line for your baby, for pregnancy or breastfeeding, or for another adult at home, with the reason in a few words.'],
         ['Does Ojito replace a pediatrician or doctor?', 'No. Ojito is not a medical device and does not diagnose, treat, cure or prevent any disease. It helps you read the label. No alert doesn’t mean the product is free of that allergen: always check the package.'],
         ['Do I need an account?', 'No. Open the app and scan. Your family’s details stay on your phone.'],
-        ['How much does it cost?', 'Scanning, the result, the reasons, your family’s alerts and other options cost nothing. An optional subscription, Ojito Familia, will later add full history and a shopping list.'],
+        ['How much does it cost?', 'Scanning, the result, the reasons, your family’s alerts and other options, and the last 10 products in your history, cost nothing, and nothing that is free today becomes paid. Ojito Familia is an optional subscription that adds the full history, with search and filter, and the shopping list, only on your phone. It costs COP 59,900 per year, with a 7-day free trial for new subscribers, or COP 9,900 per month, VAT included. It is sold by TUTOS APP S.A.S. through Google Play and the App Store, in Colombia only. It is available now on Android, on Google Play, and will come to iPhone once Apple approves it.', 'plans'],
         ['Where can I get it?', 'Ojito is on the App Store for iPhone. On Android it’s in testing and coming soon to Google Play: to try it early, email us and we’ll add you to the testing group.'],
         [`What’s new in version ${OJITO_VERSION}?`, 'Ojito explains more clearly when a photo needs retaking. It rates salt, oils and other basics without asking for more photos, and protein and collagen with a notice that they are supplements. Pending photos are not lost if the system closes the app, and powders are rated as you prepare them, with the result telling you how.'],
       ],
@@ -608,6 +608,7 @@ const ui = {
     notFound: 'Esta página no existe.',
     backHome: 'Volver al inicio',
     faqPrivacy: 'Lee la política de privacidad',
+    faqPlans: 'Ver planes y precios en los términos',
     updated: 'Última actualización',
     companyPrivacyAbout: 'Política de privacidad de Tutos App: qué hacemos con los datos que nos envías al contarnos tu idea, para qué, por cuánto tiempo y cómo ejercer tus derechos.',
     toc: 'En esta página',
@@ -658,6 +659,7 @@ const ui = {
     notFound: 'This page does not exist.',
     backHome: 'Back to home',
     faqPrivacy: 'Read the privacy policy',
+    faqPlans: 'See plans and prices in the terms',
     updated: 'Last updated',
     companyPrivacyAbout: 'Tutos App privacy policy: what we do with the information you send us about your idea, what for, for how long and how to exercise your rights.',
     toc: 'On this page',
@@ -1742,7 +1744,7 @@ function appPage(app, lang) {
         <div class="faq">${p.faq
           .map(
             ([q, a, extra]) => `
-          <details class="reveal"><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(faqAnswer(a, extra))}</p></details>`
+          <details class="reveal"><summary>${esc(q)}<span class="plus" aria-hidden="true">${icons.plus}</span></summary><p>${esc(faqAnswer(a, extra))}${extra === 'plans' ? ` <a href="${rel(path, legalPath(app, lang, 'terms'))}#familia-planes">${t.faqPlans}</a>` : ''}</p></details>`
           )
           .join('')}
         </div>
