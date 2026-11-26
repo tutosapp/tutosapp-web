@@ -106,10 +106,11 @@ const launchPriceLabel = (lang) => {
 };
 const usd = (n) => `US$${n.toFixed(2)}`;
 
-// The Ojito version that is live in a store. Its page says what that version brought (the last FAQ
-// answer) and its structured data carries the number, so change both together on each release.
+// The Ojito version that is live in the stores; its structured data carries the number. Change it on
+// each release.
 const OJITO_VERSION = '0.1.24';
-// The newest version whose release notes the FAQ describes (the notes answer names it).
+// The version whose news the last FAQ answer describes. Change it together with that answer (in both
+// languages) when a release brings something worth telling.
 const OJITO_NOTES_VERSION = '0.1.20';
 // The Resume Roast version that is live on Google Play (the iPhone app is not public yet). Its page
 // says what that version brought on Android (the last FAQ answer) and its structured data carries
@@ -131,7 +132,7 @@ const apps = [
     destacada: true,
     version: OJITO_VERSION,
     // Public in production on the App Store (since 2026-11-12) and on Google Play (2026-11-26, Colombia).
-    stores: { play: { status: 'live', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
+    stores: { appStore: { status: 'live', url: APP_STORE('6832288734') }, play: { status: 'live', url: PLAY('co.ojito.ojito') } },
     category: 'FoodAndDrinkApplication',
     legal: { privacy: '2026-11-25', terms: '2026-11-25', support: '2026-11-25' },
     look: 'panels',

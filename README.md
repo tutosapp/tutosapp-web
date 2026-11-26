@@ -86,7 +86,7 @@ node scripts/build.mjs --check  # falla si site/ no está al día, si hay un enl
 
 Los precios de Resume Roast y Roast Interview están en `prices` de cada app y se muestran como precio de lanzamiento hasta `LAUNCH_PRICE_UNTIL` (hora de Bogotá). Para extenderlo se cambia solo esa fecha; si ya pasó, `--check` falla hasta que se extienda o se quite.
 
-Cuando sale una versión nueva de Ojito se cambia `OJITO_VERSION` y, en los dos idiomas, la última pregunta frecuente de su página, que cuenta qué trae esa versión; el número también va en los datos estructurados (`softwareVersion`). Lo mismo vale para Resume Roast con `RESUME_ROAST_ANDROID_VERSION`, que es la versión publicada en Google Play: la app de iPhone todavía no es pública, así que su página habla de Android y sus datos estructurados dicen `operatingSystem: Android`. Si la versión cambia algo que el soporte o las políticas describen, se cambian también esos textos (ver [Páginas legales](#páginas-legales)).
+Cuando sale una versión nueva de Ojito se cambia `OJITO_VERSION`, que va en los datos estructurados (`softwareVersion`). Si la versión trae novedades que contar, se cambian también `OJITO_NOTES_VERSION` y, en los dos idiomas, la última pregunta frecuente de su página, que cuenta qué trae esa versión. Lo mismo vale para Resume Roast con `RESUME_ROAST_ANDROID_VERSION`, que es la versión publicada en Google Play: la app de iPhone todavía no es pública, así que su página habla de Android y sus datos estructurados dicen `operatingSystem: Android`. Si la versión cambia algo que el soporte o las políticas describen, se cambian también esos textos (ver [Páginas legales](#páginas-legales)).
 
 Después se hace commit de `scripts/build.mjs` y de `site/` juntos. El flujo `.github/workflows/pages.yml` corre `--check` en cada PR y publica `site/` cuando entra a `main`.
 
@@ -154,7 +154,7 @@ Se cambia su `status` a `'live'` y el de la tienda (`stores.play` o `stores.appS
 
 | App | Google Play | App Store |
 |---|---|---|
-| Ojito | Próximamente (en prueba cerrada; "Probarla en Android" pide entrar por correo) | Enlace a `id6832288734` |
+| Ojito | Enlace a `co.ojito.ojito` | Enlace a `id6832288734` |
 | Resume Roast | Enlace a `com.resumeroast.app` | Próximamente |
 | Roast Interview | Próximamente | Enlace a `id6832640298` |
 
