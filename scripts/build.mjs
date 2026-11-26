@@ -108,7 +108,9 @@ const usd = (n) => `US$${n.toFixed(2)}`;
 
 // The Ojito version that is live in a store. Its page says what that version brought (the last FAQ
 // answer) and its structured data carries the number, so change both together on each release.
-const OJITO_VERSION = '0.1.20';
+const OJITO_VERSION = '0.1.24';
+// The newest version whose release notes the FAQ describes (the notes answer names it).
+const OJITO_NOTES_VERSION = '0.1.20';
 // The Resume Roast version that is live on Google Play (the iPhone app is not public yet). Its page
 // says what that version brought on Android (the last FAQ answer) and its structured data carries
 // the number, so change both together on each release.
@@ -128,8 +130,8 @@ const apps = [
     status: 'live',
     destacada: true,
     version: OJITO_VERSION,
-    // iPhone: live on the App Store since 2026-11-12. Android: still closed testing, joined by email (cta).
-    stores: { play: { status: 'soon', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
+    // Public in production on the App Store (since 2026-11-12) and on Google Play (2026-11-26, Colombia).
+    stores: { play: { status: 'live', url: PLAY('co.ojito.ojito') }, appStore: { status: 'live', url: APP_STORE('6832288734') } },
     category: 'FoodAndDrinkApplication',
     legal: { privacy: '2026-11-25', terms: '2026-11-25', support: '2026-11-25' },
     look: 'panels',
@@ -183,19 +185,11 @@ const apps = [
         ['¿Ojito reemplaza al pediatra o al médico?', 'No. Ojito no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad. Te ayuda a leer la etiqueta. Si no ves una alerta, no quiere decir que el producto no tenga ese alérgeno: revisa siempre el empaque.'],
         ['¿Necesito crear una cuenta?', 'No. Abres la app y escaneas. Los datos de tu familia se quedan en tu celular.'],
         ['¿Cuánto cuesta?', 'Escanear, ver el resultado, el porqué, las alertas de tu familia y otras opciones, y los 10 últimos productos de tu historial, no tienen costo, y nada de lo que hoy es gratis pasa a ser pago. Ojito Familia es una suscripción opcional que suma el historial completo, con búsqueda y filtro, y la lista de compras, solo en tu teléfono. Cuesta COP 59.900 al año, con 7 días de prueba gratis para quien la prueba por primera vez, o COP 9.900 al mes, con IVA incluido. La vende TUTOS APP S.A.S. por Google Play y la App Store, solo en Colombia. Ya está en Android, en Google Play, y llegará a iPhone cuando Apple la apruebe.', 'plans'],
-        ['¿Dónde la descargo?', 'Ojito ya está en App Store para iPhone. En Android está en pruebas y muy pronto estará en Google Play: si quieres probarla antes, escríbenos y te sumamos al grupo de prueba.'],
-        [`¿Qué trae la versión ${OJITO_VERSION}?`, 'Ojito explica mejor cuando hay que repetir una foto. Califica sal, aceites y otros básicos sin pedirte más fotos, y proteína y colágeno con un aviso de que son suplementos. Las fotos pendientes no se pierden si el sistema cierra la app, y los polvos se califican como los preparas, con el resultado diciéndote cómo.'],
+        ['¿Dónde la descargo?', 'Ojito está en App Store para iPhone y en Google Play para Android, en Colombia.'],
+        [`¿Qué trae la versión ${OJITO_NOTES_VERSION}?`, 'Ojito explica mejor cuando hay que repetir una foto. Califica sal, aceites y otros básicos sin pedirte más fotos, y proteína y colágeno con un aviso de que son suplementos. Las fotos pendientes no se pierden si el sistema cierra la app, y los polvos se califican como los preparas, con el resultado diciéndote cómo.'],
       ],
-      cta: {
-        label: 'Probarla en Android',
-        href: mailto(
-          'Quiero probar Ojito',
-          'Hola, quiero entrar al grupo de prueba de Ojito.\n\nMi correo de Google Play (Gmail) es: '
-        ),
-        note: 'Se abre tu correo con el mensaje listo: agrega tu Gmail de Google Play y te sumamos al grupo de prueba de Android.',
-      },
       disclaimer: 'Ojito no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad.',
-      closing: ['Haz el mercado *con calma*.', 'Descárgala en App Store para iPhone, o súmate al grupo de prueba de Android.'],
+      closing: ['Haz el mercado *con calma*.', 'Descárgala en App Store para iPhone o en Google Play para Android.'],
       share: 'Mira Ojito: escaneas un producto y te dice si es bueno para ti y para tu bebé.',
       work: {
         shows: 'Visión por computador y reglas de nutrición',
@@ -248,16 +242,11 @@ const apps = [
         ['Does Ojito replace a pediatrician or doctor?', 'No. Ojito is not a medical device and does not diagnose, treat, cure or prevent any disease. It helps you read the label. No alert doesn’t mean the product is free of that allergen: always check the package.'],
         ['Do I need an account?', 'No. Open the app and scan. Your family’s details stay on your phone.'],
         ['How much does it cost?', 'Scanning, the result, the reasons, your family’s alerts and other options, and the last 10 products in your history, cost nothing, and nothing that is free today becomes paid. Ojito Familia is an optional subscription that adds the full history, with search and filter, and the shopping list, only on your phone. It costs COP 59,900 per year, with a 7-day free trial for new subscribers, or COP 9,900 per month, VAT included. It is sold by TUTOS APP S.A.S. through Google Play and the App Store, in Colombia only. It is available now on Android, on Google Play, and will come to iPhone once Apple approves it.', 'plans'],
-        ['Where can I get it?', 'Ojito is on the App Store for iPhone. On Android it’s in testing and coming soon to Google Play: to try it early, email us and we’ll add you to the testing group.'],
-        [`What’s new in version ${OJITO_VERSION}?`, 'Ojito explains more clearly when a photo needs retaking. It rates salt, oils and other basics without asking for more photos, and protein and collagen with a notice that they are supplements. Pending photos are not lost if the system closes the app, and powders are rated as you prepare them, with the result telling you how.'],
+        ['Where can I get it?', 'Ojito is on the App Store for iPhone and on Google Play for Android, in Colombia.'],
+        [`What’s new in version ${OJITO_NOTES_VERSION}?`, 'Ojito explains more clearly when a photo needs retaking. It rates salt, oils and other basics without asking for more photos, and protein and collagen with a notice that they are supplements. Pending photos are not lost if the system closes the app, and powders are rated as you prepare them, with the result telling you how.'],
       ],
-      cta: {
-        label: 'Try it on Android',
-        href: mailto('I want to try Ojito', 'Hi, I would like to join the Ojito testing group.\n\nMy Google Play (Gmail) address is: '),
-        note: 'This opens your email with the message ready: add your Google Play Gmail address and we’ll add you to the Android testing group.',
-      },
       disclaimer: 'Ojito is not a medical device and does not diagnose, treat, cure or prevent any disease.',
-      closing: ['Shop *with peace of mind*.', 'Get it on the App Store for iPhone, or join the Android testing group.'],
+      closing: ['Shop *with peace of mind*.', 'Get it on the App Store for iPhone or on Google Play for Android.'],
       share: 'Check out Ojito: scan a product and see if it is good for you and your baby.',
       work: {
         shows: 'Computer vision and nutrition rules',
