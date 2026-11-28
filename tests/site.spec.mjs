@@ -178,9 +178,9 @@ for (const path of ['/roast-interview/', '/roast-interview/es/']) {
   test(`${path} links Roast Interview's App Store listing`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator(`.hero-copy a.store[href="${RI_APP_STORE}"]`)).toBeVisible();
-    await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_PLAY);
+    await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_APP_STORE);
     const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
-    expect(ld.installUrl).toBe(RI_PLAY);
+    expect(ld.installUrl).toBe(RI_APP_STORE);
     expect(ld.operatingSystem).toBe('Android, iOS');
     await expect(page.locator(`.hero-copy a.store[href="${RI_PLAY}"]`)).toBeVisible();
     await expect(page.locator('.hero-copy a.inline-link')).toHaveCount(0);

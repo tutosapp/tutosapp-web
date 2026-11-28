@@ -416,7 +416,7 @@ const apps = [
     status: 'live',
     destacada: true,
     // iPhone: live on the App Store since 2026-11-17. Android: live on Google Play (version 1.0.4).
-    stores: { play: { status: 'live', url: PLAY('com.roastinterview.app') }, appStore: { status: 'live', url: APP_STORE('6832640298') } },
+    stores: { appStore: { status: 'live', url: APP_STORE('6832640298') }, play: { status: 'live', url: PLAY('com.roastinterview.app') } },
     category: 'EducationalApplication',
     prices: [
       { usd: 0.99, en: '1 full interview', es: '1 entrevista completa' },
