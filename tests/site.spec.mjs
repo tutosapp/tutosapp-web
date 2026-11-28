@@ -180,7 +180,7 @@ for (const path of ['/roast-interview/', '/roast-interview/es/']) {
     await expect(page.locator(`.hero-copy a.store[href="${RI_APP_STORE}"]`)).toBeVisible();
     await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_PLAY);
     const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
-    expect(ld.installUrl).toBe(RI_APP_STORE);
+    expect(ld.installUrl).toBe(RI_PLAY);
     expect(ld.operatingSystem).toBe('Android, iOS');
     await expect(page.locator(`.hero-copy a.store[href="${RI_PLAY}"]`)).toBeVisible();
     await expect(page.locator('.hero-copy a.inline-link')).toHaveCount(0);
