@@ -171,19 +171,19 @@ for (const path of ['/', '/en/']) {
   });
 }
 
-// Roast Interview is live on the App Store for iPhone; Android is still coming soon.
+// Roast Interview is live on the App Store for iPhone and on Google Play for Android.
 const RI_APP_STORE = 'https://apps.apple.com/app/id6832640298';
+const RI_PLAY = 'https://play.google.com/store/apps/details?id=com.roastinterview.app';
 for (const path of ['/roast-interview/', '/roast-interview/es/']) {
   test(`${path} links Roast Interview's App Store listing`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator(`.hero-copy a.store[href="${RI_APP_STORE}"]`)).toBeVisible();
-    await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_APP_STORE);
+    await expect(page.locator('.nav-cta')).toHaveAttribute('href', RI_PLAY);
     const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
     expect(ld.installUrl).toBe(RI_APP_STORE);
     expect(ld.operatingSystem).toBe('Android, iOS');
-    // The Android notify link must carry a real label, never a missing-value placeholder.
-    const notify = page.locator('.hero-copy a.inline-link').first();
-    await expect(notify).toHaveText(/Android/);
+    await expect(page.locator(`.hero-copy a.store[href="${RI_PLAY}"]`)).toBeVisible();
+    await expect(page.locator('.hero-copy a.inline-link')).toHaveCount(0);
     await expect(page.locator('.nav-cta')).toHaveText(path.includes('/es/') ? 'Descargar' : 'Get the app');
   });
 }
@@ -191,6 +191,7 @@ for (const path of ['/apps/', '/en/apps/']) {
   test(`${path} Roast Interview card links its App Store listing`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator(`a.store[href="${RI_APP_STORE}"]`).first()).toBeAttached();
+    await expect(page.locator(`a.store[href="${RI_PLAY}"]`).first()).toBeAttached();
   });
 }
 
